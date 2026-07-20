@@ -1,0 +1,10 @@
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "marketing/brand/bangunin-icon-1024.png"
+  min_sdk_android: 21
+  # Full-bleed art (no transparency), so the adaptive background color is
+  # never actually visible — kept for correctness if the art changes later.
+  adaptive_icon_background: "#0E1630"
+  adaptive_icon_foreground: "marketing/brand/bangunin-icon-1024.png"
+  remove_alpha_ios: true
