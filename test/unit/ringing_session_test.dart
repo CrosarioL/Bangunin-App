@@ -17,16 +17,33 @@ import 'package:wakio/features/stats/data/wake_stats_repository_impl.dart';
 /// Never touches a real AudioPlayer/platform channel — just records calls.
 class _FakeAudioService implements AlarmAudioService {
   bool ringing = false;
+  bool missionMode = false;
   int startCount = 0;
 
   @override
   Future<void> startRinging(Alarm alarm) async {
     ringing = true;
+    missionMode = false;
     startCount++;
   }
 
   @override
-  Future<void> stopRinging() async => ringing = false;
+  Future<void> stopRinging() async {
+    ringing = false;
+    missionMode = false;
+  }
+
+  @override
+  Future<void> enterMissionMode(Alarm alarm) async {
+    ringing = true;
+    missionMode = true;
+  }
+
+  @override
+  Future<void> exitMissionMode(Alarm alarm) async {
+    ringing = true;
+    missionMode = false;
+  }
 
   @override
   Future<void> preview(AlarmSound sound, {String? customPath}) async {}
@@ -65,13 +82,13 @@ void main() {
   late _FakeAlarmScheduler scheduler;
 
   Alarm testAlarm({int maxSnoozes = 2}) => Alarm(
-        id: 'ring-test',
-        hour: 7,
-        minute: 0,
-        maxSnoozes: maxSnoozes,
-        snoozeMinutes: 5,
-        createdAt: DateTime(2026),
-      );
+    id: 'ring-test',
+    hour: 7,
+    minute: 0,
+    maxSnoozes: maxSnoozes,
+    snoozeMinutes: 5,
+    createdAt: DateTime(2026),
+  );
 
   setUp(() async {
     tempDir = await Directory.systemTemp.createTemp('wakio_ringing_test');
@@ -123,62 +140,79 @@ void main() {
     expect(session.snoozeCount, 2);
     expect(session.canSnooze, isFalse);
     expect(await notifier.snooze(), isFalse);
-    expect(scheduler.snoozeCallCount, 2, reason: 'snooze() must be a no-op past the limit');
-  });
-
-  test('completing a wake resets the snooze count for the next occurrence',
-      () async {
-    await alarmRepository.upsert(
-      testAlarm(maxSnoozes: 1).copyWith(repeatDays: {DateTime.monday}),
+    expect(
+      scheduler.snoozeCallCount,
+      2,
+      reason: 'snooze() must be a no-op past the limit',
     );
-    final notifier = container.read(ringingSessionProvider.notifier);
-
-    await notifier.begin('ring-test');
-    await notifier.snooze();
-    await notifier.begin('ring-test');
-    expect(container.read(ringingSessionProvider)!.snoozeCount, 1);
-    await notifier.complete();
-
-    // Next day's occurrence starts fresh.
-    await notifier.begin('ring-test');
-    expect(container.read(ringingSessionProvider)!.snoozeCount, 0);
   });
 
-  test('begin() starts audio and complete() records a wake + stops audio',
-      () async {
-    await alarmRepository.upsert(testAlarm());
-    final notifier = container.read(ringingSessionProvider.notifier);
+  test(
+    'completing a wake resets the snooze count for the next occurrence',
+    () async {
+      await alarmRepository.upsert(
+        testAlarm(maxSnoozes: 1).copyWith(repeatDays: {DateTime.monday}),
+      );
+      final notifier = container.read(ringingSessionProvider.notifier);
 
-    await notifier.begin('ring-test');
-    expect(audioService.ringing, isTrue);
+      await notifier.begin('ring-test');
+      await notifier.snooze();
+      await notifier.begin('ring-test');
+      expect(container.read(ringingSessionProvider)!.snoozeCount, 1);
+      await notifier.complete();
 
-    await notifier.complete();
-    expect(audioService.ringing, isFalse);
-    expect(container.read(ringingSessionProvider), isNull);
+      // Next day's occurrence starts fresh.
+      await notifier.begin('ring-test');
+      expect(container.read(ringingSessionProvider)!.snoozeCount, 0);
+    },
+  );
 
-    final records = await container.read(wakeStatsRepositoryProvider).getAll();
-    expect(records, hasLength(1));
-    expect(records.single.alarmId, 'ring-test');
-  });
+  test(
+    'begin() starts audio and complete() records a wake + stops audio',
+    () async {
+      await alarmRepository.upsert(testAlarm());
+      final notifier = container.read(ringingSessionProvider.notifier);
 
-  test('begin() for a deleted alarm returns null without starting audio',
-      () async {
-    final notifier = container.read(ringingSessionProvider.notifier);
-    final result = await notifier.begin('does-not-exist');
-    expect(result, isNull);
-    expect(audioService.ringing, isFalse);
-  });
+      await notifier.begin('ring-test');
+      expect(audioService.ringing, isTrue);
 
-  test('pauseForMission stops audio without clearing the session', () async {
-    await alarmRepository.upsert(testAlarm());
-    final notifier = container.read(ringingSessionProvider.notifier);
+      await notifier.complete();
+      expect(audioService.ringing, isFalse);
+      expect(container.read(ringingSessionProvider), isNull);
 
-    await notifier.begin('ring-test');
-    await notifier.pauseForMission();
-    expect(audioService.ringing, isFalse);
-    expect(container.read(ringingSessionProvider), isNotNull);
+      final records = await container
+          .read(wakeStatsRepositoryProvider)
+          .getAll();
+      expect(records, hasLength(1));
+      expect(records.single.alarmId, 'ring-test');
+    },
+  );
 
-    await notifier.resumeRinging();
-    expect(audioService.ringing, isTrue);
-  });
+  test(
+    'begin() for a deleted alarm returns null without starting audio',
+    () async {
+      final notifier = container.read(ringingSessionProvider.notifier);
+      final result = await notifier.begin('does-not-exist');
+      expect(result, isNull);
+      expect(audioService.ringing, isFalse);
+    },
+  );
+
+  test(
+    'pauseForMission keeps reduced alarm audio and session active',
+    () async {
+      await alarmRepository.upsert(testAlarm());
+      final notifier = container.read(ringingSessionProvider.notifier);
+
+      await notifier.begin('ring-test');
+      await notifier.pauseForMission();
+      expect(audioService.ringing, isTrue);
+      expect(audioService.missionMode, isTrue);
+      expect(container.read(ringingSessionProvider), isNotNull);
+
+      await notifier.resumeRinging();
+      expect(audioService.ringing, isTrue);
+      expect(audioService.missionMode, isFalse);
+    },
+  );
 }

@@ -38,8 +38,7 @@ abstract class Alarm with _$Alarm {
 
   /// The next moment this alarm should fire, strictly after [from].
   DateTime nextTrigger(DateTime from) {
-    var candidate =
-        DateTime(from.year, from.month, from.day, hour, minute);
+    var candidate = DateTime(from.year, from.month, from.day, hour, minute);
     if (!candidate.isAfter(from)) {
       candidate = candidate.add(const Duration(days: 1));
     }
@@ -59,9 +58,9 @@ enum AlarmSound {
   custom;
 
   String get assetPath => switch (this) {
-        classic => 'assets/sounds/classic.wav',
-        sunrise => 'assets/sounds/sunrise.wav',
-        pulse => 'assets/sounds/pulse.wav',
-        custom => '',
-      };
+    classic => 'assets/sounds/classic.wav',
+    sunrise => 'assets/sounds/sunrise.wav',
+    pulse => 'assets/sounds/pulse.wav',
+    custom => '',
+  };
 }

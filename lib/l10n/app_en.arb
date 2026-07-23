@@ -111,17 +111,17 @@
   "photoInstructionObject": "Find your registered object and photograph it.",
   "photoInstructionSky": "Step outside and point your camera at the sky.",
   "photoInstructionGrass": "Find grass or a plant and photograph it.",
-  "photoInstructionBed": "Make your bed, then photograph it.",
+  "photoInstructionBed": "Make your bed neatly, then fit the whole bed inside the guide.",
 
-  "movementInstructionSquats": "Hold your phone against your chest and do squats.",
-  "movementInstructionPushups": "Hold your phone in one hand and do pushups.",
+  "movementInstructionSquats": "Prop your phone upright, step back, and keep your whole body in view.",
+  "movementInstructionPushups": "Prop your phone on its side and do normal two-handed push-ups.",
   "repsOf": "of {target}",
   "@repsOf": {
     "placeholders": {
       "target": {"type": "int"}
     }
   },
-  "movementHint": "Move at a steady pace. Rushed shakes don't count.",
+  "movementHint": "Keep your full body visible. Only complete, correctly formed reps count.",
 
   "notificationDefaultTitle": "Wake up!",
   "notificationBodyNoMission": "Time to get up.",
@@ -181,6 +181,7 @@
     }
   },
   "restorePurchases": "Restore purchases",
+  "manageSubscription": "Manage or cancel subscription",
   "paywallLegal": "Auto-renews until cancelled. Cancel anytime in your store account settings.",
   "purchaseFailed": "Purchase didn't complete. You haven't been charged.",
   "paywallLoadError": "Plans couldn't be loaded.\nCheck your connection and try again.",
@@ -319,6 +320,10 @@
   },
   "paywallCtaNoTrial": "Continue",
   "noPaymentNow": "No payment due now",
+  "trialThenMonthly": "Then {price} per month unless cancelled.",
+  "@trialThenMonthly": {"placeholders": {"price": {"type": "String"}}},
+  "trialThenYearly": "Then {price} per year unless cancelled.",
+  "@trialThenYearly": {"placeholders": {"price": {"type": "String"}}},
 
   "settingsOurStory": "Our story",
   "founderStoryTitle": "Why Bangunin exists",

@@ -1,8 +1,8 @@
-# Matches Runner.xcodeproj's IPHONEOS_DEPLOYMENT_TARGET. 15.0 floor: the
+# Matches Runner.xcodeproj's IPHONEOS_DEPLOYMENT_TARGET. 15.5 floor: the
 # ringing notification uses InterruptionLevel.timeSensitive, which needs
 # iOS 15+ to take effect (silently ignored, not broken, on older versions —
 # but there's no reason to support an alarm app that can't reliably alert).
-platform :ios, '15.0'
+platform :ios, '15.5'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'

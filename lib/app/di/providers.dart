@@ -13,6 +13,7 @@ import '../../core/storage/local_store.dart';
 import '../../features/alarms/data/alarm_repository_impl.dart';
 import '../../features/alarms/data/alarm_scheduler.dart';
 import '../../features/alarms/domain/repositories/alarm_repository.dart';
+import '../../features/missions/data/image_label_service.dart';
 import '../../features/missions/data/photo_mission_verifier.dart';
 import '../../features/stats/data/wake_stats_repository_impl.dart';
 import '../../features/stats/domain/repositories/wake_stats_repository.dart';
@@ -78,3 +79,9 @@ final alarmSchedulerProvider = Provider<AlarmScheduler>(
 final photoMissionVerifierProvider = Provider<PhotoMissionVerifier>(
   (ref) => const PhotoMissionVerifier(),
 );
+
+final imageLabelServiceProvider = Provider<ImageLabelService>((ref) {
+  final service = ImageLabelService();
+  ref.onDispose(service.dispose);
+  return service;
+});

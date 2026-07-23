@@ -83,11 +83,11 @@
   "photoInstructionObject": "Encuentra tu objeto registrado y fotografíalo.",
   "photoInstructionSky": "Sal y apunta la cámara al cielo.",
   "photoInstructionGrass": "Encuentra hierba o una planta y fotografíala.",
-  "photoInstructionBed": "Haz tu cama y luego fotografíala.",
-  "movementInstructionSquats": "Sujeta el teléfono contra el pecho y haz sentadillas.",
-  "movementInstructionPushups": "Sujeta el teléfono con una mano y haz flexiones.",
+  "photoInstructionBed": "Haz bien la cama y encuádrela entera dentro de la guía.",
+  "movementInstructionSquats": "Apoya el teléfono en vertical, aléjate y mantén todo el cuerpo visible.",
+  "movementInstructionPushups": "Apoya el teléfono de lado y haz flexiones normales con las dos manos.",
   "repsOf": "de {target}",
-  "movementHint": "Muévete a ritmo constante: las sacudidas no cuentan.",
+  "movementHint": "Mantén todo el cuerpo visible. Solo cuentan las repeticiones completas y correctas.",
   "notificationDefaultTitle": "¡Despierta!",
   "notificationBodyNoMission": "Hora de levantarse.",
   "notificationBodyMission": "Completa tu misión para detener la alarma.",
@@ -132,6 +132,7 @@
   "bestValue": "MEJOR PRECIO",
   "pricePerYear": "{price} al año",
   "restorePurchases": "Restaurar compras",
+  "manageSubscription": "Gestionar o cancelar suscripción",
   "paywallLegal": "Se renueva automáticamente hasta cancelarse. Cancela cuando quieras en los ajustes de tu cuenta.",
   "purchaseFailed": "La compra no se completó. No se te ha cobrado.",
   "paywallLoadError": "No se pudieron cargar los planes.\nComprueba tu conexión e inténtalo de nuevo.",
@@ -208,4 +209,6 @@
   "paywallCtaTrial": "Comenzar mi prueba gratis de {days} días",
   "paywallCtaNoTrial": "Continuar",
   "noPaymentNow": "Sin pago ahora"
+  ,"trialThenMonthly": "Después, {price} al mes salvo cancelación."
+  ,"trialThenYearly": "Después, {price} al año salvo cancelación."
 }

@@ -1,3 +1,4 @@
+import '../../missions/domain/mission_type.dart';
 import 'entities/wake_record.dart';
 
 /// Pure streak/stat math over wake records. Kept free of Flutter imports so
@@ -8,7 +9,7 @@ abstract final class StreakCalculator {
   static int currentStreak(List<WakeRecord> records, {DateTime? now}) {
     final today = _day(now ?? DateTime.now());
     final successDays = records
-        .where((r) => r.success)
+        .where(_qualifiesForStreak)
         .map((r) => _day(r.dismissedAt))
         .toSet();
     if (successDays.isEmpty) return 0;
@@ -25,12 +26,13 @@ abstract final class StreakCalculator {
   }
 
   static int bestStreak(List<WakeRecord> records) {
-    final days = records
-        .where((r) => r.success)
-        .map((r) => _day(r.dismissedAt))
-        .toSet()
-        .toList()
-      ..sort();
+    final days =
+        records
+            .where(_qualifiesForStreak)
+            .map((r) => _day(r.dismissedAt))
+            .toSet()
+            .toList()
+          ..sort();
     var best = 0;
     var run = 0;
     DateTime? prev;
@@ -54,14 +56,11 @@ abstract final class StreakCalculator {
   }
 
   /// Days of the current month (1-based) with a successful wake.
-  static Set<int> successDaysInMonth(
-    List<WakeRecord> records,
-    DateTime month,
-  ) {
+  static Set<int> successDaysInMonth(List<WakeRecord> records, DateTime month) {
     return records
         .where(
           (r) =>
-              r.success &&
+              _qualifiesForStreak(r) &&
               r.dismissedAt.year == month.year &&
               r.dismissedAt.month == month.month,
         )
@@ -70,4 +69,9 @@ abstract final class StreakCalculator {
   }
 
   static DateTime _day(DateTime dt) => DateTime(dt.year, dt.month, dt.day);
+
+  /// A tap-to-dismiss alarm is still included in wake-time statistics, but a
+  /// streak represents a completed wake mission rather than opening the app.
+  static bool _qualifiesForStreak(WakeRecord record) =>
+      record.success && record.missionType != MissionType.none;
 }

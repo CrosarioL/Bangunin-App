@@ -275,15 +275,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'Find grass or a plant and photograph it.';
 
   @override
-  String get photoInstructionBed => 'Make your bed, then photograph it.';
+  String get photoInstructionBed =>
+      'Make your bed neatly, then fit the whole bed inside the guide.';
 
   @override
   String get movementInstructionSquats =>
-      'Hold your phone against your chest and do squats.';
+      'Prop your phone upright, step back, and keep your whole body in view.';
 
   @override
   String get movementInstructionPushups =>
-      'Hold your phone in one hand and do pushups.';
+      'Prop your phone on its side and do normal two-handed push-ups.';
 
   @override
   String repsOf(int target) {
@@ -292,7 +293,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get movementHint =>
-      'Move at a steady pace. Rushed shakes don\'t count.';
+      'Keep your full body visible. Only complete, correctly formed reps count.';
 
   @override
   String get notificationDefaultTitle => 'Wake up!';
@@ -442,6 +443,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get restorePurchases => 'Restore purchases';
+
+  @override
+  String get manageSubscription => 'Manage or cancel subscription';
 
   @override
   String get paywallLegal =>
@@ -706,6 +710,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noPaymentNow => 'No payment due now';
+
+  @override
+  String trialThenMonthly(String price) {
+    return 'Then $price per month unless cancelled.';
+  }
+
+  @override
+  String trialThenYearly(String price) {
+    return 'Then $price per year unless cancelled.';
+  }
 
   @override
   String get settingsOurStory => 'Our story';

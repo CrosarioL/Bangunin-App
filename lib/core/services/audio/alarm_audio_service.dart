@@ -16,6 +16,25 @@ class AlarmAudioService {
 
   bool get isPlaying => _playing;
 
+  /// Keeps the alarm audible while the user completes a mission, but at a
+  /// level that does not drown out camera positioning and form guidance.
+  Future<void> enterMissionMode(Alarm alarm) async {
+    if (!_playing) {
+      await startRinging(alarm);
+    }
+    final missionVolume = (alarm.volume * 0.28).clamp(0.08, 0.30).toDouble();
+    await _player.setVolume(missionVolume);
+  }
+
+  /// Restores the alarm's configured volume when the mission is abandoned.
+  Future<void> exitMissionMode(Alarm alarm) async {
+    if (!_playing) {
+      await startRinging(alarm);
+      return;
+    }
+    await _player.setVolume(alarm.volume);
+  }
+
   /// iOS: `.playback` category so the alarm ignores the silent switch and
   /// keeps playing when the app is backgrounded (paired with the `audio`
   /// UIBackgroundMode). Android: `alarm` usage + exclusive audio focus so
@@ -45,8 +64,9 @@ class AlarmAudioService {
     if (alarm.sound == AlarmSound.custom && customPath != null) {
       await _player.play(DeviceFileSource(customPath));
     } else {
-      final sound =
-          alarm.sound == AlarmSound.custom ? AlarmSound.classic : alarm.sound;
+      final sound = alarm.sound == AlarmSound.custom
+          ? AlarmSound.classic
+          : alarm.sound;
       // AssetSource paths are relative to the assets/ folder.
       await _player.play(
         AssetSource(sound.assetPath.replaceFirst('assets/', '')),

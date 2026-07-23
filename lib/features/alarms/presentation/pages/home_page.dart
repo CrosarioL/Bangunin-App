@@ -255,8 +255,7 @@ class _HeaderState extends State<_Header> {
                                 TimeFormat.countdown(
                                   nextAt.difference(DateTime.now()),
                                 ),
-                                style: theme.textTheme.headlineMedium!
-                                    .copyWith(
+                                style: theme.textTheme.headlineMedium!.copyWith(
                                   color: AppColors.primary,
                                   fontWeight: FontWeight.w800,
                                 ),

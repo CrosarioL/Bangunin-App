@@ -16,6 +16,11 @@ abstract class WakeRecord with _$WakeRecord {
     required MissionType missionType,
     @Default(0) int snoozeCount,
     @Default(true) bool success,
+    DateTime? ringingStartedAt,
+    @Default(0) int missionDurationSeconds,
+    @Default(0) int missionAttempts,
+    @Default(0) int verifiedReps,
+    @Default('legacy') String verificationMethod,
   }) = _WakeRecord;
 
   factory WakeRecord.fromJson(Map<String, dynamic> json) =>

@@ -21,8 +21,9 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
   }
 
-  testWidgets('paywall lists yearly and monthly plans with trial CTA',
-      (tester) async {
+  testWidgets('paywall lists yearly and monthly plans with trial CTA', (
+    tester,
+  ) async {
     await useRealisticPhoneSurface(tester);
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
@@ -97,8 +98,7 @@ void main() {
     expect(service.isPremium.value, isTrue);
   });
 
-  testWidgets(
-      'every plan carries a trial: no toggle, and the timeline follows '
+  testWidgets('every plan carries a trial: no toggle, and the timeline follows '
       'whichever plan is selected', (tester) async {
     await useRealisticPhoneSurface(tester);
     SharedPreferences.setMockInitialValues({});
@@ -149,8 +149,9 @@ void main() {
     expect(find.text('Today'), findsOneWidget);
   });
 
-  testWidgets('personalized headline shows the saved first name',
-      (tester) async {
+  testWidgets('personalized headline shows the saved first name', (
+    tester,
+  ) async {
     await useRealisticPhoneSurface(tester);
     SharedPreferences.setMockInitialValues({'user_first_name': 'Alex'});
     final prefs = await SharedPreferences.getInstance();
@@ -171,8 +172,9 @@ void main() {
     expect(find.text('Never oversleep again'), findsNothing);
   });
 
-  testWidgets('generic headline shown when no first name is saved',
-      (tester) async {
+  testWidgets('generic headline shown when no first name is saved', (
+    tester,
+  ) async {
     await useRealisticPhoneSurface(tester);
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();

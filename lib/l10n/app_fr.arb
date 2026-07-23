@@ -83,11 +83,11 @@
   "photoInstructionObject": "Retrouvez votre objet enregistré et photographiez-le.",
   "photoInstructionSky": "Sortez et pointez l'appareil vers le ciel.",
   "photoInstructionGrass": "Trouvez de l'herbe ou une plante et photographiez-la.",
-  "photoInstructionBed": "Faites votre lit, puis photographiez-le.",
-  "movementInstructionSquats": "Tenez le téléphone contre votre poitrine et faites des squats.",
-  "movementInstructionPushups": "Tenez le téléphone d'une main et faites des pompes.",
+  "photoInstructionBed": "Faites votre lit soigneusement, puis cadrez-le entièrement dans le guide.",
+  "movementInstructionSquats": "Posez le téléphone debout, reculez et gardez tout votre corps visible.",
+  "movementInstructionPushups": "Posez le téléphone sur le côté et faites des pompes normales à deux mains.",
   "repsOf": "sur {target}",
-  "movementHint": "Bougez à un rythme régulier. Les secousses ne comptent pas.",
+  "movementHint": "Gardez tout votre corps visible. Seules les répétitions complètes et correctes comptent.",
   "notificationDefaultTitle": "Debout !",
   "notificationBodyNoMission": "Il est temps de se lever.",
   "notificationBodyMission": "Terminez votre mission pour arrêter l'alarme.",
@@ -132,6 +132,7 @@
   "bestValue": "MEILLEURE OFFRE",
   "pricePerYear": "{price} par an",
   "restorePurchases": "Restaurer les achats",
+  "manageSubscription": "Gérer ou annuler l'abonnement",
   "paywallLegal": "Renouvellement automatique jusqu'à annulation. Annulable à tout moment dans les réglages de votre compte.",
   "purchaseFailed": "L'achat n'a pas abouti. Vous n'avez pas été débité.",
   "paywallLoadError": "Impossible de charger les offres.\nVérifiez votre connexion et réessayez.",
@@ -208,4 +209,6 @@
   "paywallCtaTrial": "Commencer mon essai gratuit de {days} jours",
   "paywallCtaNoTrial": "Continuer",
   "noPaymentNow": "Aucun paiement pour l'instant"
+  ,"trialThenMonthly": "Puis {price} par mois sauf annulation."
+  ,"trialThenYearly": "Puis {price} par an sauf annulation."
 }

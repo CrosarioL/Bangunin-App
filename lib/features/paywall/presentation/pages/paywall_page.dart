@@ -207,6 +207,18 @@ class _PaywallPageState extends ConsumerState<PaywallPage> {
                           ),
                         ],
                       ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Center(
+                        child: Text(
+                          selected.period == 'year'
+                              ? l10n.trialThenYearly(selected.price)
+                              : l10n.trialThenMonthly(selected.price),
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodySmall!.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
                     ],
                     const SizedBox(height: AppSpacing.sm),
                     Center(

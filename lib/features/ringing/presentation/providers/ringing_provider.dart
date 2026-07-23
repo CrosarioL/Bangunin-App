@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import '../../../../app/di/providers.dart';
 import '../../../../core/services/analytics/analytics_service.dart';
 import '../../../alarms/domain/entities/alarm.dart';
+import '../../../missions/domain/mission_type.dart';
 import '../../../stats/domain/entities/wake_record.dart';
 
 /// Watches the clock while the app is foregrounded and reports alarms that
@@ -53,26 +54,29 @@ class RingingSession {
     required this.alarm,
     required this.startedAt,
     this.snoozeCount = 0,
+    this.missionAttempts = 0,
   });
 
   final Alarm alarm;
   final DateTime startedAt;
   final int snoozeCount;
+  final int missionAttempts;
 
-  bool get canSnooze =>
-      alarm.snoozeEnabled && snoozeCount < alarm.maxSnoozes;
+  bool get canSnooze => alarm.snoozeEnabled && snoozeCount < alarm.maxSnoozes;
 
-  RingingSession copyWith({int? snoozeCount}) => RingingSession(
+  RingingSession copyWith({int? snoozeCount, int? missionAttempts}) =>
+      RingingSession(
         alarm: alarm,
         startedAt: startedAt,
         snoozeCount: snoozeCount ?? this.snoozeCount,
+        missionAttempts: missionAttempts ?? this.missionAttempts,
       );
 }
 
 final ringingSessionProvider =
     NotifierProvider<RingingSessionNotifier, RingingSession?>(
-  RingingSessionNotifier.new,
-);
+      RingingSessionNotifier.new,
+    );
 
 class RingingSessionNotifier extends Notifier<RingingSession?> {
   static const _uuid = Uuid();
@@ -101,30 +105,38 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
     );
     await ref.read(alarmAudioServiceProvider).startRinging(alarm);
     unawaited(
-      ref.read(analyticsProvider).logEvent(
-        AnalyticsEvents.alarmRinging,
-        {'mission': alarm.missionType.name},
-      ),
+      ref.read(analyticsProvider).logEvent(AnalyticsEvents.alarmRinging, {
+        'mission': alarm.missionType.name,
+      }),
     );
     return alarm;
   }
 
-  /// Silences the alarm while a mission is being attempted. The session
-  /// stays active so abandoning the mission resumes ringing.
+  /// Lowers, but never silences, the alarm while a mission is attempted.
+  /// The session stays active so abandoning the mission restores full volume.
   Future<void> pauseForMission() async {
-    await ref.read(alarmAudioServiceProvider).stopRinging();
+    final session = state;
+    if (session == null) return;
+    await ref.read(alarmAudioServiceProvider).enterMissionMode(session.alarm);
     unawaited(
-      ref.read(analyticsProvider).logEvent(
-        AnalyticsEvents.missionStarted,
-        {'mission': state?.alarm.missionType.name},
-      ),
+      ref.read(analyticsProvider).logEvent(AnalyticsEvents.missionStarted, {
+        'mission': state?.alarm.missionType.name,
+      }),
     );
   }
 
   Future<void> resumeRinging() async {
     final session = state;
     if (session == null) return;
-    await ref.read(alarmAudioServiceProvider).startRinging(session.alarm);
+    await ref.read(alarmAudioServiceProvider).exitMissionMode(session.alarm);
+  }
+
+  /// Records each submitted photo attempt. Movement missions are recorded as
+  /// one verified attempt on completion because their frames are continuous.
+  Future<void> recordMissionAttempt() async {
+    final session = state;
+    if (session == null) return;
+    state = session.copyWith(missionAttempts: session.missionAttempts + 1);
   }
 
   Future<bool> snooze() async {
@@ -136,10 +148,9 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
         .scheduleSnooze(session.alarm, session.alarm.snoozeMinutes);
     _snoozeCounts[session.alarm.id] = session.snoozeCount + 1;
     unawaited(
-      ref.read(analyticsProvider).logEvent(
-        AnalyticsEvents.alarmSnoozed,
-        {'count': session.snoozeCount + 1},
-      ),
+      ref.read(analyticsProvider).logEvent(AnalyticsEvents.alarmSnoozed, {
+        'count': session.snoozeCount + 1,
+      }),
     );
     // Snoozing hands control back to the OS notification.
     state = null;
@@ -148,21 +159,38 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
 
   /// Mission passed (or no mission): stop audio, record the wake, clear the
   /// session, resync future occurrences.
-  Future<void> complete() async {
+  Future<void> complete({
+    int verifiedReps = 0,
+    String? verificationMethod,
+  }) async {
     final session = state;
     if (session == null) return;
     await ref.read(alarmAudioServiceProvider).stopRinging();
 
     final alarm = session.alarm;
     _snoozeCounts.remove(alarm.id);
-    await ref.read(wakeStatsRepositoryProvider).add(
+    final dismissedAt = DateTime.now();
+    final hasMission = alarm.missionType != MissionType.none;
+    await ref
+        .read(wakeStatsRepositoryProvider)
+        .add(
           WakeRecord(
             id: _uuid.v4(),
             alarmId: alarm.id,
-            scheduledAt: session.startedAt,
-            dismissedAt: DateTime.now(),
+            scheduledAt: _scheduledOccurrence(alarm, session.startedAt),
+            dismissedAt: dismissedAt,
             missionType: alarm.missionType,
             snoozeCount: session.snoozeCount,
+            ringingStartedAt: session.startedAt,
+            missionDurationSeconds: dismissedAt
+                .difference(session.startedAt)
+                .inSeconds,
+            missionAttempts: hasMission
+                ? (session.missionAttempts == 0 ? 1 : session.missionAttempts)
+                : 0,
+            verifiedReps: verifiedReps,
+            verificationMethod:
+                verificationMethod ?? (hasMission ? 'mission' : 'tap'),
           ),
         );
 
@@ -176,11 +204,26 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
     await ref.read(alarmSchedulerProvider).reschedule(alarms);
 
     unawaited(
-      ref.read(analyticsProvider).logEvent(
-        AnalyticsEvents.missionCompleted,
-        {'mission': alarm.missionType.name},
-      ),
+      ref.read(analyticsProvider).logEvent(AnalyticsEvents.missionCompleted, {
+        'mission': alarm.missionType.name,
+      }),
     );
     state = null;
+  }
+
+  DateTime _scheduledOccurrence(Alarm alarm, DateTime startedAt) {
+    var scheduled = DateTime(
+      startedAt.year,
+      startedAt.month,
+      startedAt.day,
+      alarm.hour,
+      alarm.minute,
+    );
+    // If a delayed notification is opened shortly after midnight, its clock
+    // time belongs to the previous day rather than tomorrow.
+    if (scheduled.isAfter(startedAt.add(const Duration(minutes: 2)))) {
+      scheduled = scheduled.subtract(const Duration(days: 1));
+    }
+    return scheduled;
   }
 }

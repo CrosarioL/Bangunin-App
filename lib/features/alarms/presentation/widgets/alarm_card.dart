@@ -64,10 +64,7 @@ class AlarmCard extends StatelessWidget {
               ),
             ),
           ),
-          Switch(
-            value: alarm.enabled,
-            onChanged: onToggle,
-          ),
+          Switch(value: alarm.enabled, onChanged: onToggle),
         ],
       ),
     );
@@ -155,9 +152,9 @@ class _MissionChip extends StatelessWidget {
             Text(
               mission.localizedName(l10n),
               style: Theme.of(context).textTheme.labelSmall!.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
+                color: AppColors.primary,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ],
         ),
@@ -168,12 +165,12 @@ class _MissionChip extends StatelessWidget {
 
 extension MissionTypeL10n on MissionType {
   String localizedName(AppLocalizations l10n) => switch (this) {
-        MissionType.none => l10n.missionNone,
-        MissionType.objectHunt => l10n.missionObjectHunt,
-        MissionType.skyPhoto => l10n.missionSkyPhoto,
-        MissionType.grassPhoto => l10n.missionGrassPhoto,
-        MissionType.makeBed => l10n.missionMakeBed,
-        MissionType.squats => l10n.missionSquats,
-        MissionType.pushups => l10n.missionPushups,
-      };
+    MissionType.none => l10n.missionNone,
+    MissionType.objectHunt => l10n.missionObjectHunt,
+    MissionType.skyPhoto => l10n.missionSkyPhoto,
+    MissionType.grassPhoto => l10n.missionGrassPhoto,
+    MissionType.makeBed => l10n.missionMakeBed,
+    MissionType.squats => l10n.missionSquats,
+    MissionType.pushups => l10n.missionPushups,
+  };
 }

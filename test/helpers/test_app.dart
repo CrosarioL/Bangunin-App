@@ -6,10 +6,7 @@ import 'package:wakio/l10n/gen/app_localizations.dart';
 
 /// Wraps a widget in the app chrome (theme + localizations + ProviderScope)
 /// for widget tests.
-Widget testApp({
-  required Widget child,
-  List<Override> overrides = const [],
-}) {
+Widget testApp({required Widget child, List<Override> overrides = const []}) {
   return ProviderScope(
     overrides: overrides,
     child: MaterialApp(

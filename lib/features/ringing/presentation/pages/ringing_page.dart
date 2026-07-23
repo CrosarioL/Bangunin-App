@@ -37,8 +37,10 @@ class _RingingPageState extends ConsumerState<RingingPage>
     duration: const Duration(milliseconds: 1400),
   )..repeat(reverse: true);
 
-  late final Animation<double> _pulseOpacity =
-      Tween<double>(begin: 0.55, end: 1).animate(_pulse);
+  late final Animation<double> _pulseOpacity = Tween<double>(
+    begin: 0.55,
+    end: 1,
+  ).animate(_pulse);
   late final Animation<double> _pulseScale = Tween<double>(
     begin: 0.97,
     end: 1.03,
@@ -79,7 +81,6 @@ class _RingingPageState extends ConsumerState<RingingPage>
     return PopScope(
       canPop: false,
       child: Scaffold(
-
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.xl),
@@ -104,8 +105,8 @@ class _RingingPageState extends ConsumerState<RingingPage>
                   alarm == null
                       ? ''
                       : (alarm.label.isEmpty
-                          ? l10n.ringingWakeUp
-                          : alarm.label),
+                            ? l10n.ringingWakeUp
+                            : alarm.label),
                   style: theme.textTheme.headlineSmall!.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -140,9 +141,7 @@ class _RingingPageState extends ConsumerState<RingingPage>
                           alarm.snoozeMinutes,
                           alarm.maxSnoozes - (session?.snoozeCount ?? 0),
                         ),
-                        style: const TextStyle(
-                          color: AppColors.textSecondary,
-                        ),
+                        style: const TextStyle(color: AppColors.textSecondary),
                       ),
                     )
                   else
@@ -192,7 +191,10 @@ class _LiveClockState extends State<_LiveClock> {
   @override
   void initState() {
     super.initState();
-    _ticker = Timer.periodic(const Duration(seconds: 1), (_) => setState(() {}));
+    _ticker = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => setState(() {}),
+    );
   }
 
   @override
@@ -206,9 +208,9 @@ class _LiveClockState extends State<_LiveClock> {
     final now = TimeOfDay.now();
     return Text(
       TimeFormat.clock(context, now.hour, now.minute),
-      style: Theme.of(context).textTheme.displayLarge!.copyWith(
-            color: AppColors.textPrimary,
-          ),
+      style: Theme.of(
+        context,
+      ).textTheme.displayLarge!.copyWith(color: AppColors.textPrimary),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../config/app_config.dart';
@@ -55,9 +56,7 @@ abstract interface class SubscriptionService {
 
 class StoreSubscriptionService implements SubscriptionService {
   StoreSubscriptionService(this._prefs) {
-    _premium = ValueNotifier<bool>(
-      _prefs.getBool(_premiumKey) ?? false,
-    );
+    _premium = ValueNotifier<bool>(_prefs.getBool(_premiumKey) ?? false);
     _purchaseSub = InAppPurchase.instance.purchaseStream.listen(
       _onPurchaseUpdates,
     );
@@ -76,21 +75,55 @@ class StoreSubscriptionService implements SubscriptionService {
   @override
   Future<List<PremiumPlan>> loadPlans() async {
     if (!await InAppPurchase.instance.isAvailable()) return const [];
-    final response = await InAppPurchase.instance
-        .queryProductDetails(AppConfig.allProductIds);
-    return response.productDetails
-        .map(
-          (details) => PremiumPlan(
-            productId: details.id,
-            price: details.price,
-            period:
-                details.id == AppConfig.monthlyProductId ? 'month' : 'year',
-            // Every plan carries the free trial now, not just yearly.
-            trialDays: AppConfig.trialDays,
-            productDetails: details,
-          ),
-        )
-        .toList();
+    final response = await InAppPurchase.instance.queryProductDetails(
+      AppConfig.allProductIds,
+    );
+    final plans = <String, PremiumPlan>{};
+    for (final details in response.productDetails) {
+      final plan = _planFromStoreDetails(details);
+      final current = plans[details.id];
+      // Play may return a base plan and one or more offers. Prefer the offer
+      // with a real trial; otherwise keep the first purchasable base plan.
+      if (current == null || (!current.hasTrial && plan.hasTrial)) {
+        plans[details.id] = plan;
+      }
+    }
+    return plans.values.toList();
+  }
+
+  PremiumPlan _planFromStoreDetails(ProductDetails details) {
+    var displayPrice = details.price;
+    var trialDays = 0;
+    if (details is GooglePlayProductDetails &&
+        details.subscriptionIndex != null) {
+      final index = details.subscriptionIndex!;
+      final offers = details.productDetails.subscriptionOfferDetails;
+      if (offers != null && index < offers.length) {
+        final phases = offers[index].pricingPhases;
+        final trial = phases.where((phase) => phase.priceAmountMicros == 0);
+        if (trial.isNotEmpty) {
+          trialDays = _isoPeriodDays(trial.first.billingPeriod);
+        }
+        final paid = phases.where((phase) => phase.priceAmountMicros > 0);
+        if (paid.isNotEmpty) displayPrice = paid.last.formattedPrice;
+      }
+    } else {
+      // StoreKit free-trial eligibility is finalized by Apple's purchase
+      // sheet. The configured offer is mirrored here for the iOS UI.
+      trialDays = AppConfig.trialDays;
+    }
+    return PremiumPlan(
+      productId: details.id,
+      price: displayPrice,
+      period: details.id == AppConfig.monthlyProductId ? 'month' : 'year',
+      trialDays: trialDays,
+      productDetails: details,
+    );
+  }
+
+  int _isoPeriodDays(String period) {
+    final match = RegExp(r'^P(\d+)D$').firstMatch(period);
+    return match == null ? 0 : int.tryParse(match.group(1)!) ?? 0;
   }
 
   @override
@@ -105,8 +138,10 @@ class StoreSubscriptionService implements SubscriptionService {
       _pendingPurchase = null;
       return false;
     }
-    return _pendingPurchase!.future
-        .timeout(const Duration(minutes: 5), onTimeout: () => false);
+    return _pendingPurchase!.future.timeout(
+      const Duration(minutes: 5),
+      onTimeout: () => false,
+    );
   }
 
   @override
@@ -152,7 +187,7 @@ class StoreSubscriptionService implements SubscriptionService {
 /// are: Indonesian devices see the IDR price tier, everyone else sees USD.
 class FakeSubscriptionService implements SubscriptionService {
   FakeSubscriptionService(this._prefs)
-      : _premium = ValueNotifier<bool>(_prefs.getBool(_key) ?? false);
+    : _premium = ValueNotifier<bool>(_prefs.getBool(_key) ?? false);
 
   static const _key = 'fake_premium_entitlement';
 

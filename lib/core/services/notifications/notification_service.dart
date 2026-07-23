@@ -8,7 +8,7 @@ import 'package:timezone/timezone.dart' as tz;
 /// via [selectedPayloads].
 class NotificationService {
   NotificationService([FlutterLocalNotificationsPlugin? plugin])
-      : _plugin = plugin ?? FlutterLocalNotificationsPlugin();
+    : _plugin = plugin ?? FlutterLocalNotificationsPlugin();
 
   final FlutterLocalNotificationsPlugin _plugin;
   final _selectedPayloads = StreamController<String>.broadcast();
@@ -23,7 +23,7 @@ class NotificationService {
 
   Future<void> initialize() async {
     const settings = InitializationSettings(
-      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      android: AndroidInitializationSettings('@mipmap/launcher_icon'),
       iOS: DarwinInitializationSettings(
         requestAlertPermission: false,
         requestBadgePermission: false,
@@ -47,8 +47,10 @@ class NotificationService {
   }
 
   Future<bool> requestPermission() async {
-    final ios = _plugin.resolvePlatformSpecificImplementation<
-        IOSFlutterLocalNotificationsPlugin>();
+    final ios = _plugin
+        .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin
+        >();
     if (ios != null) {
       return await ios.requestPermissions(
             alert: true,
@@ -57,11 +59,17 @@ class NotificationService {
           ) ??
           false;
     }
-    final android = _plugin.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
+    final android = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
     if (android != null) {
       final granted = await android.requestNotificationsPermission() ?? false;
       await android.requestExactAlarmsPermission();
+      // Android 14+ can revoke full-screen intents even when the manifest
+      // declares USE_FULL_SCREEN_INTENT. Without this separate grant the OS
+      // downgrades alarms to ordinary heads-up notifications.
+      await android.requestFullScreenIntentPermission();
       return granted;
     }
     return false;
@@ -88,6 +96,8 @@ class NotificationService {
           priority: Priority.max,
           category: AndroidNotificationCategory.alarm,
           fullScreenIntent: true,
+          ongoing: true,
+          autoCancel: false,
           audioAttributesUsage: AudioAttributesUsage.alarm,
         ),
         iOS: const DarwinNotificationDetails(

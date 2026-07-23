@@ -83,11 +83,11 @@
   "photoInstructionObject": "اعثر على الغرض المسجل وصوّره.",
   "photoInstructionSky": "اخرج ووجّه الكاميرا نحو السماء.",
   "photoInstructionGrass": "اعثر على عشب أو نبتة وصوّرها.",
-  "photoInstructionBed": "رتّب سريرك ثم صوّره.",
-  "movementInstructionSquats": "أمسك هاتفك على صدرك وقم بتمارين القرفصاء.",
-  "movementInstructionPushups": "أمسك هاتفك بيد واحدة وقم بتمارين الضغط.",
+  "photoInstructionBed": "رتّب سريرك جيدًا ثم ضع السرير كاملًا داخل الإطار.",
+  "movementInstructionSquats": "ثبّت هاتفك عموديًا، وابتعد للخلف، وأبقِ جسمك كاملًا في الصورة.",
+  "movementInstructionPushups": "ثبّت هاتفك على جانبه وقم بتمارين ضغط عادية بكلتا اليدين.",
   "repsOf": "من {target}",
-  "movementHint": "تحرّك بوتيرة ثابتة. الهزّ السريع لا يُحتسب.",
+  "movementHint": "أبقِ جسمك كاملًا ظاهرًا. لا تُحتسب إلا الحركات الكاملة بالشكل الصحيح.",
   "notificationDefaultTitle": "استيقظ!",
   "notificationBodyNoMission": "حان وقت النهوض.",
   "notificationBodyMission": "أكمل مهمتك لإيقاف المنبه.",
@@ -132,6 +132,7 @@
   "bestValue": "أفضل قيمة",
   "pricePerYear": "{price} سنويًا",
   "restorePurchases": "استعادة المشتريات",
+  "manageSubscription": "إدارة الاشتراك أو إلغاؤه",
   "paywallLegal": "يتجدد تلقائيًا حتى الإلغاء. يمكنك الإلغاء في أي وقت من إعدادات حسابك.",
   "purchaseFailed": "لم تكتمل عملية الشراء. لم يتم خصم أي مبلغ.",
   "paywallLoadError": "تعذّر تحميل الخطط.\nتحقق من اتصالك وحاول مجددًا.",
@@ -208,4 +209,6 @@
   "paywallCtaTrial": "ابدأ تجربتي المجانية لمدة {days} أيام",
   "paywallCtaNoTrial": "متابعة",
   "noPaymentNow": "لا دفع مطلوب الآن"
+  ,"trialThenMonthly": "ثم {price} شهريًا ما لم يتم الإلغاء."
+  ,"trialThenYearly": "ثم {price} سنويًا ما لم يتم الإلغاء."
 }
