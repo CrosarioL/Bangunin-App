@@ -14,7 +14,8 @@ enum PhotoVerdict { pass, fail, invalidImage }
 ///
 /// * Sky: the upper region must be bright and blue-dominant.
 /// * Grass: the frame must be green-dominant.
-/// * Bed: a valid, reasonably lit indoor photo (brightness sanity band).
+/// * Bed: a lit, detailed frame (paired with on-device semantic labeling in
+///   the mission page so a random bright photo cannot pass).
 /// * Object hunt: color-histogram similarity against the registered
 ///   reference photo.
 ///
@@ -65,11 +66,7 @@ class PhotoMissionVerifier {
   static img.Image? _decodeAndResize(Uint8List bytes) {
     final decoded = img.decodeImage(bytes);
     if (decoded == null) return null;
-    return img.copyResize(
-      decoded,
-      width: _analysisSize,
-      height: _analysisSize,
-    );
+    return img.copyResize(decoded, width: _analysisSize, height: _analysisSize);
   }
 
   PhotoVerdict _verifySky(img.Image photo) {
@@ -112,18 +109,23 @@ class PhotoMissionVerifier {
   }
 
   PhotoVerdict _verifyBed(img.Image photo) {
-    // Sanity band: not a pocket shot (near-black) and not a blown-out frame.
+    // Reject pocket/blown-out images and flat blank surfaces. Semantic bed
+    // recognition is performed separately by ImageLabelService.
     var brightness = 0.0;
+    var squared = 0.0;
     var samples = 0;
     for (var y = 0; y < photo.height; y++) {
       for (var x = 0; x < photo.width; x++) {
         final p = photo.getPixel(x, y);
-        brightness += (p.r + p.g + p.b) / 3;
+        final value = (p.r + p.g + p.b) / 3;
+        brightness += value;
+        squared += value * value;
         samples++;
       }
     }
     brightness /= samples;
-    return (brightness > 40 && brightness < 235)
+    final variance = squared / samples - brightness * brightness;
+    return (brightness > 40 && brightness < 235 && variance > 180)
         ? PhotoVerdict.pass
         : PhotoVerdict.fail;
   }
@@ -142,7 +144,8 @@ class PhotoMissionVerifier {
     for (var y = 0; y < photo.height; y++) {
       for (var x = 0; x < photo.width; x++) {
         final p = photo.getPixel(x, y);
-        final index = (p.r.toInt() >> 6) * 16 +
+        final index =
+            (p.r.toInt() >> 6) * 16 +
             (p.g.toInt() >> 6) * 4 +
             (p.b.toInt() >> 6);
         bins[index]++;

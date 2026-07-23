@@ -23,7 +23,9 @@ class AppShell extends StatelessWidget {
           color: isDark ? AppColors.surface : AppColors.surfaceLight,
           border: Border(
             top: BorderSide(
-              color: isDark ? AppColors.surfaceEdge : AppColors.surfaceEdgeLight,
+              color: isDark
+                  ? AppColors.surfaceEdge
+                  : AppColors.surfaceEdgeLight,
               width: 2,
             ),
           ),
@@ -32,10 +34,7 @@ class AppShell extends StatelessWidget {
           selectedIndex: shell.currentIndex,
           onDestinationSelected: (index) {
             Haptics.selection();
-            shell.goBranch(
-              index,
-              initialLocation: index == shell.currentIndex,
-            );
+            shell.goBranch(index, initialLocation: index == shell.currentIndex);
           },
           destinations: [
             NavigationDestination(

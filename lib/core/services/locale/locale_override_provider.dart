@@ -20,9 +20,7 @@ class LocaleOverrideNotifier extends Notifier<Locale?> {
     if (code == null) return null;
     final locale = Locale(code);
     // Guard against a stale saved code from a since-dropped locale.
-    return AppLocalizations.supportedLocales.contains(locale)
-        ? locale
-        : null;
+    return AppLocalizations.supportedLocales.contains(locale) ? locale : null;
   }
 
   Future<void> set(Locale? locale) async {

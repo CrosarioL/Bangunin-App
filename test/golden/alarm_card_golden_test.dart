@@ -30,11 +30,7 @@ void main() {
           body: Center(
             child: SizedBox(
               width: 360,
-              child: AlarmCard(
-                alarm: alarm,
-                onTap: () {},
-                onToggle: (_) {},
-              ),
+              child: AlarmCard(alarm: alarm, onTap: () {}, onToggle: (_) {}),
             ),
           ),
         ),
@@ -63,11 +59,7 @@ void main() {
           body: Center(
             child: SizedBox(
               width: 360,
-              child: AlarmCard(
-                alarm: alarm,
-                onTap: () {},
-                onToggle: (_) {},
-              ),
+              child: AlarmCard(alarm: alarm, onTap: () {}, onToggle: (_) {}),
             ),
           ),
         ),

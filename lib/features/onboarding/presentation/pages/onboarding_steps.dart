@@ -28,9 +28,7 @@ class WelcomeStep extends StatelessWidget {
       subtitle: l10n.onboardingWelcomeSubtitle,
       ctaLabel: l10n.getStarted,
       onNext: onNext,
-      child: const Center(
-        child: BanguninMascot(size: 210, flap: true),
-      ),
+      child: const Center(child: BanguninMascot(size: 210, flap: true)),
     );
   }
 }

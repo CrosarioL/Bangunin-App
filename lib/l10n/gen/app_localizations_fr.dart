@@ -277,15 +277,16 @@ class AppLocalizationsFr extends AppLocalizations {
       'Trouvez de l\'herbe ou une plante et photographiez-la.';
 
   @override
-  String get photoInstructionBed => 'Faites votre lit, puis photographiez-le.';
+  String get photoInstructionBed =>
+      'Faites votre lit soigneusement, puis cadrez-le entièrement dans le guide.';
 
   @override
   String get movementInstructionSquats =>
-      'Tenez le téléphone contre votre poitrine et faites des squats.';
+      'Posez le téléphone debout, reculez et gardez tout votre corps visible.';
 
   @override
   String get movementInstructionPushups =>
-      'Tenez le téléphone d\'une main et faites des pompes.';
+      'Posez le téléphone sur le côté et faites des pompes normales à deux mains.';
 
   @override
   String repsOf(int target) {
@@ -294,7 +295,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get movementHint =>
-      'Bougez à un rythme régulier. Les secousses ne comptent pas.';
+      'Gardez tout votre corps visible. Seules les répétitions complètes et correctes comptent.';
 
   @override
   String get notificationDefaultTitle => 'Debout !';
@@ -445,6 +446,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get restorePurchases => 'Restaurer les achats';
+
+  @override
+  String get manageSubscription => 'Gérer ou annuler l\'abonnement';
 
   @override
   String get paywallLegal =>
@@ -715,6 +719,16 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get noPaymentNow => 'Aucun paiement pour l\'instant';
+
+  @override
+  String trialThenMonthly(String price) {
+    return 'Puis $price par mois sauf annulation.';
+  }
+
+  @override
+  String trialThenYearly(String price) {
+    return 'Puis $price par an sauf annulation.';
+  }
 
   @override
   String get settingsOurStory => 'Our story';

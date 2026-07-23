@@ -74,9 +74,9 @@ void main() {
   group('averageWakeMinutes', () {
     test('null with no successes', () {
       expect(
-        StreakCalculator.averageWakeMinutes(
-          [record(DateTime(2026, 7, 1, 7), success: false)],
-        ),
+        StreakCalculator.averageWakeMinutes([
+          record(DateTime(2026, 7, 1, 7), success: false),
+        ]),
         isNull,
       );
     });
@@ -97,9 +97,20 @@ void main() {
       record(DateTime(2026, 7, 20, 7), success: false),
       record(DateTime(2026, 6, 30, 7)),
     ];
-    expect(
-      StreakCalculator.successDaysInMonth(records, DateTime(2026, 7)),
-      {1, 15},
+    expect(StreakCalculator.successDaysInMonth(records, DateTime(2026, 7)), {
+      1,
+      15,
+    });
+  });
+
+  test('plain tap-to-dismiss alarms do not build a mission streak', () {
+    final plain = WakeRecord(
+      id: 'plain',
+      alarmId: 'plain-alarm',
+      scheduledAt: now,
+      dismissedAt: now,
+      missionType: MissionType.none,
     );
+    expect(StreakCalculator.currentStreak([plain], now: now), 0);
   });
 }

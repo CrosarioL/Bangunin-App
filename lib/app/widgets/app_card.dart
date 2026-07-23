@@ -26,8 +26,8 @@ class AppCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final radius = BorderRadius.circular(AppSpacing.radiusCard);
 
-    final face = color ??
-        (isDark ? AppColors.surfaceRaised : AppColors.surfaceLight);
+    final face =
+        color ?? (isDark ? AppColors.surfaceRaised : AppColors.surfaceLight);
     final edge = isDark ? AppColors.surfaceEdge : AppColors.surfaceEdgeLight;
     final border = isDark
         ? Colors.white.withValues(alpha: 0.06)

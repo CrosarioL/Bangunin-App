@@ -61,10 +61,7 @@ void main() {
 
   test('bed mission rejects a near-black (pocket) shot', () async {
     final path = await writeImage('black', img.ColorRgb8(5, 5, 5));
-    expect(
-      await verifier.verify(MissionType.makeBed, path),
-      PhotoVerdict.fail,
-    );
+    expect(await verifier.verify(MissionType.makeBed, path), PhotoVerdict.fail);
   });
 
   test('object hunt passes when photo matches the reference', () async {

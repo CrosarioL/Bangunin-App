@@ -94,12 +94,12 @@
   "photoInstructionObject": "Cari benda yang kamu daftarkan dan fotokan.",
   "photoInstructionSky": "Keluar rumah dan arahkan kamera ke langit.",
   "photoInstructionGrass": "Cari rumput atau tanaman dan fotokan.",
-  "photoInstructionBed": "Rapikan kasurmu, lalu fotokan.",
+  "photoInstructionBed": "Rapikan tempat tidurmu, lalu masukkan seluruh tempat tidur ke dalam bingkai.",
 
-  "movementInstructionSquats": "Pegang HP di dadamu dan lakukan squat.",
-  "movementInstructionPushups": "Pegang HP dengan satu tangan dan lakukan push-up.",
+  "movementInstructionSquats": "Sandarkan HP dalam posisi tegak, mundur, dan pastikan seluruh tubuh terlihat.",
+  "movementInstructionPushups": "Sandarkan HP menyamping dan lakukan push-up normal dengan dua tangan.",
   "repsOf": "dari {target}",
-  "movementHint": "Bergeraklah dengan ritme stabil. Goyangan asal tidak dihitung.",
+  "movementHint": "Pastikan seluruh tubuh terlihat. Hanya repetisi penuh dengan gerakan benar yang dihitung.",
 
   "notificationDefaultTitle": "Bangun!",
   "notificationBodyNoMission": "Waktunya bangun.",
@@ -152,6 +152,7 @@
   "pricePerWeek": "{price} per minggu",
   "paywallCta": "Buka Bangunin",
   "restorePurchases": "Pulihkan pembelian",
+  "manageSubscription": "Kelola atau batalkan langganan",
   "paywallLegal": "Diperpanjang otomatis sampai dibatalkan. Batalkan kapan saja di pengaturan akun tokomu.",
   "purchaseFailed": "Pembelian tidak selesai. Kamu tidak dikenai biaya.",
   "paywallLoadError": "Paket tidak bisa dimuat.\nPeriksa koneksimu dan coba lagi.",
@@ -230,6 +231,8 @@
   "paywallCtaTrial": "Mulai uji coba gratis {days} hari",
   "paywallCtaNoTrial": "Lanjutkan",
   "noPaymentNow": "Tidak ada tagihan hari ini",
+  "trialThenMonthly": "Setelah itu {price} per bulan kecuali dibatalkan.",
+  "trialThenYearly": "Setelah itu {price} per tahun kecuali dibatalkan.",
 
   "settingsOurStory": "Cerita kami",
   "founderStoryTitle": "Kenapa Bangunin ada",

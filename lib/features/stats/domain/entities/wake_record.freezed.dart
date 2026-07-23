@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$WakeRecord {
 
- String get id; String get alarmId; DateTime get scheduledAt; DateTime get dismissedAt; MissionType get missionType; int get snoozeCount; bool get success;
+ String get id; String get alarmId; DateTime get scheduledAt; DateTime get dismissedAt; MissionType get missionType; int get snoozeCount; bool get success; DateTime? get ringingStartedAt; int get missionDurationSeconds; int get missionAttempts; int get verifiedReps; String get verificationMethod;
 /// Create a copy of WakeRecord
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $WakeRecordCopyWith<WakeRecord> get copyWith => _$WakeRecordCopyWithImpl<WakeRec
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is WakeRecord&&(identical(other.id, id) || other.id == id)&&(identical(other.alarmId, alarmId) || other.alarmId == alarmId)&&(identical(other.scheduledAt, scheduledAt) || other.scheduledAt == scheduledAt)&&(identical(other.dismissedAt, dismissedAt) || other.dismissedAt == dismissedAt)&&(identical(other.missionType, missionType) || other.missionType == missionType)&&(identical(other.snoozeCount, snoozeCount) || other.snoozeCount == snoozeCount)&&(identical(other.success, success) || other.success == success));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WakeRecord&&(identical(other.id, id) || other.id == id)&&(identical(other.alarmId, alarmId) || other.alarmId == alarmId)&&(identical(other.scheduledAt, scheduledAt) || other.scheduledAt == scheduledAt)&&(identical(other.dismissedAt, dismissedAt) || other.dismissedAt == dismissedAt)&&(identical(other.missionType, missionType) || other.missionType == missionType)&&(identical(other.snoozeCount, snoozeCount) || other.snoozeCount == snoozeCount)&&(identical(other.success, success) || other.success == success)&&(identical(other.ringingStartedAt, ringingStartedAt) || other.ringingStartedAt == ringingStartedAt)&&(identical(other.missionDurationSeconds, missionDurationSeconds) || other.missionDurationSeconds == missionDurationSeconds)&&(identical(other.missionAttempts, missionAttempts) || other.missionAttempts == missionAttempts)&&(identical(other.verifiedReps, verifiedReps) || other.verifiedReps == verifiedReps)&&(identical(other.verificationMethod, verificationMethod) || other.verificationMethod == verificationMethod));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,alarmId,scheduledAt,dismissedAt,missionType,snoozeCount,success);
+int get hashCode => Object.hash(runtimeType,id,alarmId,scheduledAt,dismissedAt,missionType,snoozeCount,success,ringingStartedAt,missionDurationSeconds,missionAttempts,verifiedReps,verificationMethod);
 
 @override
 String toString() {
-  return 'WakeRecord(id: $id, alarmId: $alarmId, scheduledAt: $scheduledAt, dismissedAt: $dismissedAt, missionType: $missionType, snoozeCount: $snoozeCount, success: $success)';
+  return 'WakeRecord(id: $id, alarmId: $alarmId, scheduledAt: $scheduledAt, dismissedAt: $dismissedAt, missionType: $missionType, snoozeCount: $snoozeCount, success: $success, ringingStartedAt: $ringingStartedAt, missionDurationSeconds: $missionDurationSeconds, missionAttempts: $missionAttempts, verifiedReps: $verifiedReps, verificationMethod: $verificationMethod)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $WakeRecordCopyWith<$Res>  {
   factory $WakeRecordCopyWith(WakeRecord value, $Res Function(WakeRecord) _then) = _$WakeRecordCopyWithImpl;
 @useResult
 $Res call({
- String id, String alarmId, DateTime scheduledAt, DateTime dismissedAt, MissionType missionType, int snoozeCount, bool success
+ String id, String alarmId, DateTime scheduledAt, DateTime dismissedAt, MissionType missionType, int snoozeCount, bool success, DateTime? ringingStartedAt, int missionDurationSeconds, int missionAttempts, int verifiedReps, String verificationMethod
 });
 
 
@@ -65,7 +65,7 @@ class _$WakeRecordCopyWithImpl<$Res>
 
 /// Create a copy of WakeRecord
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? alarmId = null,Object? scheduledAt = null,Object? dismissedAt = null,Object? missionType = null,Object? snoozeCount = null,Object? success = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? alarmId = null,Object? scheduledAt = null,Object? dismissedAt = null,Object? missionType = null,Object? snoozeCount = null,Object? success = null,Object? ringingStartedAt = freezed,Object? missionDurationSeconds = null,Object? missionAttempts = null,Object? verifiedReps = null,Object? verificationMethod = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,alarmId: null == alarmId ? _self.alarmId : alarmId // ignore: cast_nullable_to_non_nullable
@@ -74,7 +74,12 @@ as DateTime,dismissedAt: null == dismissedAt ? _self.dismissedAt : dismissedAt /
 as DateTime,missionType: null == missionType ? _self.missionType : missionType // ignore: cast_nullable_to_non_nullable
 as MissionType,snoozeCount: null == snoozeCount ? _self.snoozeCount : snoozeCount // ignore: cast_nullable_to_non_nullable
 as int,success: null == success ? _self.success : success // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,ringingStartedAt: freezed == ringingStartedAt ? _self.ringingStartedAt : ringingStartedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,missionDurationSeconds: null == missionDurationSeconds ? _self.missionDurationSeconds : missionDurationSeconds // ignore: cast_nullable_to_non_nullable
+as int,missionAttempts: null == missionAttempts ? _self.missionAttempts : missionAttempts // ignore: cast_nullable_to_non_nullable
+as int,verifiedReps: null == verifiedReps ? _self.verifiedReps : verifiedReps // ignore: cast_nullable_to_non_nullable
+as int,verificationMethod: null == verificationMethod ? _self.verificationMethod : verificationMethod // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 
@@ -159,10 +164,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String alarmId,  DateTime scheduledAt,  DateTime dismissedAt,  MissionType missionType,  int snoozeCount,  bool success)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String alarmId,  DateTime scheduledAt,  DateTime dismissedAt,  MissionType missionType,  int snoozeCount,  bool success,  DateTime? ringingStartedAt,  int missionDurationSeconds,  int missionAttempts,  int verifiedReps,  String verificationMethod)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _WakeRecord() when $default != null:
-return $default(_that.id,_that.alarmId,_that.scheduledAt,_that.dismissedAt,_that.missionType,_that.snoozeCount,_that.success);case _:
+return $default(_that.id,_that.alarmId,_that.scheduledAt,_that.dismissedAt,_that.missionType,_that.snoozeCount,_that.success,_that.ringingStartedAt,_that.missionDurationSeconds,_that.missionAttempts,_that.verifiedReps,_that.verificationMethod);case _:
   return orElse();
 
 }
@@ -180,10 +185,10 @@ return $default(_that.id,_that.alarmId,_that.scheduledAt,_that.dismissedAt,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String alarmId,  DateTime scheduledAt,  DateTime dismissedAt,  MissionType missionType,  int snoozeCount,  bool success)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String alarmId,  DateTime scheduledAt,  DateTime dismissedAt,  MissionType missionType,  int snoozeCount,  bool success,  DateTime? ringingStartedAt,  int missionDurationSeconds,  int missionAttempts,  int verifiedReps,  String verificationMethod)  $default,) {final _that = this;
 switch (_that) {
 case _WakeRecord():
-return $default(_that.id,_that.alarmId,_that.scheduledAt,_that.dismissedAt,_that.missionType,_that.snoozeCount,_that.success);case _:
+return $default(_that.id,_that.alarmId,_that.scheduledAt,_that.dismissedAt,_that.missionType,_that.snoozeCount,_that.success,_that.ringingStartedAt,_that.missionDurationSeconds,_that.missionAttempts,_that.verifiedReps,_that.verificationMethod);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -200,10 +205,10 @@ return $default(_that.id,_that.alarmId,_that.scheduledAt,_that.dismissedAt,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String alarmId,  DateTime scheduledAt,  DateTime dismissedAt,  MissionType missionType,  int snoozeCount,  bool success)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String alarmId,  DateTime scheduledAt,  DateTime dismissedAt,  MissionType missionType,  int snoozeCount,  bool success,  DateTime? ringingStartedAt,  int missionDurationSeconds,  int missionAttempts,  int verifiedReps,  String verificationMethod)?  $default,) {final _that = this;
 switch (_that) {
 case _WakeRecord() when $default != null:
-return $default(_that.id,_that.alarmId,_that.scheduledAt,_that.dismissedAt,_that.missionType,_that.snoozeCount,_that.success);case _:
+return $default(_that.id,_that.alarmId,_that.scheduledAt,_that.dismissedAt,_that.missionType,_that.snoozeCount,_that.success,_that.ringingStartedAt,_that.missionDurationSeconds,_that.missionAttempts,_that.verifiedReps,_that.verificationMethod);case _:
   return null;
 
 }
@@ -215,7 +220,7 @@ return $default(_that.id,_that.alarmId,_that.scheduledAt,_that.dismissedAt,_that
 @JsonSerializable()
 
 class _WakeRecord implements WakeRecord {
-  const _WakeRecord({required this.id, required this.alarmId, required this.scheduledAt, required this.dismissedAt, required this.missionType, this.snoozeCount = 0, this.success = true});
+  const _WakeRecord({required this.id, required this.alarmId, required this.scheduledAt, required this.dismissedAt, required this.missionType, this.snoozeCount = 0, this.success = true, this.ringingStartedAt, this.missionDurationSeconds = 0, this.missionAttempts = 0, this.verifiedReps = 0, this.verificationMethod = 'legacy'});
   factory _WakeRecord.fromJson(Map<String, dynamic> json) => _$WakeRecordFromJson(json);
 
 @override final  String id;
@@ -225,6 +230,11 @@ class _WakeRecord implements WakeRecord {
 @override final  MissionType missionType;
 @override@JsonKey() final  int snoozeCount;
 @override@JsonKey() final  bool success;
+@override final  DateTime? ringingStartedAt;
+@override@JsonKey() final  int missionDurationSeconds;
+@override@JsonKey() final  int missionAttempts;
+@override@JsonKey() final  int verifiedReps;
+@override@JsonKey() final  String verificationMethod;
 
 /// Create a copy of WakeRecord
 /// with the given fields replaced by the non-null parameter values.
@@ -239,16 +249,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WakeRecord&&(identical(other.id, id) || other.id == id)&&(identical(other.alarmId, alarmId) || other.alarmId == alarmId)&&(identical(other.scheduledAt, scheduledAt) || other.scheduledAt == scheduledAt)&&(identical(other.dismissedAt, dismissedAt) || other.dismissedAt == dismissedAt)&&(identical(other.missionType, missionType) || other.missionType == missionType)&&(identical(other.snoozeCount, snoozeCount) || other.snoozeCount == snoozeCount)&&(identical(other.success, success) || other.success == success));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WakeRecord&&(identical(other.id, id) || other.id == id)&&(identical(other.alarmId, alarmId) || other.alarmId == alarmId)&&(identical(other.scheduledAt, scheduledAt) || other.scheduledAt == scheduledAt)&&(identical(other.dismissedAt, dismissedAt) || other.dismissedAt == dismissedAt)&&(identical(other.missionType, missionType) || other.missionType == missionType)&&(identical(other.snoozeCount, snoozeCount) || other.snoozeCount == snoozeCount)&&(identical(other.success, success) || other.success == success)&&(identical(other.ringingStartedAt, ringingStartedAt) || other.ringingStartedAt == ringingStartedAt)&&(identical(other.missionDurationSeconds, missionDurationSeconds) || other.missionDurationSeconds == missionDurationSeconds)&&(identical(other.missionAttempts, missionAttempts) || other.missionAttempts == missionAttempts)&&(identical(other.verifiedReps, verifiedReps) || other.verifiedReps == verifiedReps)&&(identical(other.verificationMethod, verificationMethod) || other.verificationMethod == verificationMethod));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,alarmId,scheduledAt,dismissedAt,missionType,snoozeCount,success);
+int get hashCode => Object.hash(runtimeType,id,alarmId,scheduledAt,dismissedAt,missionType,snoozeCount,success,ringingStartedAt,missionDurationSeconds,missionAttempts,verifiedReps,verificationMethod);
 
 @override
 String toString() {
-  return 'WakeRecord(id: $id, alarmId: $alarmId, scheduledAt: $scheduledAt, dismissedAt: $dismissedAt, missionType: $missionType, snoozeCount: $snoozeCount, success: $success)';
+  return 'WakeRecord(id: $id, alarmId: $alarmId, scheduledAt: $scheduledAt, dismissedAt: $dismissedAt, missionType: $missionType, snoozeCount: $snoozeCount, success: $success, ringingStartedAt: $ringingStartedAt, missionDurationSeconds: $missionDurationSeconds, missionAttempts: $missionAttempts, verifiedReps: $verifiedReps, verificationMethod: $verificationMethod)';
 }
 
 
@@ -259,7 +269,7 @@ abstract mixin class _$WakeRecordCopyWith<$Res> implements $WakeRecordCopyWith<$
   factory _$WakeRecordCopyWith(_WakeRecord value, $Res Function(_WakeRecord) _then) = __$WakeRecordCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String alarmId, DateTime scheduledAt, DateTime dismissedAt, MissionType missionType, int snoozeCount, bool success
+ String id, String alarmId, DateTime scheduledAt, DateTime dismissedAt, MissionType missionType, int snoozeCount, bool success, DateTime? ringingStartedAt, int missionDurationSeconds, int missionAttempts, int verifiedReps, String verificationMethod
 });
 
 
@@ -276,7 +286,7 @@ class __$WakeRecordCopyWithImpl<$Res>
 
 /// Create a copy of WakeRecord
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? alarmId = null,Object? scheduledAt = null,Object? dismissedAt = null,Object? missionType = null,Object? snoozeCount = null,Object? success = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? alarmId = null,Object? scheduledAt = null,Object? dismissedAt = null,Object? missionType = null,Object? snoozeCount = null,Object? success = null,Object? ringingStartedAt = freezed,Object? missionDurationSeconds = null,Object? missionAttempts = null,Object? verifiedReps = null,Object? verificationMethod = null,}) {
   return _then(_WakeRecord(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,alarmId: null == alarmId ? _self.alarmId : alarmId // ignore: cast_nullable_to_non_nullable
@@ -285,7 +295,12 @@ as DateTime,dismissedAt: null == dismissedAt ? _self.dismissedAt : dismissedAt /
 as DateTime,missionType: null == missionType ? _self.missionType : missionType // ignore: cast_nullable_to_non_nullable
 as MissionType,snoozeCount: null == snoozeCount ? _self.snoozeCount : snoozeCount // ignore: cast_nullable_to_non_nullable
 as int,success: null == success ? _self.success : success // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,ringingStartedAt: freezed == ringingStartedAt ? _self.ringingStartedAt : ringingStartedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,missionDurationSeconds: null == missionDurationSeconds ? _self.missionDurationSeconds : missionDurationSeconds // ignore: cast_nullable_to_non_nullable
+as int,missionAttempts: null == missionAttempts ? _self.missionAttempts : missionAttempts // ignore: cast_nullable_to_non_nullable
+as int,verifiedReps: null == verifiedReps ? _self.verifiedReps : verifiedReps // ignore: cast_nullable_to_non_nullable
+as int,verificationMethod: null == verificationMethod ? _self.verificationMethod : verificationMethod // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 

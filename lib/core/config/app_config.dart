@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 /// Compile-time configuration for the app.
 ///
 /// Brand: **Bangunin** — colloquial Indonesian for "wake (someone) up"
@@ -7,6 +9,7 @@
 /// search before any store release (see README, "Naming & trademarks").
 abstract final class AppConfig {
   static const appName = 'Bangunin';
+  static const androidPackageId = 'app.bangunin';
 
   static const supportEmail = 'hello@bangunin.app';
   static const privacyPolicyUrl = 'https://bangunin.app/privacy.html';
@@ -21,10 +24,7 @@ abstract final class AppConfig {
   static const monthlyProductId = 'bangunin.premium.monthly';
   static const yearlyProductId = 'bangunin.premium.yearly';
 
-  static const allProductIds = {
-    monthlyProductId,
-    yearlyProductId,
-  };
+  static const allProductIds = {monthlyProductId, yearlyProductId};
 
   /// Days of free trial attached to every plan.
   static const trialDays = 3;
@@ -37,6 +37,6 @@ abstract final class AppConfig {
   /// live with real billing.
   static const fakePaywall = bool.fromEnvironment(
     'BANGUNIN_FAKE_PAYWALL',
-    defaultValue: true,
+    defaultValue: !kReleaseMode,
   );
 }

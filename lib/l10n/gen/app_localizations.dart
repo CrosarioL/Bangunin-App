@@ -607,19 +607,19 @@ abstract class AppLocalizations {
   /// No description provided for @photoInstructionBed.
   ///
   /// In en, this message translates to:
-  /// **'Make your bed, then photograph it.'**
+  /// **'Make your bed neatly, then fit the whole bed inside the guide.'**
   String get photoInstructionBed;
 
   /// No description provided for @movementInstructionSquats.
   ///
   /// In en, this message translates to:
-  /// **'Hold your phone against your chest and do squats.'**
+  /// **'Prop your phone upright, step back, and keep your whole body in view.'**
   String get movementInstructionSquats;
 
   /// No description provided for @movementInstructionPushups.
   ///
   /// In en, this message translates to:
-  /// **'Hold your phone in one hand and do pushups.'**
+  /// **'Prop your phone on its side and do normal two-handed push-ups.'**
   String get movementInstructionPushups;
 
   /// No description provided for @repsOf.
@@ -631,7 +631,7 @@ abstract class AppLocalizations {
   /// No description provided for @movementHint.
   ///
   /// In en, this message translates to:
-  /// **'Move at a steady pace. Rushed shakes don\'t count.'**
+  /// **'Keep your full body visible. Only complete, correctly formed reps count.'**
   String get movementHint;
 
   /// No description provided for @notificationDefaultTitle.
@@ -897,6 +897,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Restore purchases'**
   String get restorePurchases;
+
+  /// No description provided for @manageSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage or cancel subscription'**
+  String get manageSubscription;
 
   /// No description provided for @paywallLegal.
   ///
@@ -1353,6 +1359,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No payment due now'**
   String get noPaymentNow;
+
+  /// No description provided for @trialThenMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Then {price} per month unless cancelled.'**
+  String trialThenMonthly(String price);
+
+  /// No description provided for @trialThenYearly.
+  ///
+  /// In en, this message translates to:
+  /// **'Then {price} per year unless cancelled.'**
+  String trialThenYearly(String price);
 
   /// No description provided for @settingsOurStory.
   ///

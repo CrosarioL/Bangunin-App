@@ -14,6 +14,14 @@ _WakeRecord _$WakeRecordFromJson(Map<String, dynamic> json) => _WakeRecord(
   missionType: $enumDecode(_$MissionTypeEnumMap, json['missionType']),
   snoozeCount: (json['snoozeCount'] as num?)?.toInt() ?? 0,
   success: json['success'] as bool? ?? true,
+  ringingStartedAt: json['ringingStartedAt'] == null
+      ? null
+      : DateTime.parse(json['ringingStartedAt'] as String),
+  missionDurationSeconds:
+      (json['missionDurationSeconds'] as num?)?.toInt() ?? 0,
+  missionAttempts: (json['missionAttempts'] as num?)?.toInt() ?? 0,
+  verifiedReps: (json['verifiedReps'] as num?)?.toInt() ?? 0,
+  verificationMethod: json['verificationMethod'] as String? ?? 'legacy',
 );
 
 Map<String, dynamic> _$WakeRecordToJson(_WakeRecord instance) =>
@@ -25,6 +33,11 @@ Map<String, dynamic> _$WakeRecordToJson(_WakeRecord instance) =>
       'missionType': _$MissionTypeEnumMap[instance.missionType]!,
       'snoozeCount': instance.snoozeCount,
       'success': instance.success,
+      'ringingStartedAt': instance.ringingStartedAt?.toIso8601String(),
+      'missionDurationSeconds': instance.missionDurationSeconds,
+      'missionAttempts': instance.missionAttempts,
+      'verifiedReps': instance.verifiedReps,
+      'verificationMethod': instance.verificationMethod,
     };
 
 const _$MissionTypeEnumMap = {

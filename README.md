@@ -1,4 +1,4 @@
-# Bangunin — mission-based alarm clock
+~~~~# Bangunin — mission-based alarm clock
 
 **Bangunin** (colloquial Indonesian: "wake someone up") is a production-grade
 Flutter alarm app in the mission-based category pioneered by Alarmy and Wakio:
@@ -22,7 +22,8 @@ Nothing was extracted or copied from any competitor app.
 > `android/.../AndroidManifest.xml` `android:label`. The internal Dart
 > package is still `wakio` (invisible to users; renaming it would churn
 > every import for zero user-facing benefit). Bundle/application ids
-> (`com.example.wakio`) must be replaced before release regardless.
+> Android package: `app.bangunin`. This becomes permanent after the first
+> bundle is uploaded to Play Console.
 >
 > Brand: electric-yellow crowing rooster on ink; bilingual (ID/EN) waitlist
 > landing page in `marketing/landing/`.

@@ -83,11 +83,11 @@
   "photoInstructionObject": "Finde dein registriertes Objekt und fotografiere es.",
   "photoInstructionSky": "Geh raus und richte die Kamera auf den Himmel.",
   "photoInstructionGrass": "Finde Gras oder eine Pflanze und fotografiere sie.",
-  "photoInstructionBed": "Mach dein Bett und fotografiere es dann.",
-  "movementInstructionSquats": "Halte das Handy an die Brust und mache Kniebeugen.",
-  "movementInstructionPushups": "Halte das Handy in einer Hand und mache Liegestütze.",
+  "photoInstructionBed": "Mach dein Bett ordentlich und richte das ganze Bett im Rahmen aus.",
+  "movementInstructionSquats": "Stelle dein Handy aufrecht hin, geh zurück und bleib vollständig im Bild.",
+  "movementInstructionPushups": "Stelle dein Handy seitlich auf und mache normale Liegestütze mit beiden Händen.",
   "repsOf": "von {target}",
-  "movementHint": "Bewege dich gleichmäßig – hektisches Schütteln zählt nicht.",
+  "movementHint": "Bleib vollständig sichtbar. Nur vollständige Wiederholungen mit korrekter Form zählen.",
   "notificationDefaultTitle": "Aufstehen!",
   "notificationBodyNoMission": "Zeit aufzustehen.",
   "notificationBodyMission": "Schließe deine Mission ab, um den Wecker zu stoppen.",
@@ -132,6 +132,7 @@
   "bestValue": "BESTER PREIS",
   "pricePerYear": "{price} pro Jahr",
   "restorePurchases": "Käufe wiederherstellen",
+  "manageSubscription": "Abo verwalten oder kündigen",
   "paywallLegal": "Verlängert sich automatisch bis zur Kündigung. Jederzeit in den Kontoeinstellungen kündbar.",
   "purchaseFailed": "Der Kauf wurde nicht abgeschlossen. Dir wurde nichts berechnet.",
   "paywallLoadError": "Die Angebote konnten nicht geladen werden.\nPrüfe deine Verbindung und versuche es erneut.",
@@ -208,4 +209,6 @@
   "paywallCtaTrial": "Meine {days}-tägige kostenlose Testphase starten",
   "paywallCtaNoTrial": "Weiter",
   "noPaymentNow": "Jetzt keine Zahlung fällig"
+  ,"trialThenMonthly": "Danach {price} pro Monat, sofern nicht gekündigt."
+  ,"trialThenYearly": "Danach {price} pro Jahr, sofern nicht gekündigt."
 }

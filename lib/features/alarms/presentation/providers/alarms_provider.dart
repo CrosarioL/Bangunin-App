@@ -50,15 +50,30 @@ class AlarmActions {
   }
 
   Future<void> save(Alarm alarm, {required bool isNew}) async {
+    if (alarm.enabled) {
+      // Existing users may have completed onboarding before Android added or
+      // revoked the separate full-screen-intent grant. Re-check when an alarm
+      // is saved so it cannot silently degrade into a normal notification.
+      await _ref.read(notificationServiceProvider).requestPermission();
+    }
+
     // A reference photo or custom sound that gets replaced is never
     // referenced again — without this, every re-recorded sound and every
     // re-registered Object Hunt photo leaves its predecessor on disk
     // forever.
     if (!isNew) {
-      final previous = await _ref.read(alarmRepositoryProvider).getById(alarm.id);
+      final previous = await _ref
+          .read(alarmRepositoryProvider)
+          .getById(alarm.id);
       if (previous != null) {
-        await _deleteIfReplaced(previous.objectReferencePath, alarm.objectReferencePath);
-        await _deleteIfReplaced(previous.customSoundPath, alarm.customSoundPath);
+        await _deleteIfReplaced(
+          previous.objectReferencePath,
+          alarm.objectReferencePath,
+        );
+        await _deleteIfReplaced(
+          previous.customSoundPath,
+          alarm.customSoundPath,
+        );
       }
     }
 
@@ -66,15 +81,18 @@ class AlarmActions {
     await _resync();
     if (isNew) {
       unawaited(
-        _ref.read(analyticsProvider).logEvent(
-          AnalyticsEvents.alarmCreated,
-          {'mission': alarm.missionType.name, 'repeats': alarm.repeats},
-        ),
+        _ref.read(analyticsProvider).logEvent(AnalyticsEvents.alarmCreated, {
+          'mission': alarm.missionType.name,
+          'repeats': alarm.repeats,
+        }),
       );
     }
   }
 
   Future<void> toggle(Alarm alarm, {required bool enabled}) async {
+    if (enabled) {
+      await _ref.read(notificationServiceProvider).requestPermission();
+    }
     await _ref
         .read(alarmRepositoryProvider)
         .upsert(alarm.copyWith(enabled: enabled));
@@ -122,20 +140,21 @@ class AlarmActions {
     if (existing.isNotEmpty) return;
 
     final mission = _missionForStruggles(answers.struggles);
-    final alarm = draft(
-      hour: answers.wakeGoalHour,
-      minute: answers.wakeGoalMinute,
-    ).copyWith(
-      repeatDays: const {
-        DateTime.monday,
-        DateTime.tuesday,
-        DateTime.wednesday,
-        DateTime.thursday,
-        DateTime.friday,
-      },
-      missionType: mission,
-      missionReps: mission.isMovement ? mission.defaultReps : 0,
-    );
+    final alarm =
+        draft(
+          hour: answers.wakeGoalHour,
+          minute: answers.wakeGoalMinute,
+        ).copyWith(
+          repeatDays: const {
+            DateTime.monday,
+            DateTime.tuesday,
+            DateTime.wednesday,
+            DateTime.thursday,
+            DateTime.friday,
+          },
+          missionType: mission,
+          missionReps: mission.isMovement ? mission.defaultReps : 0,
+        );
     await save(alarm, isNew: true);
   }
 
