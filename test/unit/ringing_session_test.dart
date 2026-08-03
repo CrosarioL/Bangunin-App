@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:wakio/app/di/providers.dart';
+import 'package:wakio/core/services/alarms/alarm_kit_service.dart';
 import 'package:wakio/core/services/audio/alarm_audio_service.dart';
 import 'package:wakio/core/storage/local_store.dart';
 import 'package:wakio/features/alarms/data/alarm_repository_impl.dart';
@@ -66,6 +67,9 @@ class _FakeAlarmScheduler implements AlarmScheduler {
 
   @override
   void clearPendingSnooze() => clearPendingSnoozeCallCount++;
+
+  @override
+  Future<AlarmEngine> activeEngine() async => AlarmEngine.notifications;
 }
 
 void main() {
