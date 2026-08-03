@@ -66,7 +66,9 @@ class AlarmScheduler {
       final at = alarm.nextTrigger(from);
       await _notifications.schedule(
         id: baseId + slot,
-        title: alarm.label.isEmpty ? l10n.notificationDefaultTitle : alarm.label,
+        title: alarm.label.isEmpty
+            ? l10n.notificationDefaultTitle
+            : alarm.label,
         body: alarm.missionType == MissionType.none
             ? l10n.notificationBodyNoMission
             : l10n.notificationBodyMission,

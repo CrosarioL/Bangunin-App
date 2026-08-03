@@ -29,8 +29,10 @@ class _RecordingNotificationService implements NotificationService {
   @override
   Future<void> cancel(int id) async => scheduled.remove(id);
 
+  // The scheduler only ever calls the three methods above; everything else on
+  // NotificationService (init, permission prompts) is irrelevant here.
   @override
-  noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 void main() {
@@ -118,22 +120,24 @@ void main() {
       );
     });
 
-    test('reschedule with no pending snooze schedules only occurrences',
-        () async {
-      final alarm = alarmAt(id: 'plain-alarm', hour: 6);
+    test(
+      'reschedule with no pending snooze schedules only occurrences',
+      () async {
+        final alarm = alarmAt(id: 'plain-alarm', hour: 6);
 
-      await scheduler.reschedule([alarm]);
+        await scheduler.reschedule([alarm]);
 
-      expect(
-        notifications.scheduled.containsKey(snoozeIdFor(alarm.id)),
-        isFalse,
-      );
-      expect(
-        notifications.scheduled,
-        isNotEmpty,
-        reason: 'the alarm occurrences themselves should still be scheduled',
-      );
-    });
+        expect(
+          notifications.scheduled.containsKey(snoozeIdFor(alarm.id)),
+          isFalse,
+        );
+        expect(
+          notifications.scheduled,
+          isNotEmpty,
+          reason: 'the alarm occurrences themselves should still be scheduled',
+        );
+      },
+    );
 
     test('disabled alarms are not scheduled', () async {
       final off = alarmAt(id: 'disabled-alarm', hour: 7, enabled: false);

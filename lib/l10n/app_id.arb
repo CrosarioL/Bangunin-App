@@ -146,11 +146,8 @@
   "paywallFeatureStreaks": "Streak dan statistik pagi",
   "paywallFeatureNoLimit": "Alarm tanpa batas",
   "planYearly": "Tahunan",
-  "planWeekly": "Mingguan",
   "bestValue": "PALING HEMAT",
   "pricePerYear": "{price} per tahun",
-  "pricePerWeek": "{price} per minggu",
-  "paywallCta": "Buka Bangunin",
   "restorePurchases": "Pulihkan pembelian",
   "paywallLegal": "Diperpanjang otomatis sampai dibatalkan. Batalkan kapan saja di pengaturan akun tokomu.",
   "purchaseFailed": "Pembelian tidak selesai. Kamu tidak dikenai biaya.",
@@ -230,6 +227,13 @@
   "paywallCtaTrial": "Mulai uji coba gratis {days} hari",
   "paywallCtaNoTrial": "Lanjutkan",
   "noPaymentNow": "Tidak ada tagihan hari ini",
+
+  "manageSubscription": "Kelola langganan",
+
+  "accessCodeTitle": "Masukkan kode akses",
+  "accessCodeHint": "Kode akses",
+  "accessCodeRedeem": "Gunakan",
+  "accessCodeInvalid": "Kode akses tidak valid.",
 
   "settingsOurStory": "Cerita kami",
   "founderStoryTitle": "Kenapa Bangunin ada",

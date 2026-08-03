@@ -320,6 +320,13 @@
   "paywallCtaNoTrial": "Continue",
   "noPaymentNow": "No payment due now",
 
+  "manageSubscription": "Manage subscription",
+
+  "accessCodeTitle": "Enter access code",
+  "accessCodeHint": "Access code",
+  "accessCodeRedeem": "Redeem",
+  "accessCodeInvalid": "That access code is not valid.",
+
   "settingsOurStory": "Our story",
   "founderStoryTitle": "Why Bangunin exists",
   "founderStoryBody": "In 2023 I was a third-semester student, living in a kos, a rented room, away from home for the first time.\n\nBack home, my mom always woke me up. \"Wake up, it's late!\" Every morning. I never realised how much I leaned on that until it was gone.\n\nIn the kos I set six alarms. I turned them all off with my eyes shut. I missed my 7 AM class three times in one month, my attendance grade tanked, and I hated myself every time I woke at 9 to the class group chat already blowing up.\n\nI tried every alarm on the Play Store. The one with a math problem: I memorised the answer. The one you shake: I shook it in my sleep. All of them were too easy to cheat, because a brain at 5 AM has exactly one goal: get back to bed.\n\nSo I built one I couldn't lie to. It only goes quiet once you're actually out of bed. Photograph the sky outside, do ten squats, photograph the bathroom sink. Things that are impossible half-asleep.\n\nThe first time I used it, I was furious. The second time, I laughed. By the third week, I hadn't overslept once.\n\nI gave it to my kos-mates. Then my whole cohort. Now I'm giving it to you.\n\nBangunin wasn't built by a big startup in Silicon Valley. It was made by one student who was tired of missing class, for you, who feels exactly the same.\n\nGood morning. For real this time.",

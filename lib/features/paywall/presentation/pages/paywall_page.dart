@@ -308,31 +308,29 @@ class _PaywallPageState extends ConsumerState<PaywallPage> {
   }
 
   Future<void> _showAccessCodeDialog() async {
-    final isIndonesian = Localizations.localeOf(context).languageCode == 'id';
+    final l10n = context.l10n;
     final controller = TextEditingController();
     final code = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(isIndonesian ? 'Masukkan kode akses' : 'Enter access code'),
+        title: Text(l10n.accessCodeTitle),
         content: TextField(
           controller: controller,
           autocorrect: false,
           enableSuggestions: false,
           textCapitalization: TextCapitalization.none,
           keyboardType: TextInputType.visiblePassword,
-          decoration: InputDecoration(
-            hintText: isIndonesian ? 'Kode akses' : 'Access code',
-          ),
+          decoration: InputDecoration(hintText: l10n.accessCodeHint),
           onSubmitted: (value) => Navigator.of(dialogContext).pop(value),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(isIndonesian ? 'Batal' : 'Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(controller.text),
-            child: Text(isIndonesian ? 'Gunakan' : 'Redeem'),
+            child: Text(l10n.accessCodeRedeem),
           ),
         ],
       ),
@@ -347,15 +345,9 @@ class _PaywallPageState extends ConsumerState<PaywallPage> {
         .read(subscriptionServiceProvider)
         .redeemAccessCode(code);
     if (!accepted && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            isIndonesian
-                ? 'Kode akses tidak valid.'
-                : 'That access code is not valid.',
-          ),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.accessCodeInvalid)));
     }
   }
 
