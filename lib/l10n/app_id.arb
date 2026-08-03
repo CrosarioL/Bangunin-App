@@ -236,6 +236,7 @@
   "photoFailSurface": "Belum bisa kami pastikan — arahkan kamera ke objek aslinya",
   "photoFailNotLive": "Tahan kamera ke objek aslinya, lalu coba lagi",
   "photoFailNoMatch": "Sepertinya ini bukan objek yang kamu daftarkan",
+  "photoFailNoHand": "Masukkan tanganmu ke dalam foto, sentuh rumputnya",
   "photoFailNoReference": "Belum ada objek terdaftar — atur dulu di alarmnya",
 
   "missionSafetyNote": "Letakkan ponsel dengan aman agar seluruh tubuh terlihat. Jangan memegang ponsel saat berolahraga. Berhenti kalau kamu merasa sakit atau pusing.",

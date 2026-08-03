@@ -100,6 +100,7 @@ class _PhotoMissionPageState extends ConsumerState<PhotoMissionPage> {
     PhotoFailure.surfaceDoesNotLookRight => l10n.photoFailSurface,
     PhotoFailure.sceneNotLive => l10n.photoFailNotLive,
     PhotoFailure.doesNotMatchReference => l10n.photoFailNoMatch,
+    PhotoFailure.noHandVisible => l10n.photoFailNoHand,
     PhotoFailure.missingReference => l10n.photoFailNoReference,
     PhotoFailure.invalidImage || null => l10n.missionPhotoFailed,
   };

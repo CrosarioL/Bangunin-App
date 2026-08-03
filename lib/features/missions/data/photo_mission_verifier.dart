@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 
 import '../domain/mission_type.dart';
+import 'scene_classifier.dart';
 
 /// Why a photo mission did or did not pass.
 ///
@@ -36,6 +37,9 @@ enum PhotoFailure {
 
   /// Object Hunt has no reference registered yet.
   missingReference,
+
+  /// Touch Grass: the surface looks right but no hand is reaching into it.
+  noHandVisible,
 }
 
 /// Outcome of verifying a mission photo.
@@ -76,7 +80,11 @@ class PhotoVerification {
 /// `marketing/research/MISSION_MODEL_EVALUATION.md` for the bundled-model
 /// question.
 class PhotoMissionVerifier {
-  const PhotoMissionVerifier();
+  const PhotoMissionVerifier({this.sceneClassifier});
+
+  /// Apple Vision, where available. Null disables scene checks entirely and
+  /// falls back to heuristics — which is also what happens on Android.
+  final SceneClassifier? sceneClassifier;
 
   static const _analysisSize = 128;
 
@@ -97,13 +105,29 @@ class PhotoMissionVerifier {
       return const PhotoVerification.fail(PhotoFailure.invalidImage);
     }
 
+    // Exposure problems are the user's to fix and the cheapest to detect, so
+    // they are reported before anything else regardless of engine.
+    final heuristic = switch (mission) {
+      MissionType.skyPhoto => _verifySky(photo),
+      MissionType.grassPhoto => _verifyGrass(photo),
+      MissionType.makeBed => _verifyBed(photo),
+      _ => null,
+    };
+    if (heuristic != null) {
+      if (heuristic.failure == PhotoFailure.tooDark ||
+          heuristic.failure == PhotoFailure.tooBright) {
+        return heuristic;
+      }
+      return _combineWithScene(mission, photoPath, heuristic);
+    }
+
     switch (mission) {
       case MissionType.skyPhoto:
-        return _verifySky(photo);
       case MissionType.grassPhoto:
-        return _verifyGrass(photo);
       case MissionType.makeBed:
-        return _verifyBed(photo);
+        // Handled above.
+        return heuristic ??
+            const PhotoVerification.fail(PhotoFailure.invalidImage);
       case MissionType.objectHunt:
         if (referencePath == null) {
           return const PhotoVerification.fail(PhotoFailure.missingReference);
@@ -118,6 +142,48 @@ class PhotoMissionVerifier {
       case MissionType.pushups:
         return const PhotoVerification.fail(PhotoFailure.invalidImage);
     }
+  }
+
+  /// Reconciles Apple Vision's opinion with the pixel heuristics.
+  ///
+  /// Policy, and the reasoning behind it:
+  ///
+  ///  * **Vision positive → pass**, even where the heuristic was marginal.
+  ///    A classifier that recognises grass is better evidence than a texture
+  ///    number, and this is what stops us rejecting someone standing on real
+  ///    grass in poor light — the worst failure this feature can have.
+  ///  * **Vision negative → fail**, even where the heuristic passed. This is
+  ///    what catches the busy green rug the texture check cannot.
+  ///  * **Vision inconclusive** (no labels at all, or unavailable) → defer to
+  ///    the heuristic. Silence is not a rejection.
+  ///
+  /// For Touch Grass a hand must also be visible; recognising a lawn from the
+  /// far side of a window is not touching it.
+  Future<PhotoVerification> _combineWithScene(
+    MissionType mission,
+    String photoPath,
+    PhotoVerification heuristic,
+  ) async {
+    final classifier = sceneClassifier;
+    if (classifier == null) return heuristic;
+
+    final wantHand = mission == MissionType.grassPhoto;
+    final evidence = await classifier.inspect(photoPath, wantHand: wantHand);
+
+    // Unavailable, or the classifier had nothing to say.
+    if (!evidence.supported || evidence.labels.isEmpty) return heuristic;
+
+    final confidence = evidence.confidenceFor(
+      SceneClassifier.missionLabels[mission] ?? const [],
+    );
+    if (confidence < SceneClassifier.supportingConfidence) {
+      return const PhotoVerification.fail(PhotoFailure.surfaceDoesNotLookRight);
+    }
+
+    if (wantHand && !evidence.sawHand) {
+      return const PhotoVerification.fail(PhotoFailure.noHandVisible);
+    }
+    return const PhotoVerification.pass();
   }
 
   /// Verifies a short burst of frames instead of a single still.

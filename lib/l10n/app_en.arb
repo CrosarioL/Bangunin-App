@@ -328,6 +328,7 @@
   "photoFailSurface": "We couldn't verify that — point the camera at the real thing",
   "photoFailNotLive": "Hold the camera steady on the real scene and try again",
   "photoFailNoMatch": "That doesn't look like your registered object",
+  "photoFailNoHand": "Put your hand in the shot, touching the grass",
   "photoFailNoReference": "No object registered yet — set one up in the alarm",
 
   "missionSafetyNote": "Place the phone securely so your full body is visible. Do not hold it while exercising. Stop if you feel pain or dizzy.",

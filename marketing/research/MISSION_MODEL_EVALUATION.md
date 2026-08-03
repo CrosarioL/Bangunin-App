@@ -1,8 +1,32 @@
 # Mission Verification — Bundled-Model Evaluation
 
-**Date:** 4 August 2026
-**Status:** ⏸️ **Decision required from Islam. Nothing has been added to the app.**
+**Date:** 4 August 2026 (updated same day with probe results)
+**Status:** ✅ **RESOLVED — Apple Vision is sufficient. No bundled model needed. Implemented and shipped on this branch.**
 **Requested by:** Phase 4 of the iOS overhaul brief — *"If a robust hand/grass model would require a new bundled model, document its source, license, size, accuracy limitations and App Store impact before adding it."*
+
+---
+
+## ⭐ Outcome (read this first)
+
+Islam approved the Apple Vision probe. It was run and **it answered the question decisively: Option B (bundling a classifier) is unnecessary.**
+
+`VNClassifyImageRequest` exposes its taxonomy programmatically, so the probe needed no device — Vision ships on macOS too, and `knownClassifications(forRevision:)` was queried directly. **1,303 labels**, including everything the missions need:
+
+| Mission | Labels found |
+|---|---|
+| Touch Grass | `grass` ✅ · plus `foliage`, `garden`, `plant` as supporting |
+| Make Your Bed | `bed`, `bedding`, `bedroom`, `pillow` ✅ |
+| Sky Photo | `sky`, `blue_sky`, `night_sky`, `cloudy` ✅ |
+
+Notably absent: `lawn`, `turf`, `meadow`, `soil`, `mattress`, `duvet`, `quilt`, `blanket` — so the label sets above are the complete usable vocabulary and should not be padded with guesses.
+
+**Confirmed empirically after implementing:** the release `.app` is **74.2 MB before and after** adding Vision. 0 MB, as predicted.
+
+**What shipped:** `ios/Runner/VisionBridge.swift` (classification + `VNDetectHumanHandPoseRequest`) and `lib/features/missions/data/scene_classifier.dart`, wired into `PhotoMissionVerifier`. Hand detection means Touch Grass now requires a hand in frame — recognising a lawn through a window is not touching it.
+
+**Combination policy** (13 tests): Vision positive → pass even where the heuristic was marginal (prevents rejecting someone on real grass in poor light — the worst possible failure). Vision negative → fail even where the heuristic passed (catches the busy green rug). Vision silent or unavailable → defer to the heuristic; silence is not a rejection. Android is unaffected and keeps heuristics.
+
+**Still outstanding:** the calibration set in §2.1. `supportingConfidence = 0.35` is a starting value, not a validated one.
 
 ---
 
@@ -105,12 +129,12 @@ Ruled out explicitly, in line with the brief:
 
 ---
 
-## 6. Decisions I need
+## 6. Decisions
 
-1. **Approve the Vision probe?** (0 MB, no licence, no review impact — I recommend yes.)
-2. **If Vision is insufficient, do you want to bundle a model at all**, given the size trade-off against Bangunin's small-binary advantage?
-3. **Would you supply training photos** for a custom Create ML classifier? A few hundred shots of grass and beds around Indonesia would produce something genuinely better than any off-the-shelf model — and it would be ours.
-4. **Real-photo calibration set** (§2.1) — this is needed regardless of which option wins. Can you capture the ~30 photos per mission, or should this block launch?
+1. ~~**Approve the Vision probe?**~~ ✅ **Approved and done.** Result in the Outcome section — Vision has the labels, at 0 MB.
+2. ~~**Bundle a model?**~~ ❌ **No longer necessary.** §4 is retained only as a record of what was considered. Given the binary is already 74 MB (ML Kit pose dominates), a 45 MB Places365 model would have been a bad trade regardless.
+3. **Custom Create ML classifier** — no longer needed for basic function, but still the best path if real-world accuracy proves disappointing. Parked.
+4. **Real-photo calibration set (§2.1) — still needed, still open.** ~30 real photos per mission on a real iPhone. This tunes both the heuristic thresholds and `supportingConfidence`. It does not block the code, but it does block confidence in the numbers.
 
 ---
 

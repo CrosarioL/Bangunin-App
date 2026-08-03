@@ -1388,6 +1388,12 @@ abstract class AppLocalizations {
   /// **'That doesn\'t look like your registered object'**
   String get photoFailNoMatch;
 
+  /// No description provided for @photoFailNoHand.
+  ///
+  /// In en, this message translates to:
+  /// **'Put your hand in the shot, touching the grass'**
+  String get photoFailNoHand;
+
   /// No description provided for @photoFailNoReference.
   ///
   /// In en, this message translates to:

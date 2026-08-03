@@ -14,6 +14,7 @@ import '../../features/alarms/data/alarm_repository_impl.dart';
 import '../../features/alarms/data/alarm_scheduler.dart';
 import '../../features/alarms/domain/repositories/alarm_repository.dart';
 import '../../features/missions/data/photo_mission_verifier.dart';
+import '../../features/missions/data/scene_classifier.dart';
 import '../../features/stats/data/wake_stats_repository_impl.dart';
 import '../../features/stats/domain/repositories/wake_stats_repository.dart';
 
@@ -75,6 +76,13 @@ final alarmSchedulerProvider = Provider<AlarmScheduler>(
   ),
 );
 
+/// Apple Vision scene understanding. Reports unsupported on Android and in
+/// tests, where the verifier falls back to pixel heuristics alone.
+final sceneClassifierProvider = Provider<SceneClassifier>(
+  (ref) => SceneClassifier(),
+);
+
 final photoMissionVerifierProvider = Provider<PhotoMissionVerifier>(
-  (ref) => const PhotoMissionVerifier(),
+  (ref) =>
+      PhotoMissionVerifier(sceneClassifier: ref.watch(sceneClassifierProvider)),
 );

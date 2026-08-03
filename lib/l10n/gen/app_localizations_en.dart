@@ -735,6 +735,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'That doesn\'t look like your registered object';
 
   @override
+  String get photoFailNoHand => 'Put your hand in the shot, touching the grass';
+
+  @override
   String get photoFailNoReference =>
       'No object registered yet — set one up in the alarm';
 

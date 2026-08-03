@@ -734,6 +734,10 @@ class AppLocalizationsId extends AppLocalizations {
       'Sepertinya ini bukan objek yang kamu daftarkan';
 
   @override
+  String get photoFailNoHand =>
+      'Masukkan tanganmu ke dalam foto, sentuh rumputnya';
+
+  @override
   String get photoFailNoReference =>
       'Belum ada objek terdaftar — atur dulu di alarmnya';
 
