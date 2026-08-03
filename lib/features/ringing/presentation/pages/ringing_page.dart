@@ -35,10 +35,12 @@ class _RingingPageState extends ConsumerState<RingingPage>
   late final AnimationController _pulse = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 1400),
-  )..repeat(reverse: true);
+  );
 
-  late final Animation<double> _pulseOpacity =
-      Tween<double>(begin: 0.55, end: 1).animate(_pulse);
+  late final Animation<double> _pulseOpacity = Tween<double>(
+    begin: 0.55,
+    end: 1,
+  ).animate(_pulse);
   late final Animation<double> _pulseScale = Tween<double>(
     begin: 0.97,
     end: 1.03,
@@ -63,6 +65,22 @@ class _RingingPageState extends ConsumerState<RingingPage>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Reduce Motion: a repeating full-screen pulse aimed at someone half
+    // awake in a dark room is a real vestibular and photosensitivity
+    // concern, not a stylistic nicety. Hold the mascot still instead.
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    if (reduceMotion && _pulse.isAnimating) {
+      _pulse
+        ..stop()
+        ..value = 1;
+    } else if (!reduceMotion && !_pulse.isAnimating) {
+      _pulse.repeat(reverse: true);
+    }
+  }
+
+  @override
   void dispose() {
     _pulse.dispose();
     unawaited(WakelockPlus.disable());
@@ -79,76 +97,91 @@ class _RingingPageState extends ConsumerState<RingingPage>
     return PopScope(
       canPop: false,
       child: Scaffold(
-
         body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.xl),
-            child: Column(
-              children: [
-                const Spacer(),
-                FadeTransition(
-                  opacity: _pulseOpacity,
-                  child: ScaleTransition(
-                    scale: _pulseScale,
-                    child: const BanguninMascot(
-                      pose: MascotPose.crowing,
-                      size: 170,
-                      interactive: false,
+          // At the largest accessibility text sizes the clock, label, mission
+          // name, button and snooze row cannot all fit. Scrolling is the only
+          // honest answer — the ringing screen is the worst possible place to
+          // silently clip the controls that switch the alarm off.
+          child: LayoutBuilder(
+            builder: (context, constraints) => SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: IntrinsicHeight(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.xl),
+                    child: Column(
+                      children: [
+                        const Spacer(),
+                        FadeTransition(
+                          opacity: _pulseOpacity,
+                          child: ScaleTransition(
+                            scale: _pulseScale,
+                            child: const BanguninMascot(
+                              pose: MascotPose.crowing,
+                              size: 170,
+                              interactive: false,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.xl),
+                        const _LiveClock(),
+                        const SizedBox(height: AppSpacing.sm),
+                        Text(
+                          alarm == null
+                              ? ''
+                              : (alarm.label.isEmpty
+                                    ? l10n.ringingWakeUp
+                                    : alarm.label),
+                          style: theme.textTheme.headlineSmall!.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const Spacer(),
+                        if (alarm != null) ...[
+                          if (alarm.missionType != MissionType.none) ...[
+                            Text(
+                              alarm.missionType.localizedName(l10n),
+                              style: theme.textTheme.bodyMedium!.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: AppSpacing.md),
+                            PrimaryButton(
+                              label: l10n.startMission,
+                              onPressed: () => _startMission(alarm),
+                            ),
+                          ] else
+                            PrimaryButton(
+                              label: l10n.dismissAlarm,
+                              onPressed: _dismissNoMission,
+                            ),
+                          const SizedBox(height: AppSpacing.md),
+                          if (session?.canSnooze ?? false)
+                            TextButton(
+                              onPressed: _snooze,
+                              child: Text(
+                                l10n.snoozeWithRemaining(
+                                  alarm.snoozeMinutes,
+                                  alarm.maxSnoozes -
+                                      (session?.snoozeCount ?? 0),
+                                ),
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            )
+                          else
+                            const SizedBox(height: 40),
+                        ],
+                      ],
                     ),
                   ),
                 ),
-                const SizedBox(height: AppSpacing.xl),
-                const _LiveClock(),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  alarm == null
-                      ? ''
-                      : (alarm.label.isEmpty
-                          ? l10n.ringingWakeUp
-                          : alarm.label),
-                  style: theme.textTheme.headlineSmall!.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const Spacer(),
-                if (alarm != null) ...[
-                  if (alarm.missionType != MissionType.none) ...[
-                    Text(
-                      alarm.missionType.localizedName(l10n),
-                      style: theme.textTheme.bodyMedium!.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    PrimaryButton(
-                      label: l10n.startMission,
-                      onPressed: () => _startMission(alarm),
-                    ),
-                  ] else
-                    PrimaryButton(
-                      label: l10n.dismissAlarm,
-                      onPressed: _dismissNoMission,
-                    ),
-                  const SizedBox(height: AppSpacing.md),
-                  if (session?.canSnooze ?? false)
-                    TextButton(
-                      onPressed: _snooze,
-                      child: Text(
-                        l10n.snoozeWithRemaining(
-                          alarm.snoozeMinutes,
-                          alarm.maxSnoozes - (session?.snoozeCount ?? 0),
-                        ),
-                        style: const TextStyle(
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    )
-                  else
-                    const SizedBox(height: 40),
-                ],
-              ],
+              ),
             ),
           ),
         ),
@@ -192,7 +225,10 @@ class _LiveClockState extends State<_LiveClock> {
   @override
   void initState() {
     super.initState();
-    _ticker = Timer.periodic(const Duration(seconds: 1), (_) => setState(() {}));
+    _ticker = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => setState(() {}),
+    );
   }
 
   @override
@@ -204,11 +240,20 @@ class _LiveClockState extends State<_LiveClock> {
   @override
   Widget build(BuildContext context) {
     final now = TimeOfDay.now();
-    return Text(
-      TimeFormat.clock(context, now.hour, now.minute),
-      style: Theme.of(context).textTheme.displayLarge!.copyWith(
-            color: AppColors.textPrimary,
-          ),
+    // The clock already starts at 72pt. Scaling it the full accessibility
+    // range would push the stop and snooze controls off screen, so it is
+    // clamped — generously, and it is the only text in the app that is.
+    // Everything around it scales freely.
+    final scale = MediaQuery.textScalerOf(context).scale(1);
+    return MediaQuery.withClampedTextScaling(
+      minScaleFactor: 1,
+      maxScaleFactor: scale.clamp(1.0, 1.3),
+      child: Text(
+        TimeFormat.clock(context, now.hour, now.minute),
+        style: Theme.of(
+          context,
+        ).textTheme.displayLarge!.copyWith(color: AppColors.textPrimary),
+      ),
     );
   }
 }
