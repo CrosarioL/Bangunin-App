@@ -1352,6 +1352,48 @@ abstract class AppLocalizations {
   /// **'Manage subscription'**
   String get manageSubscription;
 
+  /// No description provided for @photoFailTooDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Too dark to check — try again in brighter light'**
+  String get photoFailTooDark;
+
+  /// No description provided for @photoFailTooBright.
+  ///
+  /// In en, this message translates to:
+  /// **'Too bright to check — move away from the light'**
+  String get photoFailTooBright;
+
+  /// No description provided for @photoFailNotEnoughDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t make out enough detail — get a bit closer'**
+  String get photoFailNotEnoughDetail;
+
+  /// No description provided for @photoFailSurface.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t verify that — point the camera at the real thing'**
+  String get photoFailSurface;
+
+  /// No description provided for @photoFailNotLive.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold the camera steady on the real scene and try again'**
+  String get photoFailNotLive;
+
+  /// No description provided for @photoFailNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'That doesn\'t look like your registered object'**
+  String get photoFailNoMatch;
+
+  /// No description provided for @photoFailNoReference.
+  ///
+  /// In en, this message translates to:
+  /// **'No object registered yet — set one up in the alarm'**
+  String get photoFailNoReference;
+
   /// No description provided for @missionSafetyNote.
   ///
   /// In en, this message translates to:

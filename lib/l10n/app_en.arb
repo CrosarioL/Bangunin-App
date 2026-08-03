@@ -322,6 +322,14 @@
 
   "manageSubscription": "Manage subscription",
 
+  "photoFailTooDark": "Too dark to check — try again in brighter light",
+  "photoFailTooBright": "Too bright to check — move away from the light",
+  "photoFailNotEnoughDetail": "We couldn't make out enough detail — get a bit closer",
+  "photoFailSurface": "We couldn't verify that — point the camera at the real thing",
+  "photoFailNotLive": "Hold the camera steady on the real scene and try again",
+  "photoFailNoMatch": "That doesn't look like your registered object",
+  "photoFailNoReference": "No object registered yet — set one up in the alarm",
+
   "missionSafetyNote": "Place the phone securely so your full body is visible. Do not hold it while exercising. Stop if you feel pain or dizzy.",
   "poseGuidanceNoPerson": "We can't see you — step into the frame",
   "poseGuidanceJointsHidden": "Move back so your arms and legs are fully visible",

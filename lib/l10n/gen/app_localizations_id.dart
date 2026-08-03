@@ -710,6 +710,34 @@ class AppLocalizationsId extends AppLocalizations {
   String get manageSubscription => 'Kelola langganan';
 
   @override
+  String get photoFailTooDark =>
+      'Terlalu gelap untuk dicek — coba di tempat yang lebih terang';
+
+  @override
+  String get photoFailTooBright =>
+      'Terlalu terang — menjauh sedikit dari sumber cahaya';
+
+  @override
+  String get photoFailNotEnoughDetail =>
+      'Detailnya kurang kelihatan — coba lebih dekat';
+
+  @override
+  String get photoFailSurface =>
+      'Belum bisa kami pastikan — arahkan kamera ke objek aslinya';
+
+  @override
+  String get photoFailNotLive =>
+      'Tahan kamera ke objek aslinya, lalu coba lagi';
+
+  @override
+  String get photoFailNoMatch =>
+      'Sepertinya ini bukan objek yang kamu daftarkan';
+
+  @override
+  String get photoFailNoReference =>
+      'Belum ada objek terdaftar — atur dulu di alarmnya';
+
+  @override
   String get missionSafetyNote =>
       'Letakkan ponsel dengan aman agar seluruh tubuh terlihat. Jangan memegang ponsel saat berolahraga. Berhenti kalau kamu merasa sakit atau pusing.';
 

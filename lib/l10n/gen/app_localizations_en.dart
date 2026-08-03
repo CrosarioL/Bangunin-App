@@ -711,6 +711,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manageSubscription => 'Manage subscription';
 
   @override
+  String get photoFailTooDark =>
+      'Too dark to check — try again in brighter light';
+
+  @override
+  String get photoFailTooBright =>
+      'Too bright to check — move away from the light';
+
+  @override
+  String get photoFailNotEnoughDetail =>
+      'We couldn\'t make out enough detail — get a bit closer';
+
+  @override
+  String get photoFailSurface =>
+      'We couldn\'t verify that — point the camera at the real thing';
+
+  @override
+  String get photoFailNotLive =>
+      'Hold the camera steady on the real scene and try again';
+
+  @override
+  String get photoFailNoMatch =>
+      'That doesn\'t look like your registered object';
+
+  @override
+  String get photoFailNoReference =>
+      'No object registered yet — set one up in the alarm';
+
+  @override
   String get missionSafetyNote =>
       'Place the phone securely so your full body is visible. Do not hold it while exercising. Stop if you feel pain or dizzy.';
 

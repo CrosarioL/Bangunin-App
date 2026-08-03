@@ -37,6 +37,9 @@ class _PhotoMissionPageState extends ConsumerState<PhotoMissionPage> {
   Alarm? _alarm;
   _VerifyState _state = _VerifyState.idle;
 
+  /// Why the last attempt failed, so we can say something actionable.
+  PhotoFailure? _failure;
+
   @override
   void initState() {
     super.initState();
@@ -55,7 +58,7 @@ class _PhotoMissionPageState extends ConsumerState<PhotoMissionPage> {
     if (alarm == null) return;
     setState(() => _state = _VerifyState.verifying);
 
-    final verdict = await ref
+    final verification = await ref
         .read(photoMissionVerifierProvider)
         .verify(
           alarm.missionType,
@@ -70,7 +73,7 @@ class _PhotoMissionPageState extends ConsumerState<PhotoMissionPage> {
     unawaited(_deleteQuietly(path));
     if (!mounted) return;
 
-    if (verdict == PhotoVerdict.pass) {
+    if (verification.passed) {
       await ref.read(ringingSessionProvider.notifier).complete();
       if (mounted) context.go(Routes.wakeSuccess);
     } else {
@@ -78,11 +81,28 @@ class _PhotoMissionPageState extends ConsumerState<PhotoMissionPage> {
       unawaited(
         ref.read(analyticsProvider).logEvent(AnalyticsEvents.missionFailed, {
           'mission': alarm.missionType.name,
+          'reason': verification.failure?.name ?? 'unknown',
         }),
       );
-      setState(() => _state = _VerifyState.failed);
+      setState(() {
+        _failure = verification.failure;
+        _state = _VerifyState.failed;
+      });
     }
   }
+
+  /// Deliberately hedged wording. These checks are heuristics, not proof, so
+  /// they say "we couldn't verify", never "that is not grass".
+  String _failureMessage(AppLocalizations l10n) => switch (_failure) {
+    PhotoFailure.tooDark => l10n.photoFailTooDark,
+    PhotoFailure.tooBright => l10n.photoFailTooBright,
+    PhotoFailure.notEnoughTexture => l10n.photoFailNotEnoughDetail,
+    PhotoFailure.surfaceDoesNotLookRight => l10n.photoFailSurface,
+    PhotoFailure.sceneNotLive => l10n.photoFailNotLive,
+    PhotoFailure.doesNotMatchReference => l10n.photoFailNoMatch,
+    PhotoFailure.missingReference => l10n.photoFailNoReference,
+    PhotoFailure.invalidImage || null => l10n.missionPhotoFailed,
+  };
 
   Future<void> _deleteQuietly(String path) async {
     try {
@@ -145,9 +165,13 @@ class _PhotoMissionPageState extends ConsumerState<PhotoMissionPage> {
                             key: const ValueKey('verifying'),
                             style: const TextStyle(color: AppColors.primary),
                           ),
+                          // Tell the user what to change, not just that it
+                          // failed — a mission you cannot debug at 5am is a
+                          // mission people uninstall over.
                           _VerifyState.failed => Text(
-                            l10n.missionPhotoFailed,
+                            _failureMessage(l10n),
                             key: const ValueKey('failed'),
+                            textAlign: TextAlign.center,
                             style: const TextStyle(color: AppColors.danger),
                           ),
                           _VerifyState.idle => const SizedBox(height: 20),

@@ -230,6 +230,14 @@
 
   "manageSubscription": "Kelola langganan",
 
+  "photoFailTooDark": "Terlalu gelap untuk dicek — coba di tempat yang lebih terang",
+  "photoFailTooBright": "Terlalu terang — menjauh sedikit dari sumber cahaya",
+  "photoFailNotEnoughDetail": "Detailnya kurang kelihatan — coba lebih dekat",
+  "photoFailSurface": "Belum bisa kami pastikan — arahkan kamera ke objek aslinya",
+  "photoFailNotLive": "Tahan kamera ke objek aslinya, lalu coba lagi",
+  "photoFailNoMatch": "Sepertinya ini bukan objek yang kamu daftarkan",
+  "photoFailNoReference": "Belum ada objek terdaftar — atur dulu di alarmnya",
+
   "missionSafetyNote": "Letakkan ponsel dengan aman agar seluruh tubuh terlihat. Jangan memegang ponsel saat berolahraga. Berhenti kalau kamu merasa sakit atau pusing.",
   "poseGuidanceNoPerson": "Kamu belum kelihatan — masuk ke dalam frame",
   "poseGuidanceJointsHidden": "Mundur sedikit biar tangan dan kaki kelihatan penuh",
