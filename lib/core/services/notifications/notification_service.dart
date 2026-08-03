@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -8,7 +9,7 @@ import 'package:timezone/timezone.dart' as tz;
 /// via [selectedPayloads].
 class NotificationService {
   NotificationService([FlutterLocalNotificationsPlugin? plugin])
-      : _plugin = plugin ?? FlutterLocalNotificationsPlugin();
+    : _plugin = plugin ?? FlutterLocalNotificationsPlugin();
 
   final FlutterLocalNotificationsPlugin _plugin;
   final _selectedPayloads = StreamController<String>.broadcast();
@@ -19,11 +20,13 @@ class NotificationService {
   /// Payload of the notification that launched the app, if any.
   String? launchPayload;
 
-  static const _channelId = 'wakio_alarms';
+  // Changing the ID ensures devices that installed an older build get the
+  // corrected alarm-channel behavior (Android channel settings are immutable).
+  static const _channelId = 'bangunin_alarms_v2';
 
   Future<void> initialize() async {
     const settings = InitializationSettings(
-      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      android: AndroidInitializationSettings('launcher_icon'),
       iOS: DarwinInitializationSettings(
         requestAlertPermission: false,
         requestBadgePermission: false,
@@ -47,8 +50,10 @@ class NotificationService {
   }
 
   Future<bool> requestPermission() async {
-    final ios = _plugin.resolvePlatformSpecificImplementation<
-        IOSFlutterLocalNotificationsPlugin>();
+    final ios = _plugin
+        .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin
+        >();
     if (ios != null) {
       return await ios.requestPermissions(
             alert: true,
@@ -57,8 +62,10 @@ class NotificationService {
           ) ??
           false;
     }
-    final android = _plugin.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
+    final android = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
     if (android != null) {
       final granted = await android.requestNotificationsPermission() ?? false;
       await android.requestExactAlarmsPermission();
@@ -80,20 +87,27 @@ class NotificationService {
       body: body,
       scheduledDate: tz.TZDateTime.from(at, tz.local),
       notificationDetails: NotificationDetails(
-        android: const AndroidNotificationDetails(
+        android: AndroidNotificationDetails(
           _channelId,
-          'Alarms',
-          channelDescription: 'Alarm notifications',
+          'Bangunin alarms',
+          channelDescription: 'User-scheduled wake-up alarms',
           importance: Importance.max,
           priority: Priority.max,
           category: AndroidNotificationCategory.alarm,
           fullScreenIntent: true,
+          ongoing: true,
+          autoCancel: false,
+          additionalFlags: Int32List.fromList(<int>[
+            4, // Notification.FLAG_INSISTENT: repeat sound until handled.
+            32, // Notification.FLAG_NO_CLEAR: cannot be swipe-dismissed.
+          ]),
           audioAttributesUsage: AudioAttributesUsage.alarm,
         ),
         iOS: const DarwinNotificationDetails(
           presentAlert: true,
           presentSound: true,
           presentBanner: true,
+          sound: 'default',
           interruptionLevel: InterruptionLevel.timeSensitive,
         ),
       ),

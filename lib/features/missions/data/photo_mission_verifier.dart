@@ -14,7 +14,9 @@ enum PhotoVerdict { pass, fail, invalidImage }
 ///
 /// * Sky: the upper region must be bright and blue-dominant.
 /// * Grass: the frame must be green-dominant.
-/// * Bed: a valid, reasonably lit indoor photo (brightness sanity band).
+/// * Bed: a reasonably lit image with distributed edges and similar visual
+///   structure across the left/right halves. This rejects blank, pocket and
+///   single-object frames, but is intentionally described as a heuristic.
 /// * Object hunt: color-histogram similarity against the registered
 ///   reference photo.
 ///
@@ -65,11 +67,7 @@ class PhotoMissionVerifier {
   static img.Image? _decodeAndResize(Uint8List bytes) {
     final decoded = img.decodeImage(bytes);
     if (decoded == null) return null;
-    return img.copyResize(
-      decoded,
-      width: _analysisSize,
-      height: _analysisSize,
-    );
+    return img.copyResize(decoded, width: _analysisSize, height: _analysisSize);
   }
 
   PhotoVerdict _verifySky(img.Image photo) {
@@ -112,18 +110,48 @@ class PhotoMissionVerifier {
   }
 
   PhotoVerdict _verifyBed(img.Image photo) {
-    // Sanity band: not a pocket shot (near-black) and not a blown-out frame.
     var brightness = 0.0;
+    var edgePixels = 0;
+    var leftBrightness = 0.0;
+    var rightBrightness = 0.0;
     var samples = 0;
     for (var y = 0; y < photo.height; y++) {
       for (var x = 0; x < photo.width; x++) {
         final p = photo.getPixel(x, y);
-        brightness += (p.r + p.g + p.b) / 3;
+        final value = (p.r + p.g + p.b) / 3;
+        brightness += value;
+        if (x < photo.width ~/ 2) {
+          leftBrightness += value;
+        } else {
+          rightBrightness += value;
+        }
+        if (x > 0 && y > 0) {
+          final left = photo.getPixel(x - 1, y);
+          final above = photo.getPixel(x, y - 1);
+          final leftDelta =
+              (p.r - left.r).abs() +
+              (p.g - left.g).abs() +
+              (p.b - left.b).abs();
+          final aboveDelta =
+              (p.r - above.r).abs() +
+              (p.g - above.g).abs() +
+              (p.b - above.b).abs();
+          if (leftDelta + aboveDelta > 105) edgePixels++;
+        }
         samples++;
       }
     }
     brightness /= samples;
-    return (brightness > 40 && brightness < 235)
+    final edgeRatio = edgePixels / samples;
+    final halfSamples = samples / 2;
+    final symmetryDelta =
+        ((leftBrightness / halfSamples) - (rightBrightness / halfSamples))
+            .abs();
+    return (brightness > 45 &&
+            brightness < 225 &&
+            edgeRatio > 0.08 &&
+            edgeRatio < 0.72 &&
+            symmetryDelta < 55)
         ? PhotoVerdict.pass
         : PhotoVerdict.fail;
   }
@@ -142,7 +170,8 @@ class PhotoMissionVerifier {
     for (var y = 0; y < photo.height; y++) {
       for (var x = 0; x < photo.width; x++) {
         final p = photo.getPixel(x, y);
-        final index = (p.r.toInt() >> 6) * 16 +
+        final index =
+            (p.r.toInt() >> 6) * 16 +
             (p.g.toInt() >> 6) * 4 +
             (p.b.toInt() >> 6);
         bins[index]++;

@@ -1,8 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../../../app/di/providers.dart';
 import '../../../../app/router/routes.dart';
@@ -13,12 +17,10 @@ import '../../../../core/utils/l10n_ext.dart';
 import '../../../alarms/domain/entities/alarm.dart';
 import '../../../alarms/presentation/widgets/alarm_card.dart';
 import '../../../ringing/presentation/providers/ringing_provider.dart';
-import '../../data/motion_rep_counter.dart';
-import '../../domain/mission_type.dart';
+import '../../data/pose_rep_counter.dart';
 
-/// Movement mission: hold the phone and complete the target reps. The rep
-/// counter reads the accelerometer; every counted rep ticks the progress
-/// ring with a haptic.
+/// Camera pose mission. The phone stays placed where the full body is visible;
+/// pose landmarks are processed on-device and no frames are saved.
 class MovementMissionPage extends ConsumerStatefulWidget {
   const MovementMissionPage({super.key, required this.alarmId});
 
@@ -31,9 +33,12 @@ class MovementMissionPage extends ConsumerStatefulWidget {
 
 class _MovementMissionPageState extends ConsumerState<MovementMissionPage> {
   Alarm? _alarm;
-  MotionRepCounter? _counter;
-  StreamSubscription<int>? _repsSub;
+  CameraController? _camera;
+  PoseDetector? _detector;
+  PoseRepCounter? _counter;
   int _reps = 0;
+  bool _processing = false;
+  String? _error;
 
   @override
   void initState() {
@@ -42,26 +47,99 @@ class _MovementMissionPageState extends ConsumerState<MovementMissionPage> {
   }
 
   Future<void> _load() async {
-    final alarm =
-        await ref.read(alarmRepositoryProvider).getById(widget.alarmId);
+    final alarm = await ref
+        .read(alarmRepositoryProvider)
+        .getById(widget.alarmId);
     if (!mounted || alarm == null) return;
-    final target =
-        alarm.missionReps > 0 ? alarm.missionReps : alarm.missionType.defaultReps;
-    final counter = MotionRepCounter(targetReps: target);
-    _repsSub = counter.reps.listen(_onRep);
-    counter.start();
+    final target = alarm.missionReps > 0
+        ? alarm.missionReps
+        : alarm.missionType.defaultReps;
+    final permission = await Permission.camera.request();
+    if (!permission.isGranted) {
+      if (mounted) setState(() => _error = 'camera');
+      return;
+    }
+    final cameras = await availableCameras();
+    if (cameras.isEmpty) {
+      if (mounted) setState(() => _error = 'unavailable');
+      return;
+    }
+    final description = cameras.firstWhere(
+      (camera) => camera.lensDirection == CameraLensDirection.front,
+      orElse: () => cameras.first,
+    );
+    final camera = CameraController(
+      description,
+      ResolutionPreset.medium,
+      enableAudio: false,
+      imageFormatGroup: Platform.isAndroid
+          ? ImageFormatGroup.nv21
+          : ImageFormatGroup.bgra8888,
+    );
+    final detector = PoseDetector(
+      options: PoseDetectorOptions(mode: PoseDetectionMode.stream),
+    );
+    await camera.initialize();
+    final counter = PoseRepCounter(
+      mission: alarm.missionType,
+      targetReps: target,
+    );
+    await camera.startImageStream(
+      (image) => _processFrame(image, description, detector, counter),
+    );
+    if (!mounted) {
+      await camera.dispose();
+      await detector.close();
+      return;
+    }
     setState(() {
       _alarm = alarm;
       _counter = counter;
+      _camera = camera;
+      _detector = detector;
     });
   }
 
-  void _onRep(int reps) {
-    Haptics.tap();
-    setState(() => _reps = reps);
-    if (_counter?.isComplete ?? false) {
-      unawaited(_complete());
+  Future<void> _processFrame(
+    CameraImage image,
+    CameraDescription description,
+    PoseDetector detector,
+    PoseRepCounter counter,
+  ) async {
+    if (_processing || !mounted) return;
+    final input = _inputImage(image, description);
+    if (input == null) return;
+    _processing = true;
+    try {
+      final poses = await detector.processImage(input);
+      if (poses.isNotEmpty && counter.addPose(poses.first)) {
+        Haptics.tap();
+        if (mounted) setState(() => _reps = counter.reps);
+        if (counter.isComplete) unawaited(_complete());
+      }
+    } finally {
+      _processing = false;
     }
+  }
+
+  InputImage? _inputImage(CameraImage image, CameraDescription description) {
+    final rotation = InputImageRotationValue.fromRawValue(
+      description.sensorOrientation,
+    );
+    final format = InputImageFormatValue.fromRawValue(image.format.raw as int);
+    if (rotation == null || format == null || image.planes.length != 1) {
+      return null;
+    }
+    final plane = image.planes.first;
+    return InputImage.fromBytes(
+      bytes: plane.bytes,
+      metadata: InputImageMetadata(
+        size: Size(image.width.toDouble(), image.height.toDouble()),
+        rotation: rotation,
+        format: format,
+        bytesPerRow: plane.bytesPerRow,
+      ),
+    );
   }
 
   Future<void> _complete() async {
@@ -77,8 +155,11 @@ class _MovementMissionPageState extends ConsumerState<MovementMissionPage> {
 
   @override
   void dispose() {
-    unawaited(_repsSub?.cancel());
-    unawaited(_counter?.dispose());
+    final camera = _camera;
+    if (camera != null) {
+      unawaited(camera.stopImageStream().then((_) => camera.dispose()));
+    }
+    unawaited(_detector?.close());
     super.dispose();
   }
 
@@ -95,9 +176,7 @@ class _MovementMissionPageState extends ConsumerState<MovementMissionPage> {
         if (!didPop) unawaited(_abandon());
       },
       child: Scaffold(
-
         appBar: AppBar(
-  
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_rounded),
             tooltip: l10n.abandonMission,
@@ -105,11 +184,36 @@ class _MovementMissionPageState extends ConsumerState<MovementMissionPage> {
           ),
           title: Text(
             alarm?.missionType.localizedName(l10n) ?? '',
-            style: theme.textTheme.titleMedium!
-                .copyWith(color: AppColors.textPrimary),
+            style: theme.textTheme.titleMedium!.copyWith(
+              color: AppColors.textPrimary,
+            ),
           ),
         ),
-        body: alarm == null
+        body: _error != null
+            ? Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.xl),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.no_photography_rounded, size: 52),
+                      const SizedBox(height: AppSpacing.md),
+                      Text(
+                        _error == 'camera'
+                            ? l10n.cameraPermissionNeeded
+                            : l10n.cameraError,
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      TextButton(
+                        onPressed: openAppSettings,
+                        child: Text(l10n.openSettings),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            : alarm == null || _camera == null
             ? const Center(child: CircularProgressIndicator())
             : SafeArea(
                 child: Padding(
@@ -117,18 +221,27 @@ class _MovementMissionPageState extends ConsumerState<MovementMissionPage> {
                   child: Column(
                     children: [
                       Text(
-                        alarm.missionType == MissionType.squats
-                            ? l10n.movementInstructionSquats
-                            : l10n.movementInstructionPushups,
+                        Localizations.localeOf(context).languageCode == 'id'
+                            ? 'Letakkan ponsel dengan aman agar seluruh tubuh terlihat. Jangan memegang ponsel saat berolahraga. Hentikan jika merasa sakit atau pusing.'
+                            : 'Place the phone securely so your full body is visible. Do not hold it while exercising. Stop if you feel pain or dizzy.',
                         textAlign: TextAlign.center,
                         style: theme.textTheme.bodyMedium!.copyWith(
                           color: AppColors.textSecondary,
                         ),
                       ),
-                      const Spacer(),
+                      const SizedBox(height: AppSpacing.lg),
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(
+                            AppSpacing.radiusCard,
+                          ),
+                          child: CameraPreview(_camera!),
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
                       SizedBox(
-                        width: 220,
-                        height: 220,
+                        width: 150,
+                        height: 150,
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
@@ -141,38 +254,36 @@ class _MovementMissionPageState extends ConsumerState<MovementMissionPage> {
                               curve: Curves.easeOutCubic,
                               builder: (context, value, _) =>
                                   CircularProgressIndicator(
-                                value: value,
-                                strokeWidth: 10,
-                                strokeCap: StrokeCap.round,
-                                color: AppColors.primary,
-                                backgroundColor: AppColors.surfaceRaised,
-                              ),
+                                    value: value,
+                                    strokeWidth: 10,
+                                    strokeCap: StrokeCap.round,
+                                    color: AppColors.primary,
+                                    backgroundColor: AppColors.surfaceRaised,
+                                  ),
                             ),
                             Center(
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   AnimatedSwitcher(
-                                    duration:
-                                        const Duration(milliseconds: 200),
+                                    duration: const Duration(milliseconds: 200),
                                     transitionBuilder: (child, animation) =>
                                         ScaleTransition(
-                                      scale: animation,
-                                      child: child,
-                                    ),
+                                          scale: animation,
+                                          child: child,
+                                        ),
                                     child: Text(
                                       '$_reps',
                                       key: ValueKey(_reps),
                                       style: theme.textTheme.displayLarge!
                                           .copyWith(
-                                        color: AppColors.textPrimary,
-                                      ),
+                                            color: AppColors.textPrimary,
+                                          ),
                                     ),
                                   ),
                                   Text(
                                     l10n.repsOf(target),
-                                    style: theme.textTheme.bodyMedium!
-                                        .copyWith(
+                                    style: theme.textTheme.bodyMedium!.copyWith(
                                       color: AppColors.textSecondary,
                                     ),
                                   ),
@@ -182,9 +293,11 @@ class _MovementMissionPageState extends ConsumerState<MovementMissionPage> {
                           ],
                         ),
                       ),
-                      const Spacer(),
+                      const SizedBox(height: AppSpacing.md),
                       Text(
-                        l10n.movementHint,
+                        Localizations.localeOf(context).languageCode == 'id'
+                            ? 'Hanya gerakan lengkap dengan bentuk tubuh yang terlihat akan dihitung. Jika olahraga tidak aman untuk Anda, kembali dan gunakan misi foto.'
+                            : 'Only complete repetitions with visible form count. If exercise is not safe for you, go back and choose a photo mission.',
                         textAlign: TextAlign.center,
                         style: theme.textTheme.bodySmall!.copyWith(
                           color: AppColors.textTertiary,

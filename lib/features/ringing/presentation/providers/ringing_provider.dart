@@ -59,20 +59,19 @@ class RingingSession {
   final DateTime startedAt;
   final int snoozeCount;
 
-  bool get canSnooze =>
-      alarm.snoozeEnabled && snoozeCount < alarm.maxSnoozes;
+  bool get canSnooze => alarm.snoozeEnabled && snoozeCount < alarm.maxSnoozes;
 
   RingingSession copyWith({int? snoozeCount}) => RingingSession(
-        alarm: alarm,
-        startedAt: startedAt,
-        snoozeCount: snoozeCount ?? this.snoozeCount,
-      );
+    alarm: alarm,
+    startedAt: startedAt,
+    snoozeCount: snoozeCount ?? this.snoozeCount,
+  );
 }
 
 final ringingSessionProvider =
     NotifierProvider<RingingSessionNotifier, RingingSession?>(
-  RingingSessionNotifier.new,
-);
+      RingingSessionNotifier.new,
+    );
 
 class RingingSessionNotifier extends Notifier<RingingSession?> {
   static const _uuid = Uuid();
@@ -101,30 +100,33 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
     );
     await ref.read(alarmAudioServiceProvider).startRinging(alarm);
     unawaited(
-      ref.read(analyticsProvider).logEvent(
-        AnalyticsEvents.alarmRinging,
-        {'mission': alarm.missionType.name},
-      ),
+      ref.read(analyticsProvider).logEvent(AnalyticsEvents.alarmRinging, {
+        'mission': alarm.missionType.name,
+      }),
     );
     return alarm;
   }
 
-  /// Silences the alarm while a mission is being attempted. The session
-  /// stays active so abandoning the mission resumes ringing.
+  /// Lowers the alarm while a mission is attempted. The session stays active;
+  /// abandoning the mission restores full volume.
   Future<void> pauseForMission() async {
-    await ref.read(alarmAudioServiceProvider).stopRinging();
+    await ref.read(alarmAudioServiceProvider).duckForMission();
     unawaited(
-      ref.read(analyticsProvider).logEvent(
-        AnalyticsEvents.missionStarted,
-        {'mission': state?.alarm.missionType.name},
-      ),
+      ref.read(analyticsProvider).logEvent(AnalyticsEvents.missionStarted, {
+        'mission': state?.alarm.missionType.name,
+      }),
     );
   }
 
   Future<void> resumeRinging() async {
     final session = state;
     if (session == null) return;
-    await ref.read(alarmAudioServiceProvider).startRinging(session.alarm);
+    final audio = ref.read(alarmAudioServiceProvider);
+    if (audio.isPlaying) {
+      await audio.restoreRingingVolume();
+    } else {
+      await audio.startRinging(session.alarm);
+    }
   }
 
   Future<bool> snooze() async {
@@ -136,10 +138,9 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
         .scheduleSnooze(session.alarm, session.alarm.snoozeMinutes);
     _snoozeCounts[session.alarm.id] = session.snoozeCount + 1;
     unawaited(
-      ref.read(analyticsProvider).logEvent(
-        AnalyticsEvents.alarmSnoozed,
-        {'count': session.snoozeCount + 1},
-      ),
+      ref.read(analyticsProvider).logEvent(AnalyticsEvents.alarmSnoozed, {
+        'count': session.snoozeCount + 1,
+      }),
     );
     // Snoozing hands control back to the OS notification.
     state = null;
@@ -155,7 +156,9 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
 
     final alarm = session.alarm;
     _snoozeCounts.remove(alarm.id);
-    await ref.read(wakeStatsRepositoryProvider).add(
+    await ref
+        .read(wakeStatsRepositoryProvider)
+        .add(
           WakeRecord(
             id: _uuid.v4(),
             alarmId: alarm.id,
@@ -176,10 +179,9 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
     await ref.read(alarmSchedulerProvider).reschedule(alarms);
 
     unawaited(
-      ref.read(analyticsProvider).logEvent(
-        AnalyticsEvents.missionCompleted,
-        {'mission': alarm.missionType.name},
-      ),
+      ref.read(analyticsProvider).logEvent(AnalyticsEvents.missionCompleted, {
+        'mission': alarm.missionType.name,
+      }),
     );
     state = null;
   }

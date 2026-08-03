@@ -2,7 +2,7 @@ name: wakio
 description: "Mission-based alarm clock. Prove you are awake."
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.0.0+2
 
 environment:
   sdk: ^3.12.2
@@ -14,6 +14,7 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
+  crypto: ^3.0.7
   flutter_riverpod: ^3.3.2
   go_router: ^17.3.0
   dio: ^5.10.0
@@ -33,6 +34,8 @@ dependencies:
   wakelock_plus: ^1.5.2
   permission_handler: ^12.0.3
   in_app_purchase: ^3.3.0
+  in_app_purchase_android: ^0.5.1
+  in_app_purchase_storekit: ^0.4.10+1
   shared_preferences: ^2.5.5
   path_provider: ^2.1.6
   uuid: ^4.5.3
@@ -40,6 +43,7 @@ dependencies:
   url_launcher: ^6.3.2
   intl: any
   in_app_review: ^2.0.12
+  google_mlkit_pose_detection: ^0.15.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:in_app_review/in_app_review.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../app/router/routes.dart';
@@ -102,12 +104,27 @@ class SettingsPage extends ConsumerWidget {
                       ref.read(purchaseInProgressProvider.notifier).restore(),
                     ),
                   ),
+                  if (defaultTargetPlatform == TargetPlatform.android)
+                    _SettingsTile(
+                      icon: Icons.manage_accounts_outlined,
+                      title:
+                          Localizations.localeOf(context).languageCode == 'id'
+                          ? 'Kelola langganan'
+                          : 'Manage subscription',
+                      onTap: () => unawaited(
+                        _launch(
+                          defaultTargetPlatform == TargetPlatform.iOS
+                              ? AppConfig.manageAppStoreSubscriptionUrl
+                              : AppConfig.manageGooglePlaySubscriptionUrl,
+                        ),
+                      ),
+                    ),
                   _SettingsTile(
                     icon: Icons.language_rounded,
                     title: l10n.settingsLanguage,
                     trailingLabel:
                         _languageNames[localeOverride?.languageCode] ??
-                            l10n.languageSystemDefault,
+                        l10n.languageSystemDefault,
                     onTap: () => _showLanguagePicker(context, ref),
                   ),
                 ],
@@ -130,11 +147,8 @@ class SettingsPage extends ConsumerWidget {
                   _SettingsTile(
                     icon: Icons.star_border_rounded,
                     title: l10n.rateApp,
-                    onTap: () => unawaited(
-                      _launch(
-                        'https://apps.apple.com/app/id${AppConfig.appStoreId}?action=write-review',
-                      ),
-                    ),
+                    onTap: () =>
+                        unawaited(InAppReview.instance.requestReview()),
                   ),
                 ],
               ),
@@ -217,8 +231,8 @@ class SettingsPage extends ConsumerWidget {
             ),
             for (final locale in AppLocalizations.supportedLocales)
               _LanguageOption(
-                label: _languageNames[locale.languageCode] ??
-                    locale.languageCode,
+                label:
+                    _languageNames[locale.languageCode] ?? locale.languageCode,
                 selected: current == locale,
                 onTap: () => _pickLanguage(ref, sheetContext, locale),
               ),

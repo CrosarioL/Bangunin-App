@@ -39,10 +39,12 @@
     <h2>1. No account, no server</h2>
     <p>You don't sign up. Bangunin doesn't ask for your name, phone number, or email to use the app. Your alarms, streaks, and settings are stored only on your device.</p>
 
-    <h2>2. Camera and motion (wake-up missions)</h2>
-    <p>Some missions ask you to take a photo (for example, of the sky) or to move your phone (for example, squats). This is checked <strong>on your device only</strong>:</p>
+    <h2>2. Camera, photos, pose and audio (wake-up missions)</h2>
+    <p>Some missions ask you to take a photo, register an object reference, perform an exercise in view of the camera, or choose a custom sound. This is handled <strong>on your device only</strong>:</p>
     <ul>
       <li>Photos taken for a mission are used to verify you're awake and are <strong>deleted right after</strong> the check. They are never uploaded, stored, or sent anywhere.</li>
+      <li>An Object Hunt reference image is stored locally until you replace it or delete its alarm. It is kept separate from temporary attempt photos.</li>
+      <li>Squat and pushup missions derive temporary body-position landmarks from live camera frames. Frames and landmarks are not saved or uploaded.</li>
       <li>Motion is read from your phone's sensors in the moment and is not recorded or transmitted.</li>
     </ul>
 
@@ -56,7 +58,7 @@
     <p>Subscriptions are processed by Google Play or the Apple App Store under their own terms and privacy policies. We receive confirmation that a subscription is active, but we do not receive or store your payment card details.</p>
 
     <h2>6. Analytics</h2>
-    <p>We may collect anonymous, aggregated usage events (for example, "an alarm was created") to understand how the app is used and improve it. These events are not tied to your identity and do not include the contents of your photos, sounds, or missions.</p>
+    <p>The current app does not include a third-party analytics or crash-reporting SDK and does not transmit usage events or diagnostics. Development builds may print non-identifying debug events to the local developer console.</p>
 
     <h2>7. Children</h2>
     <p>Bangunin is intended for students and general users. It is not directed at children under 13, and we do not knowingly collect data from them.</p>
