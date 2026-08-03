@@ -52,6 +52,7 @@ class _FakeAudioService implements AlarmAudioService {
 class _FakeAlarmScheduler implements AlarmScheduler {
   int snoozeCallCount = 0;
   int rescheduleCallCount = 0;
+  int clearPendingSnoozeCallCount = 0;
 
   @override
   Locale? get localeOverride => null;
@@ -62,6 +63,9 @@ class _FakeAlarmScheduler implements AlarmScheduler {
   @override
   Future<void> scheduleSnooze(Alarm alarm, int minutes) async =>
       snoozeCallCount++;
+
+  @override
+  void clearPendingSnooze() => clearPendingSnoozeCallCount++;
 }
 
 void main() {
