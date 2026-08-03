@@ -322,6 +322,14 @@
 
   "manageSubscription": "Manage subscription",
 
+  "missionSafetyNote": "Place the phone securely so your full body is visible. Do not hold it while exercising. Stop if you feel pain or dizzy.",
+  "poseGuidanceNoPerson": "We can't see you — step into the frame",
+  "poseGuidanceJointsHidden": "Move back so your arms and legs are fully visible",
+  "poseGuidanceGetReady": "Hold the starting position to begin",
+  "poseGuidanceGoDown": "Go down",
+  "poseGuidanceComeUp": "Come back up",
+  "poseGuidanceComplete": "Done — nice work",
+
   "accessCodeTitle": "Enter access code",
   "accessCodeHint": "Access code",
   "accessCodeRedeem": "Redeem",

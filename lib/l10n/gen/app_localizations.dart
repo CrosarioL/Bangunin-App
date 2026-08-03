@@ -1352,6 +1352,48 @@ abstract class AppLocalizations {
   /// **'Manage subscription'**
   String get manageSubscription;
 
+  /// No description provided for @missionSafetyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Place the phone securely so your full body is visible. Do not hold it while exercising. Stop if you feel pain or dizzy.'**
+  String get missionSafetyNote;
+
+  /// No description provided for @poseGuidanceNoPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'We can\'t see you — step into the frame'**
+  String get poseGuidanceNoPerson;
+
+  /// No description provided for @poseGuidanceJointsHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Move back so your arms and legs are fully visible'**
+  String get poseGuidanceJointsHidden;
+
+  /// No description provided for @poseGuidanceGetReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold the starting position to begin'**
+  String get poseGuidanceGetReady;
+
+  /// No description provided for @poseGuidanceGoDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Go down'**
+  String get poseGuidanceGoDown;
+
+  /// No description provided for @poseGuidanceComeUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Come back up'**
+  String get poseGuidanceComeUp;
+
+  /// No description provided for @poseGuidanceComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Done — nice work'**
+  String get poseGuidanceComplete;
+
   /// No description provided for @accessCodeTitle.
   ///
   /// In en, this message translates to:

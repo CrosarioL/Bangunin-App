@@ -44,8 +44,9 @@ class _PhotoMissionPageState extends ConsumerState<PhotoMissionPage> {
   }
 
   Future<void> _load() async {
-    final alarm =
-        await ref.read(alarmRepositoryProvider).getById(widget.alarmId);
+    final alarm = await ref
+        .read(alarmRepositoryProvider)
+        .getById(widget.alarmId);
     if (mounted) setState(() => _alarm = alarm);
   }
 
@@ -54,7 +55,9 @@ class _PhotoMissionPageState extends ConsumerState<PhotoMissionPage> {
     if (alarm == null) return;
     setState(() => _state = _VerifyState.verifying);
 
-    final verdict = await ref.read(photoMissionVerifierProvider).verify(
+    final verdict = await ref
+        .read(photoMissionVerifierProvider)
+        .verify(
           alarm.missionType,
           path,
           referencePath: alarm.objectReferencePath,
@@ -73,10 +76,9 @@ class _PhotoMissionPageState extends ConsumerState<PhotoMissionPage> {
     } else {
       Haptics.warning();
       unawaited(
-        ref.read(analyticsProvider).logEvent(
-          AnalyticsEvents.missionFailed,
-          {'mission': alarm.missionType.name},
-        ),
+        ref.read(analyticsProvider).logEvent(AnalyticsEvents.missionFailed, {
+          'mission': alarm.missionType.name,
+        }),
       );
       setState(() => _state = _VerifyState.failed);
     }
@@ -107,9 +109,7 @@ class _PhotoMissionPageState extends ConsumerState<PhotoMissionPage> {
         if (!didPop) unawaited(_abandon());
       },
       child: Scaffold(
-
         appBar: AppBar(
-  
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_rounded),
             tooltip: l10n.abandonMission,
@@ -117,8 +117,9 @@ class _PhotoMissionPageState extends ConsumerState<PhotoMissionPage> {
           ),
           title: Text(
             alarm?.missionType.localizedName(l10n) ?? '',
-            style: theme.textTheme.titleMedium!
-                .copyWith(color: AppColors.textPrimary),
+            style: theme.textTheme.titleMedium!.copyWith(
+              color: AppColors.textPrimary,
+            ),
           ),
         ),
         body: alarm == null
@@ -140,26 +141,20 @@ class _PhotoMissionPageState extends ConsumerState<PhotoMissionPage> {
                         duration: const Duration(milliseconds: 250),
                         child: switch (_state) {
                           _VerifyState.verifying => Text(
-                              l10n.verifyingPhoto,
-                              key: const ValueKey('verifying'),
-                              style: const TextStyle(
-                                color: AppColors.primary,
-                              ),
-                            ),
+                            l10n.verifyingPhoto,
+                            key: const ValueKey('verifying'),
+                            style: const TextStyle(color: AppColors.primary),
+                          ),
                           _VerifyState.failed => Text(
-                              l10n.missionPhotoFailed,
-                              key: const ValueKey('failed'),
-                              style: const TextStyle(
-                                color: AppColors.danger,
-                              ),
-                            ),
+                            l10n.missionPhotoFailed,
+                            key: const ValueKey('failed'),
+                            style: const TextStyle(color: AppColors.danger),
+                          ),
                           _VerifyState.idle => const SizedBox(height: 20),
                         },
                       ),
                       const SizedBox(height: AppSpacing.md),
-                      Expanded(
-                        child: MissionCamera(onCaptured: _onCaptured),
-                      ),
+                      Expanded(child: MissionCamera(onCaptured: _onCaptured)),
                     ],
                   ),
                 ),

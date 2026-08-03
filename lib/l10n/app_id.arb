@@ -230,6 +230,14 @@
 
   "manageSubscription": "Kelola langganan",
 
+  "missionSafetyNote": "Letakkan ponsel dengan aman agar seluruh tubuh terlihat. Jangan memegang ponsel saat berolahraga. Berhenti kalau kamu merasa sakit atau pusing.",
+  "poseGuidanceNoPerson": "Kamu belum kelihatan — masuk ke dalam frame",
+  "poseGuidanceJointsHidden": "Mundur sedikit biar tangan dan kaki kelihatan penuh",
+  "poseGuidanceGetReady": "Tahan posisi awal untuk mulai",
+  "poseGuidanceGoDown": "Turun",
+  "poseGuidanceComeUp": "Naik lagi",
+  "poseGuidanceComplete": "Selesai — mantap",
+
   "accessCodeTitle": "Masukkan kode akses",
   "accessCodeHint": "Kode akses",
   "accessCodeRedeem": "Gunakan",

@@ -710,6 +710,30 @@ class AppLocalizationsId extends AppLocalizations {
   String get manageSubscription => 'Kelola langganan';
 
   @override
+  String get missionSafetyNote =>
+      'Letakkan ponsel dengan aman agar seluruh tubuh terlihat. Jangan memegang ponsel saat berolahraga. Berhenti kalau kamu merasa sakit atau pusing.';
+
+  @override
+  String get poseGuidanceNoPerson =>
+      'Kamu belum kelihatan — masuk ke dalam frame';
+
+  @override
+  String get poseGuidanceJointsHidden =>
+      'Mundur sedikit biar tangan dan kaki kelihatan penuh';
+
+  @override
+  String get poseGuidanceGetReady => 'Tahan posisi awal untuk mulai';
+
+  @override
+  String get poseGuidanceGoDown => 'Turun';
+
+  @override
+  String get poseGuidanceComeUp => 'Naik lagi';
+
+  @override
+  String get poseGuidanceComplete => 'Selesai — mantap';
+
+  @override
   String get accessCodeTitle => 'Masukkan kode akses';
 
   @override

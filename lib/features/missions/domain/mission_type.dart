@@ -23,14 +23,14 @@ enum MissionType {
   bool get needsReferencePhoto => this == objectHunt;
 
   IconData get icon => switch (this) {
-        none => Icons.notifications_none_rounded,
-        objectHunt => Icons.center_focus_strong_rounded,
-        skyPhoto => Icons.wb_twilight_rounded,
-        grassPhoto => Icons.grass_rounded,
-        makeBed => Icons.bed_rounded,
-        squats => Icons.accessibility_new_rounded,
-        pushups => Icons.fitness_center_rounded,
-      };
+    none => Icons.notifications_none_rounded,
+    objectHunt => Icons.center_focus_strong_rounded,
+    skyPhoto => Icons.wb_twilight_rounded,
+    grassPhoto => Icons.grass_rounded,
+    makeBed => Icons.bed_rounded,
+    squats => Icons.accessibility_new_rounded,
+    pushups => Icons.fitness_center_rounded,
+  };
 
   /// Default repetition target for movement missions.
   int get defaultReps => isMovement ? 10 : 0;

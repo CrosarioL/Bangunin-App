@@ -711,6 +711,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manageSubscription => 'Manage subscription';
 
   @override
+  String get missionSafetyNote =>
+      'Place the phone securely so your full body is visible. Do not hold it while exercising. Stop if you feel pain or dizzy.';
+
+  @override
+  String get poseGuidanceNoPerson => 'We can\'t see you — step into the frame';
+
+  @override
+  String get poseGuidanceJointsHidden =>
+      'Move back so your arms and legs are fully visible';
+
+  @override
+  String get poseGuidanceGetReady => 'Hold the starting position to begin';
+
+  @override
+  String get poseGuidanceGoDown => 'Go down';
+
+  @override
+  String get poseGuidanceComeUp => 'Come back up';
+
+  @override
+  String get poseGuidanceComplete => 'Done — nice work';
+
+  @override
   String get accessCodeTitle => 'Enter access code';
 
   @override

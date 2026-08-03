@@ -40,6 +40,9 @@ class _MovementMissionPageState extends ConsumerState<MovementMissionPage> {
   bool _processing = false;
   String? _error;
 
+  /// Live coaching state, so the user is told why nothing is counting.
+  PoseGuidance _guidance = PoseGuidance.getIntoStartPosition;
+
   @override
   void initState() {
     super.initState();
@@ -112,11 +115,23 @@ class _MovementMissionPageState extends ConsumerState<MovementMissionPage> {
     _processing = true;
     try {
       final poses = await detector.processImage(input);
-      if (poses.isNotEmpty && counter.addPose(poses.first)) {
-        Haptics.tap();
-        if (mounted) setState(() => _reps = counter.reps);
-        if (counter.isComplete) unawaited(_complete());
+      // An empty result is itself information — tell the user we can't see
+      // them rather than leaving the screen silent while they rep away.
+      final update = poses.isEmpty
+          ? const PoseRepUpdate(
+              reps: 0,
+              guidance: PoseGuidance.noPersonDetected,
+            )
+          : counter.addPose(poses.first);
+
+      if (update.repCounted) Haptics.tap();
+      if (mounted && (update.repCounted || update.guidance != _guidance)) {
+        setState(() {
+          _reps = counter.reps;
+          _guidance = update.guidance;
+        });
       }
+      if (counter.isComplete) unawaited(_complete());
     } finally {
       _processing = false;
     }
@@ -221,9 +236,7 @@ class _MovementMissionPageState extends ConsumerState<MovementMissionPage> {
                   child: Column(
                     children: [
                       Text(
-                        Localizations.localeOf(context).languageCode == 'id'
-                            ? 'Letakkan ponsel dengan aman agar seluruh tubuh terlihat. Jangan memegang ponsel saat berolahraga. Hentikan jika merasa sakit atau pusing.'
-                            : 'Place the phone securely so your full body is visible. Do not hold it while exercising. Stop if you feel pain or dizzy.',
+                        l10n.missionSafetyNote,
                         textAlign: TextAlign.center,
                         style: theme.textTheme.bodyMedium!.copyWith(
                           color: AppColors.textSecondary,
@@ -238,7 +251,9 @@ class _MovementMissionPageState extends ConsumerState<MovementMissionPage> {
                           child: CameraPreview(_camera!),
                         ),
                       ),
-                      const SizedBox(height: AppSpacing.lg),
+                      const SizedBox(height: AppSpacing.md),
+                      _GuidanceBanner(guidance: _guidance),
+                      const SizedBox(height: AppSpacing.md),
                       SizedBox(
                         width: 150,
                         height: 150,
@@ -307,6 +322,60 @@ class _MovementMissionPageState extends ConsumerState<MovementMissionPage> {
                   ),
                 ),
               ),
+      ),
+    );
+  }
+}
+
+/// Live coaching line under the camera.
+///
+/// Tracking problems are the common case and the one users can act on, so
+/// they get a warning tint and an icon; ordinary rep prompts stay quiet. The
+/// text is announced politely to VoiceOver rather than interrupting.
+class _GuidanceBanner extends StatelessWidget {
+  const _GuidanceBanner({required this.guidance});
+
+  final PoseGuidance guidance;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+
+    final (text, isProblem) = switch (guidance) {
+      PoseGuidance.noPersonDetected => (l10n.poseGuidanceNoPerson, true),
+      PoseGuidance.keyJointsNotVisible => (l10n.poseGuidanceJointsHidden, true),
+      PoseGuidance.getIntoStartPosition => (l10n.poseGuidanceGetReady, false),
+      PoseGuidance.ready => (l10n.poseGuidanceGoDown, false),
+      PoseGuidance.lowered => (l10n.poseGuidanceComeUp, false),
+      PoseGuidance.complete => (l10n.poseGuidanceComplete, false),
+    };
+
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 200),
+      child: Row(
+        key: ValueKey(guidance),
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (isProblem) ...[
+            const Icon(
+              Icons.visibility_off_rounded,
+              size: 20,
+              color: AppColors.danger,
+              semanticLabel: '',
+            ),
+            const SizedBox(width: AppSpacing.sm),
+          ],
+          Flexible(
+            child: Text(
+              text,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleSmall!.copyWith(
+                color: isProblem ? AppColors.danger : AppColors.textPrimary,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
