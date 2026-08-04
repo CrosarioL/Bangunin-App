@@ -6,11 +6,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/di/providers.dart';
 import '../../../../app/router/app_router.dart';
 import '../../../../app/router/routes.dart';
+import '../providers/alarms_provider.dart';
 
-/// Routes into the ringing screen when the user opens Bangunin from a live
-/// AlarmKit alert.
+/// Keeps the alarm schedule honest across app lifecycle events.
 ///
-/// AlarmKit presents its own system alert; tapping our secondary button runs
+/// Two jobs, both of which only make sense at the app root:
+///
+///  1. **Mission routing.** Routes into the ringing screen when the user opens
+///     Bangunin from a live AlarmKit alert.
+///  2. **Timezone rehydration.** Alarms are wall-clock times, so crossing a
+///     timezone (Jakarta -> Bali, WIB -> WITA) leaves every scheduled
+///     occurrence an hour out until something else happens to reschedule
+///     them. Nothing did, before this.
+///
+/// On mission routing: AlarmKit presents its own system alert; tapping our
+/// secondary button runs
 /// `StartMissionIntent`, which opens the app and leaves the alarm id behind.
 /// This picks it up. Without it the user taps "Start mission" on the lock
 /// screen and lands on the home page, with the alarm still ringing and no
@@ -34,10 +44,14 @@ class _AlarmKitMissionRouterState extends ConsumerState<AlarmKitMissionRouter>
   /// a second in-flight call could still route twice.
   bool _checking = false;
 
+  /// Offset we last scheduled against, to spot a timezone change on resume.
+  Duration? _lastKnownOffset;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _lastKnownOffset = DateTime.now().timeZoneOffset;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(_routePendingMission());
     });
@@ -53,6 +67,7 @@ class _AlarmKitMissionRouterState extends ConsumerState<AlarmKitMissionRouter>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       unawaited(_routePendingMission());
+      unawaited(_resyncIfTimezoneChanged());
     }
   }
 
@@ -75,6 +90,19 @@ class _AlarmKitMissionRouterState extends ConsumerState<AlarmKitMissionRouter>
     } finally {
       _checking = false;
     }
+  }
+
+  /// Re-arms every alarm when the device's UTC offset has moved.
+  ///
+  /// Alarms are stored as wall-clock times, so 05:00 must stay 05:00 in
+  /// whatever zone the user wakes up in — but the occurrences we handed the
+  /// OS were computed in the old zone and would fire at the wrong moment.
+  Future<void> _resyncIfTimezoneChanged() async {
+    final offset = DateTime.now().timeZoneOffset;
+    if (offset == _lastKnownOffset) return;
+    _lastKnownOffset = offset;
+    if (!mounted) return;
+    await ref.read(alarmActionsProvider).resync();
   }
 
   @override
