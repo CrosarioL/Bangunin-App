@@ -1,0 +1,102 @@
+{
+  "identifier" : "BANGUNIN_LOCAL_STOREKIT",
+  "nonRenewingSubscriptions" : [
+  ],
+  "products" : [
+  ],
+  "settings" : {
+    "_askToBuyEnabled" : false,
+    "_billingIssuesEnabled" : false,
+    "_storefront" : "IDN",
+    "_storeKitErrors" : [
+    ]
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21451932",
+      "localizations" : [
+        {
+          "description" : "Bangunin Premium",
+          "displayName" : "Bangunin Premium",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "Bangunin Premium",
+          "displayName" : "Bangunin Premium",
+          "locale" : "id_ID"
+        }
+      ],
+      "name" : "Bangunin Premium",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+          ],
+          "codeOffers" : [
+          ],
+          "displayPrice" : "49000",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "21451933",
+          "introductoryOffer" : {
+            "internalID" : "21451935",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P3D"
+          },
+          "localizations" : [
+            {
+              "description" : "Every mission, sound and stat.",
+              "displayName" : "Monthly",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "Semua misi, suara dan statistik.",
+              "displayName" : "Bulanan",
+              "locale" : "id_ID"
+            }
+          ],
+          "productID" : "bangunin.premium.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Bangunin Premium Monthly",
+          "subscriptionGroupID" : "21451932",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+          ],
+          "codeOffers" : [
+          ],
+          "displayPrice" : "199000",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "21451934",
+          "introductoryOffer" : {
+            "internalID" : "21451936",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P3D"
+          },
+          "localizations" : [
+            {
+              "description" : "Every mission, sound and stat. Best value.",
+              "displayName" : "Yearly",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "Semua misi, suara dan statistik. Paling hemat.",
+              "displayName" : "Tahunan",
+              "locale" : "id_ID"
+            }
+          ],
+          "productID" : "bangunin.premium.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Bangunin Premium Yearly",
+          "subscriptionGroupID" : "21451932",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}
