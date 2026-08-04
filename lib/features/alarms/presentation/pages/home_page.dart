@@ -18,6 +18,7 @@ import '../../../../core/utils/l10n_ext.dart';
 import '../../../../core/utils/time_format.dart';
 import '../../../stats/presentation/providers/stats_provider.dart';
 import '../providers/alarms_provider.dart';
+import '../widgets/alarm_capability_banner.dart';
 import '../widgets/alarm_card.dart';
 
 class HomePage extends ConsumerWidget {
@@ -217,6 +218,9 @@ class _HeaderState extends State<_Header> {
             ),
           ],
         ),
+        // Whether this iPhone can actually ring through Silent Mode and
+        // Focus, stated plainly. The user should never have to guess.
+        const AlarmCapabilityBanner(),
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           child: nextAt == null
@@ -255,8 +259,7 @@ class _HeaderState extends State<_Header> {
                                 TimeFormat.countdown(
                                   nextAt.difference(DateTime.now()),
                                 ),
-                                style: theme.textTheme.headlineMedium!
-                                    .copyWith(
+                                style: theme.textTheme.headlineMedium!.copyWith(
                                   color: AppColors.primary,
                                   fontWeight: FontWeight.w800,
                                 ),

@@ -6,10 +6,5 @@ import 'bootstrap.dart';
 
 Future<void> main() async {
   final overrides = await bootstrap();
-  runApp(
-    ProviderScope(
-      overrides: overrides,
-      child: const BanguninApp(),
-    ),
-  );
+  runApp(ProviderScope(overrides: overrides, child: const BanguninApp()));
 }

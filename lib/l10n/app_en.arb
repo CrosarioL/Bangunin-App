@@ -92,6 +92,12 @@
 
   "cameraPermissionNeeded": "Camera access is needed to complete photo missions.",
   "openSettings": "Open Settings",
+  "notNow": "Not now",
+  "alarmEngineFullTitle": "Rings even on silent",
+  "alarmEngineFallbackBody": "Alarms use notifications on this iPhone. They won't ring in Silent Mode or a Focus, and they stop after about 30 seconds.",
+  "alarmEngineEnable": "Turn on real alarms",
+  "alarmEngineEducationTitle": "Let Bangunin wake you properly",
+  "alarmEngineEducationBody": "iOS can let Bangunin ring like the built-in Clock — through Silent Mode, through a Focus, and full screen on your lock screen.\n\nWe'll ask for that permission next. Without it, alarms stay as ordinary notifications and are easy to sleep through.",
   "cameraError": "The camera couldn't start.",
   "takePhoto": "Take photo",
 

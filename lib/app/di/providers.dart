@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/config/app_config.dart';
+import '../../core/services/alarms/alarm_kit_service.dart';
 import '../../core/services/analytics/analytics_service.dart';
 import '../../core/services/audio/alarm_audio_service.dart';
 import '../../core/services/crash/crash_reporter.dart';
@@ -69,9 +70,16 @@ final wakeStatsRepositoryProvider = Provider<WakeStatsRepository>(
   (ref) => HiveWakeStatsRepository(ref.watch(localStoreProvider)),
 );
 
+/// Bridge to Apple AlarmKit. Reports unsupported below iOS 26 and on Android,
+/// where the scheduler falls back to notifications.
+final alarmKitServiceProvider = Provider<AlarmKitService>(
+  (ref) => AlarmKitService(),
+);
+
 final alarmSchedulerProvider = Provider<AlarmScheduler>(
   (ref) => AlarmScheduler(
     ref.watch(notificationServiceProvider),
+    alarmKit: ref.watch(alarmKitServiceProvider),
     localeOverride: ref.watch(localeOverrideProvider),
   ),
 );

@@ -530,6 +530,42 @@ abstract class AppLocalizations {
   /// **'Open Settings'**
   String get openSettings;
 
+  /// No description provided for @notNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get notNow;
+
+  /// No description provided for @alarmEngineFullTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rings even on silent'**
+  String get alarmEngineFullTitle;
+
+  /// No description provided for @alarmEngineFallbackBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Alarms use notifications on this iPhone. They won\'t ring in Silent Mode or a Focus, and they stop after about 30 seconds.'**
+  String get alarmEngineFallbackBody;
+
+  /// No description provided for @alarmEngineEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on real alarms'**
+  String get alarmEngineEnable;
+
+  /// No description provided for @alarmEngineEducationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Let Bangunin wake you properly'**
+  String get alarmEngineEducationTitle;
+
+  /// No description provided for @alarmEngineEducationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'iOS can let Bangunin ring like the built-in Clock — through Silent Mode, through a Focus, and full screen on your lock screen.\n\nWe\'ll ask for that permission next. Without it, alarms stay as ordinary notifications and are easy to sleep through.'**
+  String get alarmEngineEducationBody;
+
   /// No description provided for @cameraError.
   ///
   /// In en, this message translates to:

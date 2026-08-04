@@ -237,6 +237,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openSettings => 'Open Settings';
 
   @override
+  String get notNow => 'Not now';
+
+  @override
+  String get alarmEngineFullTitle => 'Rings even on silent';
+
+  @override
+  String get alarmEngineFallbackBody =>
+      'Alarms use notifications on this iPhone. They won\'t ring in Silent Mode or a Focus, and they stop after about 30 seconds.';
+
+  @override
+  String get alarmEngineEnable => 'Turn on real alarms';
+
+  @override
+  String get alarmEngineEducationTitle => 'Let Bangunin wake you properly';
+
+  @override
+  String get alarmEngineEducationBody =>
+      'iOS can let Bangunin ring like the built-in Clock — through Silent Mode, through a Focus, and full screen on your lock screen.\n\nWe\'ll ask for that permission next. Without it, alarms stay as ordinary notifications and are easy to sleep through.';
+
+  @override
   String get cameraError => 'The camera couldn\'t start.';
 
   @override

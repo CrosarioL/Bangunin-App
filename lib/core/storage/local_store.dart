@@ -52,11 +52,7 @@ class LocalStore {
     return raw == null ? null : jsonDecode(raw) as Map<String, dynamic>;
   }
 
-  Future<void> write(
-    String collection,
-    String id,
-    Map<String, dynamic> json,
-  ) =>
+  Future<void> write(String collection, String id, Map<String, dynamic> json) =>
       _boxFor(collection).put(id, jsonEncode(json));
 
   Future<void> delete(String collection, String id) =>
@@ -66,11 +62,11 @@ class LocalStore {
       _boxFor(collection).watch().map((_) {});
 
   Box<String> _boxFor(String collection) => switch (collection) {
-        _alarmsBox => _alarms,
-        _wakeRecordsBox => _wakeRecords,
-        _settingsBox => _settings,
-        _ => throw ArgumentError('Unknown collection: $collection'),
-      };
+    _alarmsBox => _alarms,
+    _wakeRecordsBox => _wakeRecords,
+    _settingsBox => _settings,
+    _ => throw ArgumentError('Unknown collection: $collection'),
+  };
 
   static const alarms = _alarmsBox;
   static const wakeRecords = _wakeRecordsBox;

@@ -93,8 +93,8 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet> {
                   color: AppColors.primary,
                 ),
                 title: Text(sound.localizedName(l10n)),
-                trailing: widget.current == sound &&
-                        widget.currentCustomPath == null
+                trailing:
+                    widget.current == sound && widget.currentCustomPath == null
                     ? const Icon(
                         Icons.check_circle_rounded,
                         color: AppColors.primary,
@@ -135,9 +135,7 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet> {
                 _recording ? Icons.stop_circle_rounded : Icons.mic_rounded,
                 color: _recording ? AppColors.danger : AppColors.info,
               ),
-              title: Text(
-                _recording ? l10n.stopRecording : l10n.recordSound,
-              ),
+              title: Text(_recording ? l10n.stopRecording : l10n.recordSound),
               onTap: _toggleRecording,
             ),
           ],
@@ -149,9 +147,7 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet> {
   Future<void> _importFile() async {
     setState(() => _importing = true);
     try {
-      final result = await FilePicker.pickFiles(
-        type: FileType.media,
-      );
+      final result = await FilePicker.pickFiles(type: FileType.media);
       final path = result?.files.single.path;
       if (path == null) return;
       // Copy into app documents so the sound survives the picker cache.
@@ -161,9 +157,9 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet> {
           '${docs.path}/custom_sound_${DateTime.now().millisecondsSinceEpoch}.$ext';
       await File(path).copy(dest);
       if (mounted) {
-        Navigator.of(context).pop(
-          SoundSelection(AlarmSound.custom, customPath: dest),
-        );
+        Navigator.of(
+          context,
+        ).pop(SoundSelection(AlarmSound.custom, customPath: dest));
       }
     } finally {
       if (mounted) setState(() => _importing = false);
@@ -175,9 +171,9 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet> {
       final path = await _recorder.stop();
       setState(() => _recording = false);
       if (path != null && mounted) {
-        Navigator.of(context).pop(
-          SoundSelection(AlarmSound.custom, customPath: path),
-        );
+        Navigator.of(
+          context,
+        ).pop(SoundSelection(AlarmSound.custom, customPath: path));
       }
       return;
     }

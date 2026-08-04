@@ -54,16 +54,13 @@ void main() {
     expect(find.text('Squats'), findsOneWidget);
   });
 
-  testWidgets('one-off alarm without mission shows Once and no chip',
-      (tester) async {
+  testWidgets('one-off alarm without mission shows Once and no chip', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       testApp(
         child: Scaffold(
-          body: AlarmCard(
-            alarm: alarm(),
-            onTap: () {},
-            onToggle: (_) {},
-          ),
+          body: AlarmCard(alarm: alarm(), onTap: () {}, onToggle: (_) {}),
         ),
       ),
     );
@@ -90,8 +87,9 @@ void main() {
     expect(toggled, isFalse);
   });
 
-  testWidgets('tapping the switch does not also open the editor',
-      (tester) async {
+  testWidgets('tapping the switch does not also open the editor', (
+    tester,
+  ) async {
     // Regression test: the switch and the info column used to share one
     // tappable region (the whole card wrapped in PressableScale), so a tap
     // meant only to flip the switch could race against and also fire onTap.
@@ -114,24 +112,26 @@ void main() {
     expect(tapCount, 0);
   });
 
-  testWidgets('tapping the info column opens the editor without touching the switch',
-      (tester) async {
-    var tapCount = 0;
-    bool toggleCalled = false;
-    await tester.pumpWidget(
-      testApp(
-        child: Scaffold(
-          body: AlarmCard(
-            alarm: alarm(),
-            onTap: () => tapCount++,
-            onToggle: (_) => toggleCalled = true,
+  testWidgets(
+    'tapping the info column opens the editor without touching the switch',
+    (tester) async {
+      var tapCount = 0;
+      bool toggleCalled = false;
+      await tester.pumpWidget(
+        testApp(
+          child: Scaffold(
+            body: AlarmCard(
+              alarm: alarm(),
+              onTap: () => tapCount++,
+              onToggle: (_) => toggleCalled = true,
+            ),
           ),
         ),
-      ),
-    );
+      );
 
-    await tester.tap(find.text('7:30 AM'));
-    expect(tapCount, 1);
-    expect(toggleCalled, isFalse);
-  });
+      await tester.tap(find.text('7:30 AM'));
+      expect(tapCount, 1);
+      expect(toggleCalled, isFalse);
+    },
+  );
 }

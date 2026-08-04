@@ -236,6 +236,27 @@ class AppLocalizationsId extends AppLocalizations {
   String get openSettings => 'Buka Pengaturan';
 
   @override
+  String get notNow => 'Nanti aja';
+
+  @override
+  String get alarmEngineFullTitle => 'Bunyi walau mode senyap';
+
+  @override
+  String get alarmEngineFallbackBody =>
+      'Di iPhone ini alarm pakai notifikasi. Jadi nggak bunyi kalau mode senyap atau Focus aktif, dan berhenti setelah sekitar 30 detik.';
+
+  @override
+  String get alarmEngineEnable => 'Aktifkan alarm sungguhan';
+
+  @override
+  String get alarmEngineEducationTitle =>
+      'Biar Bangunin benar-benar bisa bangunin kamu';
+
+  @override
+  String get alarmEngineEducationBody =>
+      'iOS bisa mengizinkan Bangunin berbunyi seperti jam bawaan — tembus mode senyap, tembus Focus, dan tampil penuh di layar kunci.\n\nIzin itu yang akan kami minta setelah ini. Tanpa izin tersebut, alarm cuma jadi notifikasi biasa dan gampang kelewat.';
+
+  @override
   String get cameraError => 'Kamera tidak bisa dinyalakan.';
 
   @override

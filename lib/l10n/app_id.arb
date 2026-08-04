@@ -81,6 +81,12 @@
 
   "cameraPermissionNeeded": "Akses kamera dibutuhkan untuk misi foto.",
   "openSettings": "Buka Pengaturan",
+  "notNow": "Nanti aja",
+  "alarmEngineFullTitle": "Bunyi walau mode senyap",
+  "alarmEngineFallbackBody": "Di iPhone ini alarm pakai notifikasi. Jadi nggak bunyi kalau mode senyap atau Focus aktif, dan berhenti setelah sekitar 30 detik.",
+  "alarmEngineEnable": "Aktifkan alarm sungguhan",
+  "alarmEngineEducationTitle": "Biar Bangunin benar-benar bisa bangunin kamu",
+  "alarmEngineEducationBody": "iOS bisa mengizinkan Bangunin berbunyi seperti jam bawaan — tembus mode senyap, tembus Focus, dan tampil penuh di layar kunci.\n\nIzin itu yang akan kami minta setelah ini. Tanpa izin tersebut, alarm cuma jadi notifikasi biasa dan gampang kelewat.",
   "cameraError": "Kamera tidak bisa dinyalakan.",
   "takePhoto": "Ambil foto",
 

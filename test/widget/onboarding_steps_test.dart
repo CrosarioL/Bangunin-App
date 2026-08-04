@@ -4,8 +4,7 @@ import 'package:wakio/features/onboarding/presentation/pages/onboarding_steps.da
 import '../helpers/test_app.dart';
 
 void main() {
-  testWidgets('welcome step shows value prop and CTA advances',
-      (tester) async {
+  testWidgets('welcome step shows value prop and CTA advances', (tester) async {
     var advanced = false;
     await tester.pumpWidget(
       testApp(child: WelcomeStep(onNext: () => advanced = true)),
@@ -16,8 +15,9 @@ void main() {
     expect(advanced, isTrue);
   });
 
-  testWidgets('snooze habit step requires an answer before continuing',
-      (tester) async {
+  testWidgets('snooze habit step requires an answer before continuing', (
+    tester,
+  ) async {
     var advanced = false;
     await tester.pumpWidget(
       testApp(child: SnoozeHabitStep(onNext: () => advanced = true)),

@@ -24,10 +24,12 @@ abstract final class AppTheme {
       onError: Colors.white,
       surface: isDark ? AppColors.surface : AppColors.surfaceLight,
       onSurface: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
-      surfaceContainerHighest:
-          isDark ? AppColors.surfaceRaised : AppColors.surfaceRaisedLight,
-      onSurfaceVariant:
-          isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
+      surfaceContainerHighest: isDark
+          ? AppColors.surfaceRaised
+          : AppColors.surfaceRaisedLight,
+      onSurfaceVariant: isDark
+          ? AppColors.textSecondary
+          : AppColors.textSecondaryLight,
       outline: isDark ? AppColors.outline : AppColors.outlineLight,
     );
 
@@ -59,8 +61,9 @@ abstract final class AppTheme {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        systemOverlayStyle:
-            isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+        systemOverlayStyle: isDark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark,
         titleTextStyle: textTheme.titleMedium,
         iconTheme: IconThemeData(color: colorScheme.onSurface),
       ),
@@ -156,19 +159,23 @@ abstract final class AppTheme {
       FontWeight weight, {
       double? spacing,
       String family = 'Nunito',
-    }) =>
-        TextStyle(
-          fontFamily: family,
-          fontSize: size,
-          fontWeight: weight,
-          letterSpacing: spacing,
-          color: onSurface,
-        );
+    }) => TextStyle(
+      fontFamily: family,
+      fontSize: size,
+      fontWeight: weight,
+      letterSpacing: spacing,
+      color: onSurface,
+    );
 
     return TextTheme(
       displayLarge: style(72, FontWeight.w800, spacing: -1.5, family: 'Baloo2'),
       displayMedium: style(44, FontWeight.w800, spacing: -1, family: 'Baloo2'),
-      headlineMedium: style(28, FontWeight.w800, spacing: -0.5, family: 'Baloo2'),
+      headlineMedium: style(
+        28,
+        FontWeight.w800,
+        spacing: -0.5,
+        family: 'Baloo2',
+      ),
       headlineSmall: style(22, FontWeight.w700, family: 'Baloo2'),
       titleMedium: style(17, FontWeight.w700, family: 'Baloo2'),
       titleSmall: style(16, FontWeight.w700, family: 'Baloo2'),
