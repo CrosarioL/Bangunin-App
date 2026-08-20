@@ -3,6 +3,19 @@
     <!-- Alarm delivery -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
+    <!--
+         Vendor battery managers (Xiaomi, OPPO, vivo, realme, Transsion...)
+         kill scheduled alarms regardless of other permissions. It is the top
+         cause of missed alarms on Android and matters especially in Indonesia,
+         where those brands dominate. This lets us request the standard
+         exemption.
+
+         PLAY POLICY: this is a restricted permission. "Alarms or timers" is
+         one of the use cases Google Play explicitly permits, and Bangunin is
+         an alarm clock — but the Play Console declaration must say so, or the
+         release will be rejected.
+    -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.VIBRATE"/>

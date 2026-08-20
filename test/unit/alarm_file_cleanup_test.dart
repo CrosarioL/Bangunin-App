@@ -76,27 +76,29 @@ void main() {
     await tempDir.delete(recursive: true);
   });
 
-  test('deleting an alarm removes its reference photo and custom sound',
-      () async {
-    final refPhoto = await makeFile('ref.jpg');
-    final customSound = await makeFile('sound.m4a');
-    final alarm = Alarm(
-      id: 'a1',
-      hour: 7,
-      minute: 0,
-      missionType: MissionType.objectHunt,
-      objectReferencePath: refPhoto.path,
-      sound: AlarmSound.custom,
-      customSoundPath: customSound.path,
-      createdAt: DateTime(2026),
-    );
-    await alarmRepository.upsert(alarm);
+  test(
+    'deleting an alarm removes its reference photo and custom sound',
+    () async {
+      final refPhoto = await makeFile('ref.jpg');
+      final customSound = await makeFile('sound.m4a');
+      final alarm = Alarm(
+        id: 'a1',
+        hour: 7,
+        minute: 0,
+        missionType: MissionType.objectHunt,
+        objectReferencePath: refPhoto.path,
+        sound: AlarmSound.custom,
+        customSoundPath: customSound.path,
+        createdAt: DateTime(2026),
+      );
+      await alarmRepository.upsert(alarm);
 
-    await container.read(alarmActionsProvider).delete('a1');
+      await container.read(alarmActionsProvider).delete('a1');
 
-    expect(await refPhoto.exists(), isFalse);
-    expect(await customSound.exists(), isFalse);
-  });
+      expect(await refPhoto.exists(), isFalse);
+      expect(await customSound.exists(), isFalse);
+    },
+  );
 
   test('replacing a custom sound on save deletes the old file', () async {
     final oldSound = await makeFile('old.m4a');
@@ -111,10 +113,9 @@ void main() {
     );
     await alarmRepository.upsert(alarm);
 
-    await container.read(alarmActionsProvider).save(
-          alarm.copyWith(customSoundPath: newSound.path),
-          isNew: false,
-        );
+    await container
+        .read(alarmActionsProvider)
+        .save(alarm.copyWith(customSoundPath: newSound.path), isNew: false);
 
     expect(await oldSound.exists(), isFalse);
     expect(await newSound.exists(), isTrue);
@@ -133,10 +134,9 @@ void main() {
     await alarmRepository.upsert(alarm);
 
     // Saved again unchanged (e.g. user only flipped the vibrate toggle).
-    await container.read(alarmActionsProvider).save(
-          alarm.copyWith(vibrate: false),
-          isNew: false,
-        );
+    await container
+        .read(alarmActionsProvider)
+        .save(alarm.copyWith(vibrate: false), isNew: false);
 
     expect(await sound.exists(), isTrue);
   });

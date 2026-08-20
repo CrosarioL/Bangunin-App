@@ -14,6 +14,10 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
+  # Already present transitively; promoted to a direct dependency so we can
+  # read the manufacturer and warn about vendor battery managers, which are
+  # the top cause of missed alarms on Android. Adds no binary size.
+  device_info_plus: ^12.4.0
   crypto: ^3.0.7
   flutter_riverpod: ^3.3.2
   go_router: ^17.3.0

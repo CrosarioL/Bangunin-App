@@ -237,6 +237,67 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openSettings => 'Open Settings';
 
   @override
+  String get batteryTitle => 'Keep alarms working on this phone';
+
+  @override
+  String get batteryBody =>
+      'Your phone\'s battery saver can stop Bangunin waking you. Allow it to run in the background so your alarm always rings.';
+
+  @override
+  String get batteryAllow => 'Allow background running';
+
+  @override
+  String get batteryDone => 'Background running allowed';
+
+  @override
+  String get batteryStepsXiaomi =>
+      'Also turn on Autostart for Bangunin, and set its battery setting to \"No restrictions\". Usually under Settings > Apps > Manage apps > Bangunin.';
+
+  @override
+  String get batteryStepsOppo =>
+      'Also turn on Auto-launch for Bangunin, and allow background activity. Usually under Settings > Apps > Bangunin.';
+
+  @override
+  String get batteryStepsVivo =>
+      'Also turn on Autostart for Bangunin and allow high background power use. Usually under Settings > Apps > Bangunin.';
+
+  @override
+  String get batteryStepsHuawei =>
+      'Also set Bangunin to \"Manage manually\" and enable Auto-launch. Usually under Settings > Battery > App launch.';
+
+  @override
+  String get batteryStepsTranssion =>
+      'Also turn on Autostart for Bangunin and allow it to run in the background. Usually under Settings > Apps > Bangunin.';
+
+  @override
+  String get batteryStepsGeneric =>
+      'If alarms still miss, check your phone\'s battery settings and allow Bangunin to run in the background.';
+
+  @override
+  String get batteryMenusVary =>
+      'Menu names differ between phones and Android versions, so look for the closest match.';
+
+  @override
+  String get notNow => 'Not now';
+
+  @override
+  String get alarmEngineFullTitle => 'Rings even on silent';
+
+  @override
+  String get alarmEngineFallbackBody =>
+      'Alarms use notifications on this iPhone. They won\'t ring in Silent Mode or a Focus, and they stop after about 30 seconds.';
+
+  @override
+  String get alarmEngineEnable => 'Turn on real alarms';
+
+  @override
+  String get alarmEngineEducationTitle => 'Let Bangunin wake you properly';
+
+  @override
+  String get alarmEngineEducationBody =>
+      'iOS can let Bangunin ring like the built-in Clock — through Silent Mode, through a Focus, and full screen on your lock screen.\n\nWe\'ll ask for that permission next. Without it, alarms stay as ordinary notifications and are easy to sleep through.';
+
+  @override
   String get cameraError => 'The camera couldn\'t start.';
 
   @override
@@ -706,6 +767,75 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noPaymentNow => 'No payment due now';
+
+  @override
+  String get manageSubscription => 'Manage subscription';
+
+  @override
+  String get photoFailTooDark =>
+      'Too dark to check — try again in brighter light';
+
+  @override
+  String get photoFailTooBright =>
+      'Too bright to check — move away from the light';
+
+  @override
+  String get photoFailNotEnoughDetail =>
+      'We couldn\'t make out enough detail — get a bit closer';
+
+  @override
+  String get photoFailSurface =>
+      'We couldn\'t verify that — point the camera at the real thing';
+
+  @override
+  String get photoFailNotLive =>
+      'Hold the camera steady on the real scene and try again';
+
+  @override
+  String get photoFailNoMatch =>
+      'That doesn\'t look like your registered object';
+
+  @override
+  String get photoFailNoHand => 'Put your hand in the shot, touching the grass';
+
+  @override
+  String get photoFailNoReference =>
+      'No object registered yet — set one up in the alarm';
+
+  @override
+  String get missionSafetyNote =>
+      'Place the phone securely so your full body is visible. Do not hold it while exercising. Stop if you feel pain or dizzy.';
+
+  @override
+  String get poseGuidanceNoPerson => 'We can\'t see you — step into the frame';
+
+  @override
+  String get poseGuidanceJointsHidden =>
+      'Move back so your arms and legs are fully visible';
+
+  @override
+  String get poseGuidanceGetReady => 'Hold the starting position to begin';
+
+  @override
+  String get poseGuidanceGoDown => 'Go down';
+
+  @override
+  String get poseGuidanceComeUp => 'Come back up';
+
+  @override
+  String get poseGuidanceComplete => 'Done — nice work';
+
+  @override
+  String get accessCodeTitle => 'Enter access code';
+
+  @override
+  String get accessCodeHint => 'Access code';
+
+  @override
+  String get accessCodeRedeem => 'Redeem';
+
+  @override
+  String get accessCodeInvalid => 'That access code is not valid.';
 
   @override
   String get settingsOurStory => 'Our story';

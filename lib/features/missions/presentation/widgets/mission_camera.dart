@@ -106,54 +106,53 @@ class _MissionCameraState extends State<MissionCamera>
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return switch (_state) {
-      _CameraState.initializing =>
-        const Center(child: CircularProgressIndicator()),
+      _CameraState.initializing => const Center(
+        child: CircularProgressIndicator(),
+      ),
       _CameraState.denied => _Message(
-          icon: Icons.no_photography_rounded,
-          text: l10n.cameraPermissionNeeded,
-          buttonLabel: l10n.openSettings,
-          onPressed: openAppSettings,
-        ),
+        icon: Icons.no_photography_rounded,
+        text: l10n.cameraPermissionNeeded,
+        buttonLabel: l10n.openSettings,
+        onPressed: openAppSettings,
+      ),
       _CameraState.error => _Message(
-          icon: Icons.error_outline_rounded,
-          text: l10n.cameraError,
-          buttonLabel: l10n.retry,
-          onPressed: _init,
-        ),
+        icon: Icons.error_outline_rounded,
+        text: l10n.cameraError,
+        buttonLabel: l10n.retry,
+        onPressed: _init,
+      ),
       _CameraState.ready => Column(
-          children: [
-            Expanded(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
-                child: CameraPreview(_controller!),
-              ),
+        children: [
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
+              child: CameraPreview(_controller!),
             ),
-            const SizedBox(height: AppSpacing.xl),
-            PressableScale(
-              // Disabled (not just ignored) while a capture is in flight so
-              // a second tap can't fire a second takePicture() call.
-              onPressed: _capturing ? null : _capture,
-              semanticLabel: l10n.takePhoto,
-              child: Container(
-                width: 76,
-                height: 76,
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          PressableScale(
+            // Disabled (not just ignored) while a capture is in flight so
+            // a second tap can't fire a second takePicture() call.
+            onPressed: _capturing ? null : _capture,
+            semanticLabel: l10n.takePhoto,
+            child: Container(
+              width: 76,
+              height: 76,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 4),
+              ),
+              padding: const EdgeInsets.all(5),
+              child: DecoratedBox(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 4),
-                ),
-                padding: const EdgeInsets.all(5),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: _capturing
-                        ? AppColors.textTertiary
-                        : Colors.white,
-                  ),
+                  color: _capturing ? AppColors.textTertiary : Colors.white,
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
     };
   }
 }
@@ -184,10 +183,7 @@ class _Message extends StatelessWidget {
             const SizedBox(height: AppSpacing.lg),
             Text(text, textAlign: TextAlign.center),
             const SizedBox(height: AppSpacing.lg),
-            TextButton(
-              onPressed: () => onPressed(),
-              child: Text(buttonLabel),
-            ),
+            TextButton(onPressed: () => onPressed(), child: Text(buttonLabel)),
           ],
         ),
       ),

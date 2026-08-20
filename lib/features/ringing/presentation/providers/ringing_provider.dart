@@ -156,6 +156,9 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
 
     final alarm = session.alarm;
     _snoozeCounts.remove(alarm.id);
+    // The wake is done, so any snooze the scheduler is holding for re-arming
+    // is stale — drop it before the resync below calls reschedule().
+    ref.read(alarmSchedulerProvider).clearPendingSnooze();
     await ref
         .read(wakeStatsRepositoryProvider)
         .add(
