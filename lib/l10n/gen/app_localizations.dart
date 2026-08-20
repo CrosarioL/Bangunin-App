@@ -530,6 +530,72 @@ abstract class AppLocalizations {
   /// **'Open Settings'**
   String get openSettings;
 
+  /// No description provided for @batteryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep alarms working on this phone'**
+  String get batteryTitle;
+
+  /// No description provided for @batteryBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone\'s battery saver can stop Bangunin waking you. Allow it to run in the background so your alarm always rings.'**
+  String get batteryBody;
+
+  /// No description provided for @batteryAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow background running'**
+  String get batteryAllow;
+
+  /// No description provided for @batteryDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Background running allowed'**
+  String get batteryDone;
+
+  /// No description provided for @batteryStepsXiaomi.
+  ///
+  /// In en, this message translates to:
+  /// **'Also turn on Autostart for Bangunin, and set its battery setting to \"No restrictions\". Usually under Settings > Apps > Manage apps > Bangunin.'**
+  String get batteryStepsXiaomi;
+
+  /// No description provided for @batteryStepsOppo.
+  ///
+  /// In en, this message translates to:
+  /// **'Also turn on Auto-launch for Bangunin, and allow background activity. Usually under Settings > Apps > Bangunin.'**
+  String get batteryStepsOppo;
+
+  /// No description provided for @batteryStepsVivo.
+  ///
+  /// In en, this message translates to:
+  /// **'Also turn on Autostart for Bangunin and allow high background power use. Usually under Settings > Apps > Bangunin.'**
+  String get batteryStepsVivo;
+
+  /// No description provided for @batteryStepsHuawei.
+  ///
+  /// In en, this message translates to:
+  /// **'Also set Bangunin to \"Manage manually\" and enable Auto-launch. Usually under Settings > Battery > App launch.'**
+  String get batteryStepsHuawei;
+
+  /// No description provided for @batteryStepsTranssion.
+  ///
+  /// In en, this message translates to:
+  /// **'Also turn on Autostart for Bangunin and allow it to run in the background. Usually under Settings > Apps > Bangunin.'**
+  String get batteryStepsTranssion;
+
+  /// No description provided for @batteryStepsGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'If alarms still miss, check your phone\'s battery settings and allow Bangunin to run in the background.'**
+  String get batteryStepsGeneric;
+
+  /// No description provided for @batteryMenusVary.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu names differ between phones and Android versions, so look for the closest match.'**
+  String get batteryMenusVary;
+
   /// No description provided for @notNow.
   ///
   /// In en, this message translates to:

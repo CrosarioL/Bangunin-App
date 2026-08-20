@@ -237,6 +237,47 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openSettings => 'Open Settings';
 
   @override
+  String get batteryTitle => 'Keep alarms working on this phone';
+
+  @override
+  String get batteryBody =>
+      'Your phone\'s battery saver can stop Bangunin waking you. Allow it to run in the background so your alarm always rings.';
+
+  @override
+  String get batteryAllow => 'Allow background running';
+
+  @override
+  String get batteryDone => 'Background running allowed';
+
+  @override
+  String get batteryStepsXiaomi =>
+      'Also turn on Autostart for Bangunin, and set its battery setting to \"No restrictions\". Usually under Settings > Apps > Manage apps > Bangunin.';
+
+  @override
+  String get batteryStepsOppo =>
+      'Also turn on Auto-launch for Bangunin, and allow background activity. Usually under Settings > Apps > Bangunin.';
+
+  @override
+  String get batteryStepsVivo =>
+      'Also turn on Autostart for Bangunin and allow high background power use. Usually under Settings > Apps > Bangunin.';
+
+  @override
+  String get batteryStepsHuawei =>
+      'Also set Bangunin to \"Manage manually\" and enable Auto-launch. Usually under Settings > Battery > App launch.';
+
+  @override
+  String get batteryStepsTranssion =>
+      'Also turn on Autostart for Bangunin and allow it to run in the background. Usually under Settings > Apps > Bangunin.';
+
+  @override
+  String get batteryStepsGeneric =>
+      'If alarms still miss, check your phone\'s battery settings and allow Bangunin to run in the background.';
+
+  @override
+  String get batteryMenusVary =>
+      'Menu names differ between phones and Android versions, so look for the closest match.';
+
+  @override
   String get notNow => 'Not now';
 
   @override

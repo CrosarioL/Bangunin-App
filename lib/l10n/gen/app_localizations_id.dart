@@ -236,6 +236,47 @@ class AppLocalizationsId extends AppLocalizations {
   String get openSettings => 'Buka Pengaturan';
 
   @override
+  String get batteryTitle => 'Biar alarm tetap jalan di HP ini';
+
+  @override
+  String get batteryBody =>
+      'Penghemat baterai di HP kamu bisa bikin Bangunin gagal membangunkan. Izinkan berjalan di latar belakang supaya alarmnya selalu bunyi.';
+
+  @override
+  String get batteryAllow => 'Izinkan berjalan di latar belakang';
+
+  @override
+  String get batteryDone => 'Sudah diizinkan';
+
+  @override
+  String get batteryStepsXiaomi =>
+      'Nyalakan juga Autostart untuk Bangunin, dan set baterainya ke \"Tanpa batasan\". Biasanya di Setelan > Aplikasi > Kelola aplikasi > Bangunin.';
+
+  @override
+  String get batteryStepsOppo =>
+      'Nyalakan juga Mulai otomatis untuk Bangunin, dan izinkan aktivitas latar belakang. Biasanya di Pengaturan > Aplikasi > Bangunin.';
+
+  @override
+  String get batteryStepsVivo =>
+      'Nyalakan juga Autostart untuk Bangunin dan izinkan pemakaian daya latar belakang tinggi. Biasanya di Pengaturan > Aplikasi > Bangunin.';
+
+  @override
+  String get batteryStepsHuawei =>
+      'Set juga Bangunin ke \"Kelola manual\" dan nyalakan Mulai otomatis. Biasanya di Pengaturan > Baterai > Peluncuran aplikasi.';
+
+  @override
+  String get batteryStepsTranssion =>
+      'Nyalakan juga Autostart untuk Bangunin dan izinkan berjalan di latar belakang. Biasanya di Pengaturan > Aplikasi > Bangunin.';
+
+  @override
+  String get batteryStepsGeneric =>
+      'Kalau alarm masih suka kelewat, cek pengaturan baterai HP-mu dan izinkan Bangunin berjalan di latar belakang.';
+
+  @override
+  String get batteryMenusVary =>
+      'Nama menunya beda-beda tiap HP dan versi Android, jadi cari yang paling mirip.';
+
+  @override
   String get notNow => 'Nanti aja';
 
   @override

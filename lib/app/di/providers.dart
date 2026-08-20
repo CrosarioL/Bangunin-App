@@ -6,6 +6,7 @@ import '../../core/services/alarms/alarm_kit_service.dart';
 import '../../core/services/analytics/analytics_service.dart';
 import '../../core/services/audio/alarm_audio_service.dart';
 import '../../core/services/crash/crash_reporter.dart';
+import '../../core/services/device/oem_battery_advisor.dart';
 import '../../core/services/locale/locale_override_provider.dart';
 import '../../core/services/notifications/notification_service.dart';
 import '../../core/services/remote_config/feature_flags.dart';
@@ -68,6 +69,11 @@ final alarmRepositoryProvider = Provider<AlarmRepository>(
 
 final wakeStatsRepositoryProvider = Provider<WakeStatsRepository>(
   (ref) => HiveWakeStatsRepository(ref.watch(localStoreProvider)),
+);
+
+/// Detects vendor battery managers that kill alarms (Android only).
+final oemBatteryAdvisorProvider = Provider<OemBatteryAdvisor>(
+  (ref) => OemBatteryAdvisor(),
 );
 
 /// Bridge to Apple AlarmKit. Reports unsupported below iOS 26 and on Android,
