@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -22,7 +23,10 @@ void main() {
         });
   }
 
+  setUp(() => debugDefaultTargetPlatformOverride = TargetPlatform.iOS);
+
   tearDown(() {
+    debugDefaultTargetPlatformOverride = null;
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, null);
   });
@@ -99,6 +103,23 @@ void main() {
 
       expect(result.isUnsupported, isTrue);
       expect(result.engine, AlarmEngine.notifications);
+    });
+  });
+
+  group('Android', () {
+    test('is full strength and shows no upgrade or decline prompt', () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+
+      final result = await capability();
+
+      expect(result.isFullStrength, isTrue);
+      expect(result.engine, AlarmEngine.androidExactAlarm);
+      expect(
+        result.canUpgrade,
+        isFalse,
+        reason: 'there is no AlarmKit permission to ask for',
+      );
+      expect(result.wasDeclined, isFalse);
     });
   });
 

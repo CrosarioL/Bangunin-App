@@ -10,8 +10,18 @@ enum AlarmEngine {
   /// Focus, presents full screen, appears on the Lock Screen.
   alarmKit,
 
-  /// Scheduled local notifications. The honest fallback: it cannot override
-  /// Silent Mode or Focus, cannot launch the app, and stops after ~30s.
+  /// Android exact alarms with a full-screen intent.
+  ///
+  /// A different mechanism from AlarmKit but a comparable outcome, and it
+  /// must not be lumped in with the iOS fallback: with USE_EXACT_ALARM,
+  /// USE_FULL_SCREEN_INTENT, category `alarm` and AudioAttributesUsage.alarm,
+  /// Android genuinely does launch full screen and ring through the ringer.
+  /// Telling those users their alarms are weak would be false.
+  androidExactAlarm,
+
+  /// Scheduled local notifications on iOS below 26, or with AlarmKit denied.
+  /// The honest fallback: it cannot override Silent Mode or Focus, cannot
+  /// launch the app, and stops after ~30s.
   notifications,
 }
 

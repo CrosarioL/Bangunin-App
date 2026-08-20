@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/di/providers.dart';
@@ -15,8 +16,12 @@ class AlarmCapability {
   final AlarmEngine engine;
   final AlarmKitAuthorization authorization;
 
-  /// Real alarms: rings through Silent Mode and Focus, full-screen alert.
-  bool get isFullStrength => engine == AlarmEngine.alarmKit;
+  /// Rings properly: full-screen, through the ringer.
+  ///
+  /// True for AlarmKit *and* for Android exact alarms — different mechanisms,
+  /// comparable outcomes. Only the iOS notification fallback is weak.
+  bool get isFullStrength =>
+      engine == AlarmEngine.alarmKit || engine == AlarmEngine.androidExactAlarm;
 
   /// This device could do better if the user allowed it — the only state
   /// where showing a call to action is honest rather than nagging.
@@ -34,6 +39,14 @@ class AlarmCapability {
 /// Current alarm capability. Invalidate after requesting authorization.
 final alarmCapabilityProvider = FutureProvider<AlarmCapability>((ref) async {
   final alarmKit = ref.watch(alarmKitServiceProvider);
+
+  // Android needs no AlarmKit authorization and is already full strength.
+  if (defaultTargetPlatform == TargetPlatform.android) {
+    return const AlarmCapability(
+      engine: AlarmEngine.androidExactAlarm,
+      authorization: AlarmKitAuthorization.unsupported,
+    );
+  }
 
   if (!await alarmKit.isSupported()) {
     return const AlarmCapability(

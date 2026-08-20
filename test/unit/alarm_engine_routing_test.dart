@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wakio/core/services/alarms/alarm_kit_service.dart';
@@ -72,9 +73,15 @@ void main() {
     createdAt: DateTime(2026),
   );
 
-  setUp(() => notifications = _RecordingNotificationService());
+  setUp(() {
+    notifications = _RecordingNotificationService();
+    // The test binding reports Android by default; these cases are about iOS
+    // engine selection, so pin it rather than depend on the default.
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+  });
 
   tearDown(() {
+    debugDefaultTargetPlatformOverride = null;
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, null);
   });
@@ -111,11 +118,39 @@ void main() {
       expect(await scheduler.activeEngine(), AlarmEngine.notifications);
     });
 
-    test('falls back when no native handler exists at all (Android)', () async {
+    test('falls back when no native handler exists at all', () async {
       // No mock installed: the channel throws MissingPluginException.
       final scheduler = schedulerUsing(AlarmKitService(channel: channel));
 
       expect(await scheduler.activeEngine(), AlarmEngine.notifications);
+    });
+
+    test('Android reports its own engine, never the iOS fallback', () async {
+      // Android has USE_EXACT_ALARM, USE_FULL_SCREEN_INTENT and alarm-usage
+      // audio: it genuinely does ring full screen through the ringer. Lumping
+      // it in with the iOS fallback would tell those users their alarms are
+      // weak, which is false.
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      final scheduler = schedulerUsing(AlarmKitService(channel: channel));
+
+      expect(await scheduler.activeEngine(), AlarmEngine.androidExactAlarm);
+    });
+
+    test('Android never consults AlarmKit at all', () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      final calls = installNativeStub(
+        supported: true,
+        authorization: 'authorized',
+      );
+      final scheduler = schedulerUsing(AlarmKitService(channel: channel));
+
+      await scheduler.activeEngine();
+
+      expect(
+        calls.where((c) => c.method == 'authorizationState'),
+        isEmpty,
+        reason: 'there is nothing to authorize on Android',
+      );
     });
   });
 
