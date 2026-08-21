@@ -26,7 +26,10 @@ class NotificationService {
 
   Future<void> initialize() async {
     const settings = InitializationSettings(
-      android: AndroidInitializationSettings('launcher_icon'),
+      // Must be a *drawable*: the plugin resolves this name only against the
+      // drawable type, so the mipmap-only `launcher_icon` never resolved and
+      // initialize() threw invalid_icon on every device.
+      android: AndroidInitializationSettings('ic_notification'),
       iOS: DarwinInitializationSettings(
         requestAlertPermission: false,
         requestBadgePermission: false,
