@@ -30,14 +30,16 @@ void main() {
     _makeBackgroundTransparent(image);
     final trimmed = _trimToContent(image, padding: 40);
 
-    File('${appDir.path}/$name').writeAsBytesSync(
-      img.encodePng(img.copyResize(trimmed, width: 512)),
+    File(
+      '${appDir.path}/$name',
+    ).writeAsBytesSync(img.encodePng(img.copyResize(trimmed, width: 512)));
+    File(
+      '${webDir.path}/$name',
+    ).writeAsBytesSync(img.encodePng(img.copyResize(trimmed, width: 280)));
+    stdout.writeln(
+      'Processed $name '
+      '(content ${trimmed.width}x${trimmed.height})',
     );
-    File('${webDir.path}/$name').writeAsBytesSync(
-      img.encodePng(img.copyResize(trimmed, width: 280)),
-    );
-    stdout.writeln('Processed $name '
-        '(content ${trimmed.width}x${trimmed.height})');
   }
 }
 

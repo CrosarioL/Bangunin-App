@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    isShrinkResources = true strips any resource it cannot see referenced from
+    code or XML. The notification icon is resolved at runtime by name
+    (Resources.getIdentifier) from a Dart string, so the shrinker has no way to
+    know it is used and would remove it — reintroducing the invalid_icon crash
+    only in release builds.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/ic_notification" />

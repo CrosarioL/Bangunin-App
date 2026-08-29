@@ -29,7 +29,11 @@ class OnboardingFlowPage extends ConsumerStatefulWidget {
 class _OnboardingFlowPageState extends ConsumerState<OnboardingFlowPage> {
   final _pageController = PageController();
   int _step = 0;
-  static const _stepCount = 14;
+  // 13 since the social-proof step was removed: it presented invented
+  // testimonials as real user endorsements (Play "Misrepresentation", and
+  // deceptive endorsements are separately unlawful in our markets) and fired
+  // the store review prompt before the user had used the app at all.
+  static const _stepCount = 13;
 
   @override
   void initState() {
@@ -118,7 +122,6 @@ class _OnboardingFlowPageState extends ConsumerState<OnboardingFlowPage> {
                   StrugglesStep(onNext: _next),
                   MotivationsStep(onNext: _next),
                   CommitmentStep(onNext: _next),
-                  SocialProofStep(onNext: _next),
                   NotificationStep(onNext: _next),
                   PersonalizingStep(onDone: _next),
                   PlanRevealStep(onNext: _next),

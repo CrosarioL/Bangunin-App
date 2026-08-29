@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -63,11 +64,13 @@ class _PaywallPageState extends ConsumerState<PaywallPage> {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (_, _) => _ErrorState(
                 onRetry: () => ref.invalidate(premiumPlansProvider),
+                onAccessCode: _showAccessCodeDialog,
               ),
               data: (plans) {
                 if (plans.isEmpty) {
                   return _ErrorState(
                     onRetry: () => ref.invalidate(premiumPlansProvider),
+                    onAccessCode: _showAccessCodeDialog,
                   );
                 }
                 final selected = plans.firstWhere(
@@ -192,6 +195,22 @@ class _PaywallPageState extends ConsumerState<PaywallPage> {
                     ),
                     if (selected.hasTrial) ...[
                       const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        Localizations.localeOf(context).languageCode == 'id'
+                            ? 'Setelah uji coba ${selected.trialDays} hari, '
+                                  '${selected.price} per ${selected.period == 'month' ? 'bulan' : 'tahun'}. '
+                                  'Langganan diperpanjang otomatis sampai dibatalkan di ${_storeName()}.'
+                            : 'After the ${selected.trialDays}-day trial, '
+                                  '${selected.price} per ${selected.period}. '
+                                  'Auto-renews until cancelled in ${_storeName()}.',
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodySmall!.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                    if (selected.hasTrial) ...[
+                      const SizedBox(height: AppSpacing.sm),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -217,6 +236,16 @@ class _PaywallPageState extends ConsumerState<PaywallPage> {
                                   .read(purchaseInProgressProvider.notifier)
                                   .restore(),
                         child: Text(l10n.restorePurchases),
+                      ),
+                    ),
+                    Center(
+                      child: TextButton(
+                        onPressed: purchasing ? null : _showAccessCodeDialog,
+                        child: Text(
+                          Localizations.localeOf(context).languageCode == 'id'
+                              ? 'Punya kode akses?'
+                              : 'Have an access code?',
+                        ),
                       ),
                     ),
                     Center(
@@ -278,6 +307,50 @@ class _PaywallPageState extends ConsumerState<PaywallPage> {
     // On success the premium provider flips and the router redirects home.
   }
 
+  Future<void> _showAccessCodeDialog() async {
+    final l10n = context.l10n;
+    final controller = TextEditingController();
+    final code = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.accessCodeTitle),
+        content: TextField(
+          controller: controller,
+          autocorrect: false,
+          enableSuggestions: false,
+          textCapitalization: TextCapitalization.none,
+          keyboardType: TextInputType.visiblePassword,
+          decoration: InputDecoration(hintText: l10n.accessCodeHint),
+          onSubmitted: (value) => Navigator.of(dialogContext).pop(value),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(controller.text),
+            child: Text(l10n.accessCodeRedeem),
+          ),
+        ],
+      ),
+    );
+    // Wait for the dialog's reverse transition before releasing the
+    // controller; the TextField remains mounted during that animation.
+    await Future<void>.delayed(const Duration(milliseconds: 300));
+    controller.dispose();
+    if (code == null || !mounted) return;
+
+    final accepted = await ref
+        .read(subscriptionServiceProvider)
+        .redeemAccessCode(code);
+    if (!accepted && mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.accessCodeInvalid)));
+    }
+  }
+
   static Future<void> _launch(String url) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
@@ -285,6 +358,9 @@ class _PaywallPageState extends ConsumerState<PaywallPage> {
     }
   }
 }
+
+String _storeName() =>
+    defaultTargetPlatform == TargetPlatform.iOS ? 'App Store' : 'Google Play';
 
 class _Feature extends StatelessWidget {
   const _Feature({required this.text});
@@ -430,9 +506,10 @@ class _PlanCard extends StatelessWidget {
 }
 
 class _ErrorState extends StatelessWidget {
-  const _ErrorState({required this.onRetry});
+  const _ErrorState({required this.onRetry, required this.onAccessCode});
 
   final VoidCallback onRetry;
+  final VoidCallback onAccessCode;
 
   @override
   Widget build(BuildContext context) {
@@ -444,6 +521,14 @@ class _ErrorState extends StatelessWidget {
           Text(l10n.paywallLoadError, textAlign: TextAlign.center),
           const SizedBox(height: AppSpacing.lg),
           TextButton(onPressed: onRetry, child: Text(l10n.retry)),
+          TextButton(
+            onPressed: onAccessCode,
+            child: Text(
+              Localizations.localeOf(context).languageCode == 'id'
+                  ? 'Punya kode akses?'
+                  : 'Have an access code?',
+            ),
+          ),
         ],
       ),
     );

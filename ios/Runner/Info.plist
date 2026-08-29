@@ -15,7 +15,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>wakio</string>
+	<string>Bangunin</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -26,6 +26,8 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAlarmKitUsageDescription</key>
+	<string>Bangunin schedules your wake-up alarms so they can ring reliably, even when your iPhone is on silent or in a Focus mode.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>The camera is used to complete photo wake-up missions (object, sky, grass, bed).</string>
 	<key>NSMicrophoneUsageDescription</key>

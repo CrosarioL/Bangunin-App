@@ -2,9 +2,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/config/app_config.dart';
+import '../../core/services/alarms/alarm_kit_service.dart';
 import '../../core/services/analytics/analytics_service.dart';
 import '../../core/services/audio/alarm_audio_service.dart';
 import '../../core/services/crash/crash_reporter.dart';
+import '../../core/services/device/oem_battery_advisor.dart';
 import '../../core/services/locale/locale_override_provider.dart';
 import '../../core/services/notifications/notification_service.dart';
 import '../../core/services/remote_config/feature_flags.dart';
@@ -14,6 +16,7 @@ import '../../features/alarms/data/alarm_repository_impl.dart';
 import '../../features/alarms/data/alarm_scheduler.dart';
 import '../../features/alarms/domain/repositories/alarm_repository.dart';
 import '../../features/missions/data/photo_mission_verifier.dart';
+import '../../features/missions/data/scene_classifier.dart';
 import '../../features/stats/data/wake_stats_repository_impl.dart';
 import '../../features/stats/domain/repositories/wake_stats_repository.dart';
 
@@ -68,13 +71,32 @@ final wakeStatsRepositoryProvider = Provider<WakeStatsRepository>(
   (ref) => HiveWakeStatsRepository(ref.watch(localStoreProvider)),
 );
 
+/// Detects vendor battery managers that kill alarms (Android only).
+final oemBatteryAdvisorProvider = Provider<OemBatteryAdvisor>(
+  (ref) => OemBatteryAdvisor(),
+);
+
+/// Bridge to Apple AlarmKit. Reports unsupported below iOS 26 and on Android,
+/// where the scheduler falls back to notifications.
+final alarmKitServiceProvider = Provider<AlarmKitService>(
+  (ref) => AlarmKitService(),
+);
+
 final alarmSchedulerProvider = Provider<AlarmScheduler>(
   (ref) => AlarmScheduler(
     ref.watch(notificationServiceProvider),
+    alarmKit: ref.watch(alarmKitServiceProvider),
     localeOverride: ref.watch(localeOverrideProvider),
   ),
 );
 
+/// Apple Vision scene understanding. Reports unsupported on Android and in
+/// tests, where the verifier falls back to pixel heuristics alone.
+final sceneClassifierProvider = Provider<SceneClassifier>(
+  (ref) => SceneClassifier(),
+);
+
 final photoMissionVerifierProvider = Provider<PhotoMissionVerifier>(
-  (ref) => const PhotoMissionVerifier(),
+  (ref) =>
+      PhotoMissionVerifier(sceneClassifier: ref.watch(sceneClassifierProvider)),
 );

@@ -11,9 +11,8 @@ import '../../l10n/gen/app_localizations.dart';
 /// language, same as the rest of the app.
 AppLocalizations currentLocalizations({Locale? override}) {
   final deviceLocale = WidgetsBinding.instance.platformDispatcher.locale;
-  final resolved = basicLocaleListResolution(
-    [override ?? deviceLocale],
-    AppLocalizations.supportedLocales,
-  );
+  final resolved = basicLocaleListResolution([
+    override ?? deviceLocale,
+  ], AppLocalizations.supportedLocales);
   return lookupAppLocalizations(resolved);
 }

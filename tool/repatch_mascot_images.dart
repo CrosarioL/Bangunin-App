@@ -33,7 +33,8 @@ void main() {
   final matches = dataUriPattern.allMatches(html).toList();
   if (matches.length != replacements.length + skipLeading) {
     stderr.writeln(
-        'Expected ${replacements.length + skipLeading} data URIs, found ${matches.length}. Aborting.');
+      'Expected ${replacements.length + skipLeading} data URIs, found ${matches.length}. Aborting.',
+    );
     exit(1);
   }
 

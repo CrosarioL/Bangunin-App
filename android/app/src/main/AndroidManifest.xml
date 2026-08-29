@@ -1,8 +1,21 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- Alarm delivery -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
+    <!--
+         Vendor battery managers (Xiaomi, OPPO, vivo, realme, Transsion...)
+         kill scheduled alarms regardless of other permissions. It is the top
+         cause of missed alarms on Android and matters especially in Indonesia,
+         where those brands dominate. This lets us request the standard
+         exemption.
+
+         PLAY POLICY: this is a restricted permission. "Alarms or timers" is
+         one of the use cases Google Play explicitly permits, and Bangunin is
+         an alarm clock — but the Play Console declaration must say so, or the
+         release will be rejected.
+    -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
@@ -13,11 +26,22 @@
     <!-- Billing (also needed for Play Billing to reach Play's servers) -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="com.android.vending.BILLING"/>
+    <!-- Modern system pickers do not require broad storage access. Remove
+         legacy permissions contributed by transitive plugins. -->
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        tools:node="remove"/>
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:node="remove"/>
 
     <application
         android:label="Bangunin"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:usesCleartextTraffic="false"
         android:enableOnBackInvokedCallback="true">
         <activity
             android:name=".MainActivity"

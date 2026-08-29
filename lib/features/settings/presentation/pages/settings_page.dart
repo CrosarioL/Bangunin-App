@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:in_app_review/in_app_review.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../app/router/routes.dart';
@@ -19,14 +21,12 @@ import '../../../paywall/presentation/providers/premium_provider.dart';
 
 /// Native (untranslated) names for each shipped locale — a language picker
 /// shows every option in its own language, not the current UI language.
-const _languageNames = {
-  'en': 'English',
-  'id': 'Bahasa Indonesia',
-  'ar': 'العربية',
-  'de': 'Deutsch',
-  'es': 'Español',
-  'fr': 'Français',
-};
+///
+/// Indonesia-first: ar/de/es/fr were dropped before the iOS launch. They were
+/// unreviewed, already drifting out of sync with the template (four keys had
+/// gone missing, so those users hit English mid-screen), and none of them is a
+/// target market. They remain in git history if we ever want them back.
+const _languageNames = {'en': 'English', 'id': 'Bahasa Indonesia'};
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -102,12 +102,27 @@ class SettingsPage extends ConsumerWidget {
                       ref.read(purchaseInProgressProvider.notifier).restore(),
                     ),
                   ),
+                  // Shown on both stores. This was previously gated to
+                  // Android, which left iOS with no way to reach subscription
+                  // management at all — and the iOS branch of the URL ternary
+                  // inside it was therefore dead code.
+                  _SettingsTile(
+                    icon: Icons.manage_accounts_outlined,
+                    title: l10n.manageSubscription,
+                    onTap: () => unawaited(
+                      _launch(
+                        defaultTargetPlatform == TargetPlatform.iOS
+                            ? AppConfig.manageAppStoreSubscriptionUrl
+                            : AppConfig.manageGooglePlaySubscriptionUrl,
+                      ),
+                    ),
+                  ),
                   _SettingsTile(
                     icon: Icons.language_rounded,
                     title: l10n.settingsLanguage,
                     trailingLabel:
                         _languageNames[localeOverride?.languageCode] ??
-                            l10n.languageSystemDefault,
+                        l10n.languageSystemDefault,
                     onTap: () => _showLanguagePicker(context, ref),
                   ),
                 ],
@@ -130,11 +145,8 @@ class SettingsPage extends ConsumerWidget {
                   _SettingsTile(
                     icon: Icons.star_border_rounded,
                     title: l10n.rateApp,
-                    onTap: () => unawaited(
-                      _launch(
-                        'https://apps.apple.com/app/id${AppConfig.appStoreId}?action=write-review',
-                      ),
-                    ),
+                    onTap: () =>
+                        unawaited(InAppReview.instance.requestReview()),
                   ),
                 ],
               ),
@@ -217,8 +229,8 @@ class SettingsPage extends ConsumerWidget {
             ),
             for (final locale in AppLocalizations.supportedLocales)
               _LanguageOption(
-                label: _languageNames[locale.languageCode] ??
-                    locale.languageCode,
+                label:
+                    _languageNames[locale.languageCode] ?? locale.languageCode,
                 selected: current == locale,
                 onTap: () => _pickLanguage(ref, sheetContext, locale),
               ),

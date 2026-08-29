@@ -5,11 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
-import 'app_localizations_ar.dart';
-import 'app_localizations_de.dart';
 import 'app_localizations_en.dart';
-import 'app_localizations_es.dart';
-import 'app_localizations_fr.dart';
 import 'app_localizations_id.dart';
 
 // ignore_for_file: type=lint
@@ -98,11 +94,7 @@ abstract class AppLocalizations {
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
-    Locale('ar'),
-    Locale('de'),
     Locale('en'),
-    Locale('es'),
-    Locale('fr'),
     Locale('id'),
   ];
 
@@ -537,6 +529,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open Settings'**
   String get openSettings;
+
+  /// No description provided for @batteryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep alarms working on this phone'**
+  String get batteryTitle;
+
+  /// No description provided for @batteryBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone\'s battery saver can stop Bangunin waking you. Allow it to run in the background so your alarm always rings.'**
+  String get batteryBody;
+
+  /// No description provided for @batteryAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow background running'**
+  String get batteryAllow;
+
+  /// No description provided for @batteryDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Background running allowed'**
+  String get batteryDone;
+
+  /// No description provided for @batteryStepsXiaomi.
+  ///
+  /// In en, this message translates to:
+  /// **'Also turn on Autostart for Bangunin, and set its battery setting to \"No restrictions\". Usually under Settings > Apps > Manage apps > Bangunin.'**
+  String get batteryStepsXiaomi;
+
+  /// No description provided for @batteryStepsOppo.
+  ///
+  /// In en, this message translates to:
+  /// **'Also turn on Auto-launch for Bangunin, and allow background activity. Usually under Settings > Apps > Bangunin.'**
+  String get batteryStepsOppo;
+
+  /// No description provided for @batteryStepsVivo.
+  ///
+  /// In en, this message translates to:
+  /// **'Also turn on Autostart for Bangunin and allow high background power use. Usually under Settings > Apps > Bangunin.'**
+  String get batteryStepsVivo;
+
+  /// No description provided for @batteryStepsHuawei.
+  ///
+  /// In en, this message translates to:
+  /// **'Also set Bangunin to \"Manage manually\" and enable Auto-launch. Usually under Settings > Battery > App launch.'**
+  String get batteryStepsHuawei;
+
+  /// No description provided for @batteryStepsTranssion.
+  ///
+  /// In en, this message translates to:
+  /// **'Also turn on Autostart for Bangunin and allow it to run in the background. Usually under Settings > Apps > Bangunin.'**
+  String get batteryStepsTranssion;
+
+  /// No description provided for @batteryStepsGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'If alarms still miss, check your phone\'s battery settings and allow Bangunin to run in the background.'**
+  String get batteryStepsGeneric;
+
+  /// No description provided for @batteryMenusVary.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu names differ between phones and Android versions, so look for the closest match.'**
+  String get batteryMenusVary;
+
+  /// No description provided for @notNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get notNow;
+
+  /// No description provided for @alarmEngineFullTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rings even on silent'**
+  String get alarmEngineFullTitle;
+
+  /// No description provided for @alarmEngineFallbackBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Alarms use notifications on this iPhone. They won\'t ring in Silent Mode or a Focus, and they stop after about 30 seconds.'**
+  String get alarmEngineFallbackBody;
+
+  /// No description provided for @alarmEngineEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on real alarms'**
+  String get alarmEngineEnable;
+
+  /// No description provided for @alarmEngineEducationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Let Bangunin wake you properly'**
+  String get alarmEngineEducationTitle;
+
+  /// No description provided for @alarmEngineEducationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'iOS can let Bangunin ring like the built-in Clock — through Silent Mode, through a Focus, and full screen on your lock screen.\n\nWe\'ll ask for that permission next. Without it, alarms stay as ordinary notifications and are easy to sleep through.'**
+  String get alarmEngineEducationBody;
 
   /// No description provided for @cameraError.
   ///
@@ -1354,6 +1448,126 @@ abstract class AppLocalizations {
   /// **'No payment due now'**
   String get noPaymentNow;
 
+  /// No description provided for @manageSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage subscription'**
+  String get manageSubscription;
+
+  /// No description provided for @photoFailTooDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Too dark to check — try again in brighter light'**
+  String get photoFailTooDark;
+
+  /// No description provided for @photoFailTooBright.
+  ///
+  /// In en, this message translates to:
+  /// **'Too bright to check — move away from the light'**
+  String get photoFailTooBright;
+
+  /// No description provided for @photoFailNotEnoughDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t make out enough detail — get a bit closer'**
+  String get photoFailNotEnoughDetail;
+
+  /// No description provided for @photoFailSurface.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t verify that — point the camera at the real thing'**
+  String get photoFailSurface;
+
+  /// No description provided for @photoFailNotLive.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold the camera steady on the real scene and try again'**
+  String get photoFailNotLive;
+
+  /// No description provided for @photoFailNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'That doesn\'t look like your registered object'**
+  String get photoFailNoMatch;
+
+  /// No description provided for @photoFailNoHand.
+  ///
+  /// In en, this message translates to:
+  /// **'Put your hand in the shot, touching the grass'**
+  String get photoFailNoHand;
+
+  /// No description provided for @photoFailNoReference.
+  ///
+  /// In en, this message translates to:
+  /// **'No object registered yet — set one up in the alarm'**
+  String get photoFailNoReference;
+
+  /// No description provided for @missionSafetyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Place the phone securely so your full body is visible. Do not hold it while exercising. Stop if you feel pain or dizzy.'**
+  String get missionSafetyNote;
+
+  /// No description provided for @poseGuidanceNoPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'We can\'t see you — step into the frame'**
+  String get poseGuidanceNoPerson;
+
+  /// No description provided for @poseGuidanceJointsHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Move back so your arms and legs are fully visible'**
+  String get poseGuidanceJointsHidden;
+
+  /// No description provided for @poseGuidanceGetReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold the starting position to begin'**
+  String get poseGuidanceGetReady;
+
+  /// No description provided for @poseGuidanceGoDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Go down'**
+  String get poseGuidanceGoDown;
+
+  /// No description provided for @poseGuidanceComeUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Come back up'**
+  String get poseGuidanceComeUp;
+
+  /// No description provided for @poseGuidanceComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Done — nice work'**
+  String get poseGuidanceComplete;
+
+  /// No description provided for @accessCodeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter access code'**
+  String get accessCodeTitle;
+
+  /// No description provided for @accessCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Access code'**
+  String get accessCodeHint;
+
+  /// No description provided for @accessCodeRedeem.
+  ///
+  /// In en, this message translates to:
+  /// **'Redeem'**
+  String get accessCodeRedeem;
+
+  /// No description provided for @accessCodeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'That access code is not valid.'**
+  String get accessCodeInvalid;
+
   /// No description provided for @settingsOurStory.
   ///
   /// In en, this message translates to:
@@ -1389,14 +1603,8 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) => <String>[
-    'ar',
-    'de',
-    'en',
-    'es',
-    'fr',
-    'id',
-  ].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['en', 'id'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -1405,16 +1613,8 @@ class _AppLocalizationsDelegate
 AppLocalizations lookupAppLocalizations(Locale locale) {
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'ar':
-      return AppLocalizationsAr();
-    case 'de':
-      return AppLocalizationsDe();
     case 'en':
       return AppLocalizationsEn();
-    case 'es':
-      return AppLocalizationsEs();
-    case 'fr':
-      return AppLocalizationsFr();
     case 'id':
       return AppLocalizationsId();
   }

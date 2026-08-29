@@ -24,11 +24,11 @@ void main() {
   });
 
   Alarm alarm(String id, int hour, {DateTime? createdAt}) => Alarm(
-        id: id,
-        hour: hour,
-        minute: 0,
-        createdAt: createdAt ?? DateTime(2026),
-      );
+    id: id,
+    hour: hour,
+    minute: 0,
+    createdAt: createdAt ?? DateTime(2026),
+  );
 
   test('upsert then getById round-trips', () async {
     await repository.upsert(alarm('a', 7));
@@ -72,27 +72,30 @@ void main() {
   });
 
   group('resilience to malformed records', () {
-    test('a single corrupt record does not break getAll for the rest',
-        () async {
-      await repository.upsert(alarm('good-1', 6));
-      // Bypass the repository to write a record missing required fields
-      // directly into the box, simulating disk corruption or a future
-      // schema change without a migration.
-      await store.write(LocalStore.alarms, 'corrupt', {'not': 'an alarm'});
-      await repository.upsert(alarm('good-2', 8));
+    test(
+      'a single corrupt record does not break getAll for the rest',
+      () async {
+        await repository.upsert(alarm('good-1', 6));
+        // Bypass the repository to write a record missing required fields
+        // directly into the box, simulating disk corruption or a future
+        // schema change without a migration.
+        await store.write(LocalStore.alarms, 'corrupt', {'not': 'an alarm'});
+        await repository.upsert(alarm('good-2', 8));
 
-      final all = await repository.getAll();
-      expect(all.map((a) => a.id).toSet(), {'good-1', 'good-2'});
-    });
+        final all = await repository.getAll();
+        expect(all.map((a) => a.id).toSet(), {'good-1', 'good-2'});
+      },
+    );
 
-    test('getById returns null for a corrupt record instead of throwing',
-        () async {
-      await store.write(LocalStore.alarms, 'corrupt', {'not': 'an alarm'});
-      expect(await repository.getById('corrupt'), isNull);
-    });
+    test(
+      'getById returns null for a corrupt record instead of throwing',
+      () async {
+        await store.write(LocalStore.alarms, 'corrupt', {'not': 'an alarm'});
+        expect(await repository.getById('corrupt'), isNull);
+      },
+    );
 
-    test('a truncated JSON string in the box does not break getAll',
-        () async {
+    test('a truncated JSON string in the box does not break getAll', () async {
       await repository.upsert(alarm('good', 6));
       // LocalStore.write always produces valid JSON; this simulates a
       // partial disk write landing directly in the underlying box.

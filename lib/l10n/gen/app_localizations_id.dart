@@ -236,6 +236,68 @@ class AppLocalizationsId extends AppLocalizations {
   String get openSettings => 'Buka Pengaturan';
 
   @override
+  String get batteryTitle => 'Biar alarm tetap jalan di HP ini';
+
+  @override
+  String get batteryBody =>
+      'Penghemat baterai di HP kamu bisa bikin Bangunin gagal membangunkan. Izinkan berjalan di latar belakang supaya alarmnya selalu bunyi.';
+
+  @override
+  String get batteryAllow => 'Izinkan berjalan di latar belakang';
+
+  @override
+  String get batteryDone => 'Sudah diizinkan';
+
+  @override
+  String get batteryStepsXiaomi =>
+      'Nyalakan juga Autostart untuk Bangunin, dan set baterainya ke \"Tanpa batasan\". Biasanya di Setelan > Aplikasi > Kelola aplikasi > Bangunin.';
+
+  @override
+  String get batteryStepsOppo =>
+      'Nyalakan juga Mulai otomatis untuk Bangunin, dan izinkan aktivitas latar belakang. Biasanya di Pengaturan > Aplikasi > Bangunin.';
+
+  @override
+  String get batteryStepsVivo =>
+      'Nyalakan juga Autostart untuk Bangunin dan izinkan pemakaian daya latar belakang tinggi. Biasanya di Pengaturan > Aplikasi > Bangunin.';
+
+  @override
+  String get batteryStepsHuawei =>
+      'Set juga Bangunin ke \"Kelola manual\" dan nyalakan Mulai otomatis. Biasanya di Pengaturan > Baterai > Peluncuran aplikasi.';
+
+  @override
+  String get batteryStepsTranssion =>
+      'Nyalakan juga Autostart untuk Bangunin dan izinkan berjalan di latar belakang. Biasanya di Pengaturan > Aplikasi > Bangunin.';
+
+  @override
+  String get batteryStepsGeneric =>
+      'Kalau alarm masih suka kelewat, cek pengaturan baterai HP-mu dan izinkan Bangunin berjalan di latar belakang.';
+
+  @override
+  String get batteryMenusVary =>
+      'Nama menunya beda-beda tiap HP dan versi Android, jadi cari yang paling mirip.';
+
+  @override
+  String get notNow => 'Nanti aja';
+
+  @override
+  String get alarmEngineFullTitle => 'Bunyi walau mode senyap';
+
+  @override
+  String get alarmEngineFallbackBody =>
+      'Di iPhone ini alarm pakai notifikasi. Jadi nggak bunyi kalau mode senyap atau Focus aktif, dan berhenti setelah sekitar 30 detik.';
+
+  @override
+  String get alarmEngineEnable => 'Aktifkan alarm sungguhan';
+
+  @override
+  String get alarmEngineEducationTitle =>
+      'Biar Bangunin benar-benar bisa bangunin kamu';
+
+  @override
+  String get alarmEngineEducationBody =>
+      'iOS bisa mengizinkan Bangunin berbunyi seperti jam bawaan — tembus mode senyap, tembus Focus, dan tampil penuh di layar kunci.\n\nIzin itu yang akan kami minta setelah ini. Tanpa izin tersebut, alarm cuma jadi notifikasi biasa dan gampang kelewat.';
+
+  @override
   String get cameraError => 'Kamera tidak bisa dinyalakan.';
 
   @override
@@ -705,6 +767,77 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get noPaymentNow => 'Tidak ada tagihan hari ini';
+
+  @override
+  String get manageSubscription => 'Kelola langganan';
+
+  @override
+  String get photoFailTooDark =>
+      'Terlalu gelap untuk dicek — coba di tempat yang lebih terang';
+
+  @override
+  String get photoFailTooBright =>
+      'Terlalu terang — menjauh sedikit dari sumber cahaya';
+
+  @override
+  String get photoFailNotEnoughDetail =>
+      'Detailnya kurang kelihatan — coba lebih dekat';
+
+  @override
+  String get photoFailSurface =>
+      'Belum bisa kami pastikan — arahkan kamera ke objek aslinya';
+
+  @override
+  String get photoFailNotLive =>
+      'Tahan kamera ke objek aslinya, lalu coba lagi';
+
+  @override
+  String get photoFailNoMatch =>
+      'Sepertinya ini bukan objek yang kamu daftarkan';
+
+  @override
+  String get photoFailNoHand =>
+      'Masukkan tanganmu ke dalam foto, sentuh rumputnya';
+
+  @override
+  String get photoFailNoReference =>
+      'Belum ada objek terdaftar — atur dulu di alarmnya';
+
+  @override
+  String get missionSafetyNote =>
+      'Letakkan ponsel dengan aman agar seluruh tubuh terlihat. Jangan memegang ponsel saat berolahraga. Berhenti kalau kamu merasa sakit atau pusing.';
+
+  @override
+  String get poseGuidanceNoPerson =>
+      'Kamu belum kelihatan — masuk ke dalam frame';
+
+  @override
+  String get poseGuidanceJointsHidden =>
+      'Mundur sedikit biar tangan dan kaki kelihatan penuh';
+
+  @override
+  String get poseGuidanceGetReady => 'Tahan posisi awal untuk mulai';
+
+  @override
+  String get poseGuidanceGoDown => 'Turun';
+
+  @override
+  String get poseGuidanceComeUp => 'Naik lagi';
+
+  @override
+  String get poseGuidanceComplete => 'Selesai — mantap';
+
+  @override
+  String get accessCodeTitle => 'Masukkan kode akses';
+
+  @override
+  String get accessCodeHint => 'Kode akses';
+
+  @override
+  String get accessCodeRedeem => 'Gunakan';
+
+  @override
+  String get accessCodeInvalid => 'Kode akses tidak valid.';
 
   @override
   String get settingsOurStory => 'Cerita kami';
