@@ -9,13 +9,20 @@ import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/widgets/pressable_scale.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/l10n_ext.dart';
+import '../../domain/mission_type.dart';
+import 'mission_experience.dart';
 
 /// Reusable camera viewfinder with a capture button. Handles permission
 /// denial and camera init errors with inline retry states.
 class MissionCamera extends StatefulWidget {
-  const MissionCamera({super.key, required this.onCaptured});
+  const MissionCamera({
+    super.key,
+    required this.onCaptured,
+    this.mission = MissionType.objectHunt,
+  });
 
   final ValueChanged<String> onCaptured;
+  final MissionType mission;
 
   @override
   State<MissionCamera> createState() => _MissionCameraState();
@@ -28,6 +35,9 @@ class _MissionCameraState extends State<MissionCamera>
   CameraController? _controller;
   _CameraState _state = _CameraState.initializing;
   bool _capturing = false;
+  bool _initializing = false;
+  bool _cameraAllowed = true;
+  bool _resumeRequested = false;
 
   @override
   void initState() {
@@ -37,13 +47,15 @@ class _MissionCameraState extends State<MissionCamera>
   }
 
   Future<void> _init() async {
+    if (_initializing || !mounted) return;
+    _initializing = true;
     setState(() => _state = _CameraState.initializing);
-    final permission = await Permission.camera.request();
-    if (!permission.isGranted) {
-      if (mounted) setState(() => _state = _CameraState.denied);
-      return;
-    }
     try {
+      final permission = await Permission.camera.request();
+      if (!permission.isGranted) {
+        if (mounted) setState(() => _state = _CameraState.denied);
+        return;
+      }
       final cameras = await availableCameras();
       if (cameras.isEmpty) throw CameraException('none', 'No cameras');
       final back = cameras.firstWhere(
@@ -56,27 +68,45 @@ class _MissionCameraState extends State<MissionCamera>
         enableAudio: false,
       );
       await controller.initialize();
-      if (!mounted) {
+      if (!mounted || !_cameraAllowed) {
         await controller.dispose();
         return;
       }
       _controller = controller;
+      _resumeRequested = false;
       setState(() => _state = _CameraState.ready);
-    } on CameraException {
+    } on Exception {
       if (mounted) setState(() => _state = _CameraState.error);
+    } finally {
+      _initializing = false;
+      if (_resumeRequested &&
+          mounted &&
+          _controller == null &&
+          _state != _CameraState.denied) {
+        _resumeRequested = false;
+        unawaited(_init());
+      }
     }
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final controller = _controller;
-    if (controller == null) return;
-    if (state == AppLifecycleState.inactive) {
-      unawaited(controller.dispose());
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached ||
+        state == AppLifecycleState.hidden) {
+      _cameraAllowed = false;
+      _resumeRequested = false;
+      if (controller != null) unawaited(controller.dispose());
       _controller = null;
-    } else if (state == AppLifecycleState.resumed &&
-        _state == _CameraState.ready) {
-      unawaited(_init());
+    } else if (state == AppLifecycleState.resumed && _controller == null) {
+      _cameraAllowed = true;
+      if (_initializing) {
+        _resumeRequested = true;
+      } else {
+        unawaited(_init());
+      }
     }
   }
 
@@ -121,39 +151,101 @@ class _MissionCameraState extends State<MissionCamera>
         buttonLabel: l10n.retry,
         onPressed: _init,
       ),
-      _CameraState.ready => Column(
-        children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
-              child: CameraPreview(_controller!),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xl),
-          PressableScale(
-            // Disabled (not just ignored) while a capture is in flight so
-            // a second tap can't fire a second takePicture() call.
-            onPressed: _capturing ? null : _capture,
-            semanticLabel: l10n.takePhoto,
-            child: Container(
-              width: 76,
-              height: 76,
+      _CameraState.ready => ClipRRect(
+        borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            _CoverCameraPreview(controller: _controller!),
+            const DecoratedBox(
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 4),
-              ),
-              padding: const EdgeInsets.all(5),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: _capturing ? AppColors.textTertiary : Colors.white,
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0x6606152D),
+                    Colors.transparent,
+                    Color(0xCC06152D),
+                  ],
+                  stops: [0, .54, 1],
                 ),
               ),
             ),
-          ),
-        ],
+            Positioned(
+              left: AppSpacing.xl,
+              right: AppSpacing.xl,
+              top: 78,
+              bottom: 176,
+              child: MissionGuideFrame(mission: widget.mission),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 28,
+              child: Center(
+                child: PressableScale(
+                  // Disabled while capture is in flight so a second tap
+                  // cannot fire another takePicture() call.
+                  onPressed: _capturing ? null : _capture,
+                  semanticLabel: l10n.takePhoto,
+                  child: Container(
+                    width: 86,
+                    height: 86,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.nightTop.withValues(alpha: .72),
+                      border: Border.all(
+                        color: widget.mission.experienceColor,
+                        width: 6,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: widget.mission.experienceColor.withValues(
+                            alpha: .32,
+                          ),
+                          blurRadius: 24,
+                        ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.all(8),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _capturing
+                            ? AppColors.textTertiary
+                            : Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     };
+  }
+}
+
+class _CoverCameraPreview extends StatelessWidget {
+  const _CoverCameraPreview({required this.controller});
+
+  final CameraController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final preview = controller.value.previewSize;
+    if (preview == null) return CameraPreview(controller);
+    return LayoutBuilder(
+      builder: (context, _) => FittedBox(
+        fit: BoxFit.cover,
+        child: SizedBox(
+          width: preview.height,
+          height: preview.width,
+          child: CameraPreview(controller),
+        ),
+      ),
+    );
   }
 }
 

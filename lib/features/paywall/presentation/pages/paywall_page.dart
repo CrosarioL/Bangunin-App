@@ -9,9 +9,11 @@ import '../../../../app/di/providers.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/widgets/app_card.dart';
+import '../../../../app/widgets/bangunin_mascot.dart';
 import '../../../../app/widgets/max_width_box.dart';
 import '../../../../app/widgets/pressable_scale.dart';
 import '../../../../app/widgets/primary_button.dart';
+import '../../../../app/widgets/sunset_page_header.dart';
 import '../../../../core/config/app_config.dart';
 import '../../../../core/services/analytics/analytics_service.dart';
 import '../../../../core/services/subscriptions/subscription_service.dart';
@@ -89,25 +91,19 @@ class _PaywallPageState extends ConsumerState<PaywallPage> {
                   ),
                   children: [
                     const SizedBox(height: AppSpacing.lg),
-                    Text(
-                      userName.isNotEmpty
+                    SunsetPageHeader(
+                      title: userName.isNotEmpty
                           ? l10n.paywallTitleNamed(userName)
                           : l10n.paywallTitle,
-                      style: theme.textTheme.headlineMedium,
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Text(
-                      l10n.paywallGoalLine(
+                      subtitle: l10n.paywallGoalLine(
                         TimeFormat.clock(
                           context,
                           answers.wakeGoalHour,
                           answers.wakeGoalMinute,
                         ),
                       ),
-                      style: theme.textTheme.bodyMedium!.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      icon: Icons.workspace_premium_rounded,
+                      mascotPose: MascotPose.crowing,
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
@@ -415,19 +411,30 @@ class _PlanCard extends StatelessWidget {
           duration: const Duration(milliseconds: 160),
           padding: const EdgeInsets.all(AppSpacing.lg),
           decoration: BoxDecoration(
-            color: selected
-                ? AppColors.primary.withValues(alpha: 0.16)
-                : theme.colorScheme.surface,
+            color: selected ? null : AppColors.glass,
+            gradient: selected
+                ? LinearGradient(
+                    colors: [
+                      AppColors.primary.withValues(alpha: .24),
+                      AppColors.sunsetCoral.withValues(alpha: .2),
+                      AppColors.glass,
+                    ],
+                  )
+                : null,
             borderRadius: BorderRadius.circular(AppSpacing.radiusControl),
             border: Border.all(
-              color: selected ? AppColors.primary : theme.colorScheme.outline,
+              color: selected
+                  ? AppColors.primary
+                  : Colors.white.withValues(alpha: .1),
               width: 2,
             ),
             boxShadow: [
               BoxShadow(
-                color: selected ? AppColors.primaryEdge : AppColors.surfaceEdge,
-                offset: const Offset(0, 3),
-                blurRadius: 0,
+                color: selected
+                    ? AppColors.primary.withValues(alpha: .2)
+                    : AppColors.nightTop.withValues(alpha: .22),
+                offset: const Offset(0, 8),
+                blurRadius: 22,
               ),
             ],
           ),

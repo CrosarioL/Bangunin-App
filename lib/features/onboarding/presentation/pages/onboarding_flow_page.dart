@@ -8,6 +8,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/widgets/max_width_box.dart';
 import '../../../../app/widgets/primary_button.dart';
+import '../../../../app/widgets/sunset_page_header.dart';
 import '../../../../core/services/analytics/analytics_service.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../alarms/presentation/providers/alarms_provider.dart';
@@ -95,14 +96,34 @@ class _OnboardingFlowPageState extends ConsumerState<OnboardingFlowPage> {
                 duration: const Duration(milliseconds: 350),
                 curve: Curves.easeOutCubic,
                 builder: (context, value, _) => ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: LinearProgressIndicator(
-                    value: value,
-                    minHeight: 6,
-                    color: AppColors.primary,
-                    backgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(99),
+                  child: SizedBox(
+                    height: 7,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        ColoredBox(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerHighest,
+                        ),
+                        FractionallySizedBox(
+                          alignment: Alignment.centerLeft,
+                          widthFactor: value,
+                          child: const DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  AppColors.cyan,
+                                  AppColors.primary,
+                                  AppColors.horizon,
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -157,7 +178,6 @@ class OnboardingStepScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return GestureDetector(
       // Steps advance within a single PageView route, not a new route push,
       // so a step with a TextField (e.g. NameStep) otherwise leaves the
@@ -171,17 +191,12 @@ class OnboardingStepScaffold extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: AppSpacing.xl),
-              Text(title, style: theme.textTheme.headlineMedium),
-              if (subtitle != null) ...[
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  subtitle!,
-                  style: theme.textTheme.bodyMedium!.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
+              const SizedBox(height: AppSpacing.sm),
+              SunsetPageHeader(
+                title: title,
+                subtitle: subtitle,
+                icon: Icons.wb_sunny_rounded,
+              ),
               const SizedBox(height: AppSpacing.xl),
               Expanded(
                 child: LayoutBuilder(

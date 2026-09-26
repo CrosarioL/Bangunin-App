@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/router/routes.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../app/widgets/app_card.dart';
 import '../../../../app/widgets/bangunin_mascot.dart';
 import '../../../../app/widgets/primary_button.dart';
 import '../../../../core/utils/haptics.dart';
@@ -67,19 +68,32 @@ class _WakeSuccessPageState extends ConsumerState<WakeSuccessPage>
                 ),
               ),
               const SizedBox(height: AppSpacing.xl),
-              Text(
-                l10n.wakeSuccessTitle,
-                style: theme.textTheme.headlineMedium!.copyWith(
-                  color: AppColors.textPrimary,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                l10n.streakCount(streak),
-                style: theme.textTheme.bodyLarge!.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w700,
+              AppCard(
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                child: Column(
+                  children: [
+                    const Icon(
+                      Icons.wb_sunny_rounded,
+                      color: AppColors.primary,
+                      size: 38,
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      l10n.wakeSuccessTitle,
+                      style: theme.textTheme.headlineMedium!.copyWith(
+                        color: AppColors.textPrimary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      l10n.streakCount(streak),
+                      style: theme.textTheme.bodyLarge!.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const Spacer(),

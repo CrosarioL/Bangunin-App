@@ -7,7 +7,9 @@ import 'package:path_provider/path_provider.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/widgets/primary_button.dart';
 import '../../../../core/utils/l10n_ext.dart';
+import '../../domain/mission_type.dart';
 import '../widgets/mission_camera.dart';
+import '../widgets/mission_experience.dart';
 
 /// Registers the reference photo for an Object Hunt alarm. Pops with the
 /// stored file path, or null when abandoned.
@@ -61,6 +63,7 @@ class _ObjectRegistrationPageState extends State<ObjectRegistrationPage> {
           tooltip: l10n.close,
           onPressed: () => context.pop(),
         ),
+        actions: const [AlarmActivePill(active: false)],
       ),
       body: SafeArea(
         child: Padding(
@@ -77,7 +80,10 @@ class _ObjectRegistrationPageState extends State<ObjectRegistrationPage> {
               const SizedBox(height: AppSpacing.lg),
               Expanded(
                 child: captured == null
-                    ? MissionCamera(onCaptured: _onCaptured)
+                    ? MissionCamera(
+                        mission: MissionType.objectHunt,
+                        onCaptured: _onCaptured,
+                      )
                     : Column(
                         children: [
                           Expanded(

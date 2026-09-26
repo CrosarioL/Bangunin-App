@@ -68,9 +68,17 @@ void main() {
 
     expect(find.text('Never oversleep again'), findsOneWidget);
     expect(find.text('Yearly'), findsOneWidget);
-    expect(find.text('Monthly'), findsOneWidget);
     expect(find.text('SAVE 50%'), findsOneWidget);
     expect(find.text('≈ \$2.49/month'), findsOneWidget);
+
+    // The taller branded header pushes the second plan outside ListView's
+    // initial build extent on a phone-sized viewport.
+    await tester.scrollUntilVisible(
+      find.text('Monthly'),
+      100,
+      scrollable: find.byType(Scrollable),
+    );
+    expect(find.text('Monthly'), findsOneWidget);
 
     // Everything from here down (CTA and restore) sits
     // below the fold even on a realistic phone surface — the page grew a
@@ -118,6 +126,11 @@ void main() {
       100,
       scrollable: find.byType(Scrollable),
     );
+    // scrollUntilVisible may leave the final line just inside the build
+    // extent but underneath the bottom safe area. Move the complete button
+    // into the tappable viewport before exercising it.
+    await tester.drag(find.byType(Scrollable), const Offset(0, -100));
+    await tester.pumpAndSettle();
     await tester.tap(ctaFinder);
     await tester.pumpAndSettle();
 

@@ -146,11 +146,22 @@ class AppLocalizationsId extends AppLocalizations {
   String get missionMakeBedDescription => 'Foto kasurmu yang sudah rapi.';
 
   @override
-  String get missionSquatsDescription => 'Pegang HP-mu dan selesaikan squat.';
+  String get missionSquatsDescription =>
+      'Letakkan HP dengan aman dan selesaikan squat.';
 
   @override
   String get missionPushupsDescription =>
-      'Pegang HP-mu dan selesaikan push-up.';
+      'Letakkan HP dengan aman dan selesaikan push-up.';
+
+  @override
+  String get tryMission => 'Coba misi';
+
+  @override
+  String get missionPreviewTitle => 'Pratinjau misi';
+
+  @override
+  String get missionPreviewSuccess =>
+      'Pratinjau selesai — alarm dan streak kamu tidak berubah.';
 
   @override
   String get newAlarm => 'Alarm baru';
@@ -536,6 +547,18 @@ class AppLocalizationsId extends AppLocalizations {
   String get languageSystemDefault => 'Bawaan sistem';
 
   @override
+  String get settingsTheme => 'Tampilan';
+
+  @override
+  String get themeSystem => 'Sistem';
+
+  @override
+  String get themeLight => 'Terang';
+
+  @override
+  String get themeDark => 'Gelap';
+
+  @override
   String get settingsSectionSupport => 'BANTUAN';
 
   @override
@@ -552,6 +575,13 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get termsOfUse => 'Ketentuan penggunaan';
+
+  @override
+  String get linkOpenFailed => 'Tautan tidak dapat dibuka. Silakan coba lagi.';
+
+  @override
+  String get supportEmailCopied =>
+      'Aplikasi email tidak ditemukan. hello@bangunin.app sudah disalin.';
 
   @override
   String appVersion(String version) {

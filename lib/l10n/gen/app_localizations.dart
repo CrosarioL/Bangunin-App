@@ -365,14 +365,32 @@ abstract class AppLocalizations {
   /// No description provided for @missionSquatsDescription.
   ///
   /// In en, this message translates to:
-  /// **'Hold your phone and complete squats.'**
+  /// **'Place your phone securely and complete squats.'**
   String get missionSquatsDescription;
 
   /// No description provided for @missionPushupsDescription.
   ///
   /// In en, this message translates to:
-  /// **'Hold your phone and complete pushups.'**
+  /// **'Place your phone securely and complete pushups.'**
   String get missionPushupsDescription;
+
+  /// No description provided for @tryMission.
+  ///
+  /// In en, this message translates to:
+  /// **'Try mission'**
+  String get tryMission;
+
+  /// No description provided for @missionPreviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mission preview'**
+  String get missionPreviewTitle;
+
+  /// No description provided for @missionPreviewSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview complete — this did not affect your alarm or streak.'**
+  String get missionPreviewSuccess;
 
   /// No description provided for @newAlarm.
   ///
@@ -1052,6 +1070,30 @@ abstract class AppLocalizations {
   /// **'System default'**
   String get languageSystemDefault;
 
+  /// No description provided for @settingsTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get settingsTheme;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
   /// No description provided for @settingsSectionSupport.
   ///
   /// In en, this message translates to:
@@ -1087,6 +1129,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Terms of use'**
   String get termsOfUse;
+
+  /// No description provided for @linkOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open that link. Please try again.'**
+  String get linkOpenFailed;
+
+  /// No description provided for @supportEmailCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'No email app was found. hello@bangunin.app was copied.'**
+  String get supportEmailCopied;
 
   /// No description provided for @appVersion.
   ///

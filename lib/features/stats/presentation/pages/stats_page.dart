@@ -5,6 +5,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/widgets/app_card.dart';
 import '../../../../app/widgets/max_width_box.dart';
+import '../../../../app/widgets/sunset_page_header.dart';
 import '../../../../core/utils/l10n_ext.dart';
 import '../../../../core/utils/time_format.dart';
 import '../providers/stats_provider.dart';
@@ -17,7 +18,6 @@ class StatsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final theme = Theme.of(context);
     final recordsAsync = ref.watch(wakeRecordsProvider);
     final streak = ref.watch(currentStreakProvider);
     final best = ref.watch(bestStreakProvider);
@@ -41,7 +41,10 @@ class StatsPage extends ConsumerWidget {
               AppSpacing.xxl,
             ),
             children: [
-              Text(l10n.statsTitle, style: theme.textTheme.headlineMedium),
+              SunsetPageHeader(
+                title: l10n.statsTitle,
+                icon: Icons.local_fire_department_rounded,
+              ),
               const SizedBox(height: AppSpacing.xl),
               _StreakHero(streak: streak),
               const SizedBox(height: AppSpacing.md),

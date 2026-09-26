@@ -281,6 +281,12 @@ enum AlarmKitBridge {
       let configuration = AlarmManager.AlarmConfiguration.alarm(
         schedule: schedule,
         attributes: attributes,
+        // The system Stop control silences AlarmKit itself. For mission alarms,
+        // open Bangunin so its ringing session can continue until verification.
+        // Alarms without a mission retain the normal system Stop behavior.
+        stopIntent: missionType == "none"
+          ? nil
+          : StartMissionIntent(alarmId: rawId),
         secondaryIntent: StartMissionIntent(alarmId: rawId),
         sound: sound
       )

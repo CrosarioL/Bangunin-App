@@ -66,7 +66,7 @@ void main() {
       ),
     );
     // Let the muted-opacity animation settle before capturing.
-    await tester.pumpAndSettle();
+    await pumpForAnimations(tester);
 
     await expectLater(
       find.byType(AlarmCard),

@@ -15,6 +15,7 @@ import '../../../../core/utils/time_format.dart';
 import '../../../alarms/domain/entities/alarm.dart';
 import '../../../alarms/presentation/widgets/alarm_card.dart';
 import '../../../missions/domain/mission_type.dart';
+import '../../../missions/presentation/widgets/mission_experience.dart';
 import '../providers/ringing_provider.dart';
 
 /// Full-screen takeover while an alarm rings. The only exits are the
@@ -111,6 +112,10 @@ class _RingingPageState extends ConsumerState<RingingPage>
                     padding: const EdgeInsets.all(AppSpacing.xl),
                     child: Column(
                       children: [
+                        const Align(
+                          alignment: Alignment.centerRight,
+                          child: AlarmActivePill(active: true),
+                        ),
                         const Spacer(),
                         FadeTransition(
                           opacity: _pulseOpacity,
@@ -119,34 +124,74 @@ class _RingingPageState extends ConsumerState<RingingPage>
                             child: const BanguninMascot(
                               pose: MascotPose.crowing,
                               size: 170,
+                              animateIdle: false,
                               interactive: false,
                             ),
                           ),
                         ),
                         const SizedBox(height: AppSpacing.xl),
-                        const _LiveClock(),
-                        const SizedBox(height: AppSpacing.sm),
-                        Text(
-                          alarm == null
-                              ? ''
-                              : (alarm.label.isEmpty
-                                    ? l10n.ringingWakeUp
-                                    : alarm.label),
-                          style: theme.textTheme.headlineSmall!.copyWith(
-                            color: AppColors.textSecondary,
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.lg,
+                            vertical: AppSpacing.xl,
                           ),
-                          textAlign: TextAlign.center,
+                          decoration: BoxDecoration(
+                            color: AppColors.glass,
+                            borderRadius: BorderRadius.circular(28),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: .13),
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primary.withValues(alpha: .14),
+                                blurRadius: 28,
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              const _LiveClock(),
+                              const SizedBox(height: AppSpacing.sm),
+                              Text(
+                                alarm == null
+                                    ? ''
+                                    : (alarm.label.isEmpty
+                                          ? l10n.ringingWakeUp
+                                          : alarm.label),
+                                style: theme.textTheme.headlineSmall!.copyWith(
+                                  color: Colors.white70,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
                         ),
                         const Spacer(),
                         if (alarm != null) ...[
                           if (alarm.missionType != MissionType.none) ...[
-                            Text(
-                              alarm.missionType.localizedName(l10n),
-                              style: theme.textTheme.bodyMedium!.copyWith(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w600,
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.lg,
+                                vertical: AppSpacing.sm,
                               ),
-                              textAlign: TextAlign.center,
+                              decoration: BoxDecoration(
+                                color: alarm.missionType.experienceColor
+                                    .withValues(alpha: .14),
+                                borderRadius: BorderRadius.circular(99),
+                                border: Border.all(
+                                  color: alarm.missionType.experienceColor
+                                      .withValues(alpha: .34),
+                                ),
+                              ),
+                              child: Text(
+                                alarm.missionType.localizedName(l10n),
+                                style: theme.textTheme.bodyMedium!.copyWith(
+                                  color: alarm.missionType.experienceColor,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
                             ),
                             const SizedBox(height: AppSpacing.md),
                             PrimaryButton(

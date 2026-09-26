@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/config/app_config.dart';
 import '../core/services/locale/locale_override_provider.dart';
+import '../core/services/theme/theme_mode_provider.dart';
 import '../features/alarms/presentation/widgets/alarm_kit_mission_router.dart';
 import '../l10n/gen/app_localizations.dart';
 import 'router/app_router.dart';
@@ -17,13 +18,14 @@ class BanguninApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
     final localeOverride = ref.watch(localeOverrideProvider);
+    final themeMode = ref.watch(themeModeProvider);
 
     return MaterialApp.router(
       title: AppConfig.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
-      themeMode: ThemeMode.system,
+      themeMode: themeMode,
       routerConfig: router,
       // The ambient gradient backdrop lives behind the whole router;
       // scaffolds are transparent (see AppTheme) so every screen shares it.

@@ -19,12 +19,11 @@ import '../providers/alarms_provider.dart';
 ///     occurrence an hour out until something else happens to reschedule
 ///     them. Nothing did, before this.
 ///
-/// On mission routing: AlarmKit presents its own system alert; tapping our
-/// secondary button runs
+/// On mission routing: AlarmKit presents its own system alert. For alarms with
+/// a mission, tapping either Stop or the secondary button runs
 /// `StartMissionIntent`, which opens the app and leaves the alarm id behind.
-/// This picks it up. Without it the user taps "Start mission" on the lock
-/// screen and lands on the home page, with the alarm still ringing and no
-/// obvious way to finish.
+/// This picks it up and opens the ringing screen, where Bangunin starts its
+/// own audio and guides the user into the mission.
 ///
 /// Checked on launch *and* on resume, because the app may already have been
 /// in memory when the alarm fired.

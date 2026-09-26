@@ -8,13 +8,31 @@
 - Bundle ID: `app.bangunin`
 - SKU: `bangunin-ios-001`
 - Version: 1.0.0
-- Build: 2
+- Build: 3
 
 ## App Privacy
 
-Based on the current binary and local-first implementation, select **No, we do not collect data from this app**. Camera/photo/pose/audio mission data stays on device; Apple handles payment details; no ads, analytics upload, crash-reporting, or tracking SDK is bundled. Recheck this answer before submission if any SDK or backend is added.
+Select **Yes, we collect data from this app**. Bangunin does not run its own
+analytics service, but its Google ML Kit pose dependency declares limited SDK
+diagnostics and usage analytics. Disclose the following as **not linked to the
+user** and **not used for tracking**:
 
-Tracking: **No**. IDFA/advertising identifier: **not used**.
+- Identifiers: Device ID (per-installation identifier)
+- User Content: Other User Content (SDK configuration/feature metadata; not
+  mission photos or camera frames)
+- Usage Data: Product Interaction
+- Diagnostics: Performance Data and Other Diagnostic Data
+- Other Data: the ML Kit SDK's API/application configuration metadata
+
+Use **Analytics** and, where App Store Connect offers it for the declared item,
+**App Functionality** as the purposes. Do not declare photos, camera frames,
+pose landmarks, audio, alarms, or payment-card details as collected by
+Bangunin: those remain on device or are handled by Apple. Recheck the final
+archive's privacy report before publishing because third-party SDK behavior can
+change.
+
+Tracking: **No**. Data linked to the user: **No**. IDFA/advertising identifier:
+**not used**.
 
 ## Age rating
 

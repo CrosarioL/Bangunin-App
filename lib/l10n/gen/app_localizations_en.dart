@@ -147,11 +147,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get missionMakeBedDescription => 'Take a photo of your made bed.';
 
   @override
-  String get missionSquatsDescription => 'Hold your phone and complete squats.';
+  String get missionSquatsDescription =>
+      'Place your phone securely and complete squats.';
 
   @override
   String get missionPushupsDescription =>
-      'Hold your phone and complete pushups.';
+      'Place your phone securely and complete pushups.';
+
+  @override
+  String get tryMission => 'Try mission';
+
+  @override
+  String get missionPreviewTitle => 'Mission preview';
+
+  @override
+  String get missionPreviewSuccess =>
+      'Preview complete — this did not affect your alarm or streak.';
 
   @override
   String get newAlarm => 'New alarm';
@@ -538,6 +549,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languageSystemDefault => 'System default';
 
   @override
+  String get settingsTheme => 'Appearance';
+
+  @override
+  String get themeSystem => 'System';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
   String get settingsSectionSupport => 'SUPPORT';
 
   @override
@@ -554,6 +577,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get termsOfUse => 'Terms of use';
+
+  @override
+  String get linkOpenFailed => 'Couldn\'t open that link. Please try again.';
+
+  @override
+  String get supportEmailCopied =>
+      'No email app was found. hello@bangunin.app was copied.';
 
   @override
   String appVersion(String version) {
