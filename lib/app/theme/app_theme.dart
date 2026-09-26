@@ -18,16 +18,18 @@ abstract final class AppTheme {
       brightness: brightness,
       primary: AppColors.primary,
       onPrimary: AppColors.onPrimary,
-      secondary: AppColors.info,
-      onSecondary: Colors.white,
+      secondary: AppColors.cyan,
+      onSecondary: AppColors.nightTop,
       error: AppColors.danger,
       onError: Colors.white,
       surface: isDark ? AppColors.surface : AppColors.surfaceLight,
       onSurface: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
-      surfaceContainerHighest:
-          isDark ? AppColors.surfaceRaised : AppColors.surfaceRaisedLight,
-      onSurfaceVariant:
-          isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
+      surfaceContainerHighest: isDark
+          ? AppColors.surfaceRaised
+          : AppColors.surfaceRaisedLight,
+      onSurfaceVariant: isDark
+          ? AppColors.textSecondary
+          : AppColors.textSecondaryLight,
       outline: isDark ? AppColors.outline : AppColors.outlineLight,
     );
 
@@ -59,9 +61,15 @@ abstract final class AppTheme {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        systemOverlayStyle:
-            isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
-        titleTextStyle: textTheme.titleMedium,
+        systemOverlayStyle: isDark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark,
+        titleTextStyle: textTheme.titleMedium!.copyWith(
+          fontSize: 20,
+          shadows: isDark
+              ? const [Shadow(color: Colors.black38, blurRadius: 10)]
+              : null,
+        ),
         iconTheme: IconThemeData(color: colorScheme.onSurface),
       ),
       cardTheme: CardThemeData(
@@ -105,7 +113,7 @@ abstract final class AppTheme {
         trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
       ),
       bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: colorScheme.surface,
+        backgroundColor: isDark ? AppColors.glass : AppColors.glassLight,
         surfaceTintColor: Colors.transparent,
         showDragHandle: true,
         shape: const RoundedRectangleBorder(
@@ -124,7 +132,7 @@ abstract final class AppTheme {
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         // A soft rounded pill highlights the active tab.
-        indicatorColor: AppColors.primary.withValues(alpha: 0.16),
+        indicatorColor: AppColors.cyan.withValues(alpha: 0.16),
         indicatorShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusCapsule),
         ),
@@ -133,14 +141,14 @@ abstract final class AppTheme {
         iconTheme: WidgetStateProperty.resolveWith(
           (states) => IconThemeData(
             color: states.contains(WidgetState.selected)
-                ? AppColors.primary
+                ? AppColors.cyan
                 : colorScheme.onSurfaceVariant,
           ),
         ),
         labelTextStyle: WidgetStateProperty.resolveWith(
           (states) => textTheme.labelSmall!.copyWith(
             color: states.contains(WidgetState.selected)
-                ? AppColors.primary
+                ? AppColors.cyan
                 : colorScheme.onSurfaceVariant,
           ),
         ),
@@ -156,19 +164,23 @@ abstract final class AppTheme {
       FontWeight weight, {
       double? spacing,
       String family = 'Nunito',
-    }) =>
-        TextStyle(
-          fontFamily: family,
-          fontSize: size,
-          fontWeight: weight,
-          letterSpacing: spacing,
-          color: onSurface,
-        );
+    }) => TextStyle(
+      fontFamily: family,
+      fontSize: size,
+      fontWeight: weight,
+      letterSpacing: spacing,
+      color: onSurface,
+    );
 
     return TextTheme(
       displayLarge: style(72, FontWeight.w800, spacing: -1.5, family: 'Baloo2'),
       displayMedium: style(44, FontWeight.w800, spacing: -1, family: 'Baloo2'),
-      headlineMedium: style(28, FontWeight.w800, spacing: -0.5, family: 'Baloo2'),
+      headlineMedium: style(
+        28,
+        FontWeight.w800,
+        spacing: -0.5,
+        family: 'Baloo2',
+      ),
       headlineSmall: style(22, FontWeight.w700, family: 'Baloo2'),
       titleMedium: style(17, FontWeight.w700, family: 'Baloo2'),
       titleSmall: style(16, FontWeight.w700, family: 'Baloo2'),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/widgets/app_card.dart';
 import '../../../../app/widgets/pressable_scale.dart';
@@ -8,6 +7,7 @@ import '../../../../core/utils/l10n_ext.dart';
 import '../../../../core/utils/time_format.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../../missions/domain/mission_type.dart';
+import '../../../missions/presentation/widgets/mission_experience.dart';
 import '../../domain/entities/alarm.dart';
 
 class AlarmCard extends StatelessWidget {
@@ -64,10 +64,7 @@ class AlarmCard extends StatelessWidget {
               ),
             ),
           ),
-          Switch(
-            value: alarm.enabled,
-            onChanged: onToggle,
-          ),
+          Switch(value: alarm.enabled, onChanged: onToggle),
         ],
       ),
     );
@@ -135,6 +132,7 @@ class _MissionChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final accent = mission.experienceColor;
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 200),
       opacity: muted ? 0.4 : 1,
@@ -144,20 +142,21 @@ class _MissionChip extends StatelessWidget {
           vertical: 6,
         ),
         decoration: BoxDecoration(
-          color: AppColors.primary.withValues(alpha: 0.14),
+          color: accent.withValues(alpha: 0.14),
           borderRadius: BorderRadius.circular(AppSpacing.radiusCapsule),
+          border: Border.all(color: accent.withValues(alpha: .22)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(mission.icon, size: 14, color: AppColors.primary),
+            Icon(mission.icon, size: 14, color: accent),
             const SizedBox(width: 6),
             Text(
               mission.localizedName(l10n),
               style: Theme.of(context).textTheme.labelSmall!.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
+                color: accent,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ],
         ),
@@ -168,12 +167,12 @@ class _MissionChip extends StatelessWidget {
 
 extension MissionTypeL10n on MissionType {
   String localizedName(AppLocalizations l10n) => switch (this) {
-        MissionType.none => l10n.missionNone,
-        MissionType.objectHunt => l10n.missionObjectHunt,
-        MissionType.skyPhoto => l10n.missionSkyPhoto,
-        MissionType.grassPhoto => l10n.missionGrassPhoto,
-        MissionType.makeBed => l10n.missionMakeBed,
-        MissionType.squats => l10n.missionSquats,
-        MissionType.pushups => l10n.missionPushups,
-      };
+    MissionType.none => l10n.missionNone,
+    MissionType.objectHunt => l10n.missionObjectHunt,
+    MissionType.skyPhoto => l10n.missionSkyPhoto,
+    MissionType.grassPhoto => l10n.missionGrassPhoto,
+    MissionType.makeBed => l10n.missionMakeBed,
+    MissionType.squats => l10n.missionSquats,
+    MissionType.pushups => l10n.missionPushups,
+  };
 }

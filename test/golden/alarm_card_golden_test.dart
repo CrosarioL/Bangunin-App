@@ -30,11 +30,7 @@ void main() {
           body: Center(
             child: SizedBox(
               width: 360,
-              child: AlarmCard(
-                alarm: alarm,
-                onTap: () {},
-                onToggle: (_) {},
-              ),
+              child: AlarmCard(alarm: alarm, onTap: () {}, onToggle: (_) {}),
             ),
           ),
         ),
@@ -63,18 +59,14 @@ void main() {
           body: Center(
             child: SizedBox(
               width: 360,
-              child: AlarmCard(
-                alarm: alarm,
-                onTap: () {},
-                onToggle: (_) {},
-              ),
+              child: AlarmCard(alarm: alarm, onTap: () {}, onToggle: (_) {}),
             ),
           ),
         ),
       ),
     );
     // Let the muted-opacity animation settle before capturing.
-    await tester.pumpAndSettle();
+    await pumpForAnimations(tester);
 
     await expectLater(
       find.byType(AlarmCard),

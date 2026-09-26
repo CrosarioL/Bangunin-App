@@ -16,8 +16,7 @@ abstract final class Routes {
   static String photoMission(String alarmId) => '/mission/photo/$alarmId';
   static const photoMissionPattern = '/mission/photo/:id';
 
-  static String movementMission(String alarmId) =>
-      '/mission/movement/$alarmId';
+  static String movementMission(String alarmId) => '/mission/movement/$alarmId';
   static const movementMissionPattern = '/mission/movement/:id';
 
   static const objectRegistration = '/object-registration';

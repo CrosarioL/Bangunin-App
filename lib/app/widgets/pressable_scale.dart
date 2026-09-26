@@ -28,20 +28,25 @@ class PressableScale extends StatefulWidget {
 
 class _PressableScaleState extends State<PressableScale>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 90),
-    reverseDuration: const Duration(milliseconds: 220),
-  );
+  late final AnimationController _controller;
+  late final Animation<double> _scale;
 
-  late final Animation<double> _scale = Tween<double>(begin: 1, end: 0.96)
-      .animate(
-        CurvedAnimation(
-          parent: _controller,
-          curve: Curves.easeOut,
-          reverseCurve: Curves.elasticOut,
-        ),
-      );
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 90),
+      reverseDuration: const Duration(milliseconds: 220),
+    );
+    _scale = Tween<double>(begin: 1, end: 0.96).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOut,
+        reverseCurve: Curves.elasticOut,
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -51,18 +56,23 @@ class _PressableScaleState extends State<PressableScale>
 
   @override
   Widget build(BuildContext context) {
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
     final gesture = GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTapDown: widget.onPressed == null ? null : (_) => _controller.forward(),
-      onTapCancel: () => _controller.reverse(),
-      onTapUp: (_) => _controller.reverse(),
+      onTapDown: widget.onPressed == null || reduceMotion
+          ? null
+          : (_) => _controller.forward(),
+      onTapCancel: reduceMotion ? null : () => _controller.reverse(),
+      onTapUp: reduceMotion ? null : (_) => _controller.reverse(),
       onTap: widget.onPressed == null
           ? null
           : () {
               if (widget.enableHaptics) Haptics.tap();
               widget.onPressed!();
             },
-      child: ScaleTransition(scale: _scale, child: widget.child),
+      child: reduceMotion
+          ? widget.child
+          : ScaleTransition(scale: _scale, child: widget.child),
     );
 
     // Callers that pass no label want the default: descendant text/icons

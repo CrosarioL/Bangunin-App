@@ -8,8 +8,8 @@ const _userNameKey = 'user_first_name';
 /// Whether the user has finished onboarding. Drives the router redirect.
 final onboardingCompletedProvider =
     NotifierProvider<OnboardingCompletedNotifier, bool>(
-  OnboardingCompletedNotifier.new,
-);
+      OnboardingCompletedNotifier.new,
+    );
 
 class OnboardingCompletedNotifier extends Notifier<bool> {
   @override
@@ -18,9 +18,7 @@ class OnboardingCompletedNotifier extends Notifier<bool> {
 
   Future<void> markCompleted() async {
     state = true;
-    await ref
-        .read(sharedPreferencesProvider)
-        .setBool(_onboardingDoneKey, true);
+    await ref.read(sharedPreferencesProvider).setBool(_onboardingDoneKey, true);
   }
 }
 
@@ -88,8 +86,8 @@ class OnboardingAnswers {
 
 final onboardingAnswersProvider =
     NotifierProvider<OnboardingAnswersNotifier, OnboardingAnswers>(
-  OnboardingAnswersNotifier.new,
-);
+      OnboardingAnswersNotifier.new,
+    );
 
 class OnboardingAnswersNotifier extends Notifier<OnboardingAnswers> {
   @override

@@ -77,7 +77,8 @@ $cssAnchor''';
   // ---- 2. Hero markup ----
   const heroAnchor =
       '    <p class="eyebrow" data-id="Alarm yang ngecek kamu beneran bangun"';
-  final heroMascot = '''
+  final heroMascot =
+      '''
     <div class="hero-mascot-wrap">
       <img id="hero-mascot" class="hero-mascot" src="$happy" alt="Maskot Bangunin" draggable="false">
       <span class="mascot-bubble" id="mascot-bubble">Kukuruyuk!</span>
@@ -107,7 +108,8 @@ $heroAnchor''';
   // ---- 4. JS ----
   const jsAnchor =
       '  /* ============ Live ticking clock in the hero phone ============ */';
-  final mascotJs = '''
+  final mascotJs =
+      '''
   /* ============ Hero mascot: flap, crow on click, react to form ============ */
   (function () {
     var poses = {

@@ -10,6 +10,7 @@ import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/widgets/app_card.dart';
 import '../../../../app/widgets/max_width_box.dart';
 import '../../../../app/widgets/primary_button.dart';
+import '../../../../app/widgets/sunset_page_header.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/l10n_ext.dart';
 import '../../domain/entities/alarm.dart';
@@ -106,37 +107,47 @@ class _AlarmEditorPageState extends ConsumerState<AlarmEditorPage> {
                   AppSpacing.xxl,
                 ),
                 children: [
-                  SizedBox(
-                    height: 190,
-                    child: CupertinoTheme(
-                      data: CupertinoThemeData(
-                        brightness: theme.brightness,
-                        textTheme: CupertinoTextThemeData(
-                          dateTimePickerTextStyle:
-                              theme.textTheme.headlineMedium,
+                  SunsetPageHeader(
+                    title: _isNew ? l10n.newAlarm : l10n.editAlarm,
+                    subtitle: alarm.missionType.localizedName(l10n),
+                    icon: Icons.alarm_add_rounded,
+                    showMascot: false,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  AppCard(
+                    padding: EdgeInsets.zero,
+                    child: SizedBox(
+                      height: 190,
+                      child: CupertinoTheme(
+                        data: CupertinoThemeData(
+                          brightness: theme.brightness,
+                          textTheme: CupertinoTextThemeData(
+                            dateTimePickerTextStyle:
+                                theme.textTheme.headlineMedium,
+                          ),
                         ),
-                      ),
-                      child: CupertinoDatePicker(
-                        mode: CupertinoDatePickerMode.time,
-                        initialDateTime: DateTime(
-                          2000,
-                          1,
-                          1,
-                          alarm.hour,
-                          alarm.minute,
+                        child: CupertinoDatePicker(
+                          mode: CupertinoDatePickerMode.time,
+                          initialDateTime: DateTime(
+                            2000,
+                            1,
+                            1,
+                            alarm.hour,
+                            alarm.minute,
+                          ),
+                          use24hFormat: MediaQuery.of(
+                            context,
+                          ).alwaysUse24HourFormat,
+                          onDateTimeChanged: (value) {
+                            Haptics.selection();
+                            _update(
+                              (a) => a.copyWith(
+                                hour: value.hour,
+                                minute: value.minute,
+                              ),
+                            );
+                          },
                         ),
-                        use24hFormat: MediaQuery.of(
-                          context,
-                        ).alwaysUse24HourFormat,
-                        onDateTimeChanged: (value) {
-                          Haptics.selection();
-                          _update(
-                            (a) => a.copyWith(
-                              hour: value.hour,
-                              minute: value.minute,
-                            ),
-                          );
-                        },
                       ),
                     ),
                   ),

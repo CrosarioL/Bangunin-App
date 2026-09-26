@@ -33,8 +33,9 @@ void main() {
   Widget inScaffold(Widget child) => Scaffold(body: child);
 
   group('NameStep', () {
-    testWidgets('CTA is disabled until text is entered, then advances',
-        (tester) async {
+    testWidgets('CTA is disabled until text is entered, then advances', (
+      tester,
+    ) async {
       final prefs = await mockPrefs();
       var nextCalled = false;
 
@@ -64,8 +65,9 @@ void main() {
   });
 
   group('MotivationsStep', () {
-    testWidgets('CTA is gated until a selection is made; multi-select works',
-        (tester) async {
+    testWidgets('CTA is gated until a selection is made; multi-select works', (
+      tester,
+    ) async {
       final prefs = await mockPrefs();
       var nextCalled = false;
 
@@ -95,8 +97,9 @@ void main() {
   });
 
   group('PainStatStep', () {
-    testWidgets('renders and shows the hours text for the default habit',
-        (tester) async {
+    testWidgets('renders and shows the hours text for the default habit', (
+      tester,
+    ) async {
       final prefs = await mockPrefs();
 
       await tester.pumpWidget(
@@ -115,28 +118,29 @@ void main() {
 
   group('PlanRevealStep', () {
     testWidgets(
-        'shows the personalized title and plan chart when a name is set',
-        (tester) async {
-      final prefs = await mockPrefs();
+      'shows the personalized title and plan chart when a name is set',
+      (tester) async {
+        final prefs = await mockPrefs();
 
-      await tester.pumpWidget(
-        testApp(
-          overrides: [
-            sharedPreferencesProvider.overrideWithValue(prefs),
-            onboardingAnswersProvider.overrideWith(
-              () => _SeededOnboardingAnswersNotifier(
-                const OnboardingAnswers(name: 'Alex'),
+        await tester.pumpWidget(
+          testApp(
+            overrides: [
+              sharedPreferencesProvider.overrideWithValue(prefs),
+              onboardingAnswersProvider.overrideWith(
+                () => _SeededOnboardingAnswersNotifier(
+                  const OnboardingAnswers(name: 'Alex'),
+                ),
               ),
-            ),
-          ],
-          child: inScaffold(PlanRevealStep(onNext: () {})),
-        ),
-      );
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+            ],
+            child: inScaffold(PlanRevealStep(onNext: () {})),
+          ),
+        );
+        await tester.pumpAndSettle(const Duration(seconds: 2));
 
-      expect(find.textContaining('Alex'), findsWidgets);
-      expect(find.byType(PlanChart), findsOneWidget);
-      expect(find.text('See my plan'), findsOneWidget);
-    });
+        expect(find.textContaining('Alex'), findsWidgets);
+        expect(find.byType(PlanChart), findsOneWidget);
+        expect(find.text('See my plan'), findsOneWidget);
+      },
+    );
   });
 }

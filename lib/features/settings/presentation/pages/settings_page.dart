@@ -1,8 +1,11 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:in_app_review/in_app_review.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../app/router/routes.dart';
@@ -10,8 +13,10 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/widgets/app_card.dart';
 import '../../../../app/widgets/max_width_box.dart';
+import '../../../../app/widgets/sunset_page_header.dart';
 import '../../../../core/config/app_config.dart';
 import '../../../../core/services/locale/locale_override_provider.dart';
+import '../../../../core/services/theme/theme_mode_provider.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/l10n_ext.dart';
 import '../../../../l10n/gen/app_localizations.dart';
@@ -19,14 +24,12 @@ import '../../../paywall/presentation/providers/premium_provider.dart';
 
 /// Native (untranslated) names for each shipped locale — a language picker
 /// shows every option in its own language, not the current UI language.
-const _languageNames = {
-  'en': 'English',
-  'id': 'Bahasa Indonesia',
-  'ar': 'العربية',
-  'de': 'Deutsch',
-  'es': 'Español',
-  'fr': 'Français',
-};
+///
+/// Indonesia-first: ar/de/es/fr were dropped before the iOS launch. They were
+/// unreviewed, already drifting out of sync with the template (four keys had
+/// gone missing, so those users hit English mid-screen), and none of them is a
+/// target market. They remain in git history if we ever want them back.
+const _languageNames = {'en': 'English', 'id': 'Bahasa Indonesia'};
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -37,6 +40,7 @@ class SettingsPage extends ConsumerWidget {
     final theme = Theme.of(context);
     final isPremium = ref.watch(isPremiumProvider);
     final localeOverride = ref.watch(localeOverrideProvider);
+    final themeMode = ref.watch(themeModeProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -53,7 +57,10 @@ class SettingsPage extends ConsumerWidget {
               AppSpacing.xxl,
             ),
             children: [
-              Text(l10n.tabSettings, style: theme.textTheme.headlineMedium),
+              SunsetPageHeader(
+                title: l10n.tabSettings,
+                icon: Icons.settings_suggest_rounded,
+              ),
               const SizedBox(height: AppSpacing.xl),
               if (isPremium)
                 AppCard(
@@ -102,13 +109,35 @@ class SettingsPage extends ConsumerWidget {
                       ref.read(purchaseInProgressProvider.notifier).restore(),
                     ),
                   ),
+                  // Shown on both stores. This was previously gated to
+                  // Android, which left iOS with no way to reach subscription
+                  // management at all — and the iOS branch of the URL ternary
+                  // inside it was therefore dead code.
+                  _SettingsTile(
+                    icon: Icons.manage_accounts_outlined,
+                    title: l10n.manageSubscription,
+                    onTap: () => unawaited(
+                      _launch(
+                        context,
+                        defaultTargetPlatform == TargetPlatform.iOS
+                            ? AppConfig.manageAppStoreSubscriptionUrl
+                            : AppConfig.manageGooglePlaySubscriptionUrl,
+                      ),
+                    ),
+                  ),
                   _SettingsTile(
                     icon: Icons.language_rounded,
                     title: l10n.settingsLanguage,
                     trailingLabel:
                         _languageNames[localeOverride?.languageCode] ??
-                            l10n.languageSystemDefault,
+                        l10n.languageSystemDefault,
                     onTap: () => _showLanguagePicker(context, ref),
+                  ),
+                  _SettingsTile(
+                    icon: Icons.brightness_6_rounded,
+                    title: l10n.settingsTheme,
+                    trailingLabel: _themeName(themeMode, l10n),
+                    onTap: () => _showThemePicker(context, ref),
                   ),
                 ],
               ),
@@ -124,17 +153,19 @@ class SettingsPage extends ConsumerWidget {
                   _SettingsTile(
                     icon: Icons.mail_outline_rounded,
                     title: l10n.contactSupport,
-                    onTap: () =>
-                        unawaited(_launch('mailto:${AppConfig.supportEmail}')),
+                    onTap: () => unawaited(
+                      _launch(
+                        context,
+                        'mailto:${AppConfig.supportEmail}?subject=Bangunin%20support',
+                        emailFallback: true,
+                      ),
+                    ),
                   ),
                   _SettingsTile(
                     icon: Icons.star_border_rounded,
                     title: l10n.rateApp,
-                    onTap: () => unawaited(
-                      _launch(
-                        'https://apps.apple.com/app/id${AppConfig.appStoreId}?action=write-review',
-                      ),
-                    ),
+                    onTap: () =>
+                        unawaited(InAppReview.instance.requestReview()),
                   ),
                 ],
               ),
@@ -145,12 +176,14 @@ class SettingsPage extends ConsumerWidget {
                   _SettingsTile(
                     icon: Icons.privacy_tip_outlined,
                     title: l10n.privacyPolicy,
-                    onTap: () => unawaited(_launch(AppConfig.privacyPolicyUrl)),
+                    onTap: () =>
+                        unawaited(_launch(context, AppConfig.privacyPolicyUrl)),
                   ),
                   _SettingsTile(
                     icon: Icons.description_outlined,
                     title: l10n.termsOfUse,
-                    onTap: () => unawaited(_launch(AppConfig.termsUrl)),
+                    onTap: () =>
+                        unawaited(_launch(context, AppConfig.termsUrl)),
                   ),
                 ],
               ),
@@ -170,10 +203,92 @@ class SettingsPage extends ConsumerWidget {
     );
   }
 
-  static Future<void> _launch(String url) async {
+  static Future<void> _launch(
+    BuildContext context,
+    String url, {
+    bool emailFallback = false,
+  }) async {
     final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    var launched = false;
+    try {
+      launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } on Exception {
+      // Fall through to an actionable in-app message below.
+    }
+    if (launched || !context.mounted) return;
+
+    if (emailFallback) {
+      await Clipboard.setData(
+        const ClipboardData(text: AppConfig.supportEmail),
+      );
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.l10n.supportEmailCopied)));
+      return;
+    }
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(context.l10n.linkOpenFailed)));
+  }
+
+  static String _themeName(ThemeMode mode, AppLocalizations l10n) =>
+      switch (mode) {
+        ThemeMode.system => l10n.themeSystem,
+        ThemeMode.light => l10n.themeLight,
+        ThemeMode.dark => l10n.themeDark,
+      };
+
+  static Future<void> _showThemePicker(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    final l10n = context.l10n;
+    final current = ref.read(themeModeProvider);
+    final selected = await showModalBottomSheet<ThemeMode>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.lg,
+                AppSpacing.lg,
+                AppSpacing.sm,
+              ),
+              child: Text(
+                l10n.settingsTheme,
+                style: Theme.of(sheetContext).textTheme.titleMedium,
+              ),
+            ),
+            for (final mode in ThemeMode.values)
+              ListTile(
+                leading: Icon(switch (mode) {
+                  ThemeMode.system => Icons.settings_brightness_rounded,
+                  ThemeMode.light => Icons.light_mode_rounded,
+                  ThemeMode.dark => Icons.dark_mode_rounded,
+                }),
+                title: Text(_themeName(mode, l10n)),
+                trailing: current == mode
+                    ? const Icon(
+                        Icons.check_circle_rounded,
+                        color: AppColors.primary,
+                      )
+                    : null,
+                onTap: () => Navigator.of(sheetContext).pop(mode),
+              ),
+            const SizedBox(height: AppSpacing.sm),
+          ],
+        ),
+      ),
+    );
+    if (selected != null) {
+      Haptics.selection();
+      await ref.read(themeModeProvider.notifier).set(selected);
     }
   }
 
@@ -217,8 +332,8 @@ class SettingsPage extends ConsumerWidget {
             ),
             for (final locale in AppLocalizations.supportedLocales)
               _LanguageOption(
-                label: _languageNames[locale.languageCode] ??
-                    locale.languageCode,
+                label:
+                    _languageNames[locale.languageCode] ?? locale.languageCode,
                 selected: current == locale,
                 onTap: () => _pickLanguage(ref, sheetContext, locale),
               ),
@@ -283,8 +398,9 @@ class _Section extends StatelessWidget {
           child: Text(
             title,
             style: theme.textTheme.labelSmall!.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-              letterSpacing: 0.6,
+              color: AppColors.cyan,
+              letterSpacing: 1.1,
+              fontWeight: FontWeight.w800,
             ),
           ),
         ),
@@ -317,7 +433,15 @@ class _SettingsTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return ListTile(
-      leading: Icon(icon, color: AppColors.primary),
+      leading: Container(
+        width: 38,
+        height: 38,
+        decoration: BoxDecoration(
+          color: AppColors.cyan.withValues(alpha: .12),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, color: AppColors.cyan, size: 20),
+      ),
       title: Text(title),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,

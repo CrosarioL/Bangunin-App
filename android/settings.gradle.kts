@@ -27,7 +27,7 @@ plugins {
     // aren't on the javac classpath yet. Must stay >= 8.9.1 too — the
     // `camera` package's androidx.camera 1.6.0 transitive deps require it.
     id("com.android.application") version "8.12.1" apply false
-    id("org.jetbrains.kotlin.android") version "2.1.20" apply false
+    id("org.jetbrains.kotlin.android") version "2.2.20" apply false
 }
 
 include(":app")

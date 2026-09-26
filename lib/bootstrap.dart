@@ -59,6 +59,16 @@ Future<LocalStore> _openLocalStore() async {
 
 Future<NotificationService> _initNotifications() async {
   final service = NotificationService();
-  await service.initialize();
+  try {
+    await service.initialize();
+  } catch (error, stackTrace) {
+    // bootstrap() awaits this inside a Future.wait, so anything thrown here
+    // propagates out of main() before runApp and the app hangs forever on the
+    // splash screen with no error shown — which is exactly how the
+    // mipmap/drawable icon mismatch shipped undetected. Alarm scheduling is
+    // degraded if this ever fires, but a startable app can at least surface
+    // that; a frozen splash cannot.
+    debugPrint('Notification init failed: $error\n$stackTrace');
+  }
   return service;
 }

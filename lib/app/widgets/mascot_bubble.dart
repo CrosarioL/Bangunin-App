@@ -20,7 +20,7 @@ class MascotBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final face = isDark ? AppColors.surfaceRaised : AppColors.surfaceLight;
+    final face = isDark ? AppColors.glass : AppColors.glassLight;
     final border = isDark
         ? Colors.white.withValues(alpha: 0.08)
         : AppColors.outlineLight;
@@ -33,7 +33,17 @@ class MascotBubble extends StatelessWidget {
       decoration: BoxDecoration(
         color: face,
         borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
-        border: Border.all(color: border, width: 1.5),
+        border: Border.all(
+          color: isDark ? AppColors.primary.withValues(alpha: .55) : border,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.nightTop.withValues(alpha: .28),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Text(
         text,

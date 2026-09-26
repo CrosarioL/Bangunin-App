@@ -1,9 +1,6 @@
-import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:in_app_review/in_app_review.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
@@ -308,96 +305,6 @@ class CommitmentStep extends StatelessWidget {
             color: AppColors.primary,
           ),
         ),
-      ),
-    );
-  }
-}
-
-/// Step — social proof (star rating + testimonials) that also opportunistically
-/// prompts the platform's native App Store / Play Store review dialog.
-class SocialProofStep extends ConsumerStatefulWidget {
-  const SocialProofStep({super.key, required this.onNext});
-
-  final VoidCallback onNext;
-
-  @override
-  ConsumerState<SocialProofStep> createState() => _SocialProofStepState();
-}
-
-class _SocialProofStepState extends ConsumerState<SocialProofStep> {
-  bool _requested = false;
-
-  @override
-  void initState() {
-    super.initState();
-    if (!_requested) {
-      _requested = true;
-      unawaited(_maybeRequestReview());
-    }
-  }
-
-  Future<void> _maybeRequestReview() async {
-    try {
-      final review = InAppReview.instance;
-      if (await review.isAvailable()) {
-        await review.requestReview();
-      }
-    } catch (_) {
-      // Platform channel may be unavailable (e.g. in tests) — never throw.
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final theme = Theme.of(context);
-    final testimonials = [
-      (quote: l10n.socialProofQuote1, author: l10n.socialProofAuthor1),
-      (quote: l10n.socialProofQuote2, author: l10n.socialProofAuthor2),
-      (quote: l10n.socialProofQuote3, author: l10n.socialProofAuthor3),
-    ];
-
-    return OnboardingStepScaffold(
-      title: l10n.socialProofTitle,
-      subtitle: l10n.socialProofSubtitle,
-      ctaLabel: l10n.continueLabel,
-      onNext: widget.onNext,
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-              5,
-              (_) => const Padding(
-                padding: EdgeInsets.symmetric(horizontal: AppSpacing.xs),
-                child: Icon(
-                  Icons.star_rounded,
-                  color: AppColors.primary,
-                  size: 28,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xl),
-          for (final t in testimonials) ...[
-            AppCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    t.quote,
-                    style: theme.textTheme.bodyMedium!.copyWith(
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(t.author, style: theme.textTheme.labelLarge),
-                ],
-              ),
-            ),
-            const SizedBox(height: AppSpacing.md),
-          ],
-        ],
       ),
     );
   }

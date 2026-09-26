@@ -43,3 +43,14 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Android release signing material (never commit or share publicly).
+/android/key.properties
+/android/app/upload-keystore.jks
+/android/release-secrets-backup.txt
+*.jks
+*.keystore
+
+# Store binaries belong in Play Console/release storage, never Git history.
+*.aab
+*.apk

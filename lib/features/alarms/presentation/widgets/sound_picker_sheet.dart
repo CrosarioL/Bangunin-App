@@ -11,6 +11,7 @@ import 'package:record/record.dart';
 import '../../../../app/di/providers.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../app/widgets/bangunin_mascot.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/l10n_ext.dart';
 import '../../domain/entities/alarm.dart';
@@ -79,66 +80,112 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(l10n.soundSection, style: theme.textTheme.headlineSmall),
+            Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: AppColors.sunsetCoral.withValues(alpha: .14),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.graphic_eq_rounded,
+                    color: AppColors.sunsetCoral,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Text(
+                    l10n.soundSection,
+                    style: theme.textTheme.headlineSmall,
+                  ),
+                ),
+                const BanguninMascot(pose: MascotPose.crowing, size: 64),
+              ],
+            ),
             const SizedBox(height: AppSpacing.lg),
             for (final sound in const [
               AlarmSound.classic,
               AlarmSound.sunrise,
               AlarmSound.pulse,
             ])
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(
-                  Icons.music_note_rounded,
-                  color: AppColors.primary,
+              Container(
+                margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+                decoration: BoxDecoration(
+                  color: AppColors.nightTop.withValues(alpha: .22),
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusControl),
+                  border: Border.all(color: Colors.white.withValues(alpha: .1)),
                 ),
-                title: Text(sound.localizedName(l10n)),
-                trailing: widget.current == sound &&
-                        widget.currentCustomPath == null
-                    ? const Icon(
-                        Icons.check_circle_rounded,
-                        color: AppColors.primary,
-                      )
-                    : null,
-                onTap: () async {
-                  Haptics.selection();
-                  await ref.read(alarmAudioServiceProvider).preview(sound);
-                  if (context.mounted) {
-                    Navigator.of(context).pop(SoundSelection(sound));
-                  }
-                },
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14),
+                  leading: const Icon(
+                    Icons.music_note_rounded,
+                    color: AppColors.primary,
+                  ),
+                  title: Text(sound.localizedName(l10n)),
+                  trailing:
+                      widget.current == sound &&
+                          widget.currentCustomPath == null
+                      ? const Icon(
+                          Icons.check_circle_rounded,
+                          color: AppColors.primary,
+                        )
+                      : null,
+                  onTap: () async {
+                    Haptics.selection();
+                    await ref.read(alarmAudioServiceProvider).preview(sound);
+                    if (context.mounted) {
+                      Navigator.of(context).pop(SoundSelection(sound));
+                    }
+                  },
+                ),
               ),
-            const Divider(),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(
-                Icons.library_music_rounded,
-                color: AppColors.info,
+            const SizedBox(height: AppSpacing.sm),
+            Container(
+              decoration: BoxDecoration(
+                color: AppColors.cyan.withValues(alpha: .08),
+                borderRadius: BorderRadius.circular(AppSpacing.radiusControl),
+                border: Border.all(color: AppColors.cyan.withValues(alpha: .2)),
               ),
-              title: Text(l10n.importSound),
-              subtitle: Text(
-                l10n.importSoundSubtitle,
-                style: theme.textTheme.bodySmall,
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const Icon(
+                      Icons.library_music_rounded,
+                      color: AppColors.cyan,
+                    ),
+                    title: Text(l10n.importSound),
+                    subtitle: Text(
+                      l10n.importSoundSubtitle,
+                      style: theme.textTheme.bodySmall,
+                    ),
+                    trailing: _importing
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : null,
+                    onTap: _importing ? null : _importFile,
+                  ),
+                  Divider(color: Colors.white.withValues(alpha: .1)),
+                  ListTile(
+                    leading: Icon(
+                      _recording
+                          ? Icons.stop_circle_rounded
+                          : Icons.mic_rounded,
+                      color: _recording
+                          ? AppColors.danger
+                          : AppColors.sunsetCoral,
+                    ),
+                    title: Text(
+                      _recording ? l10n.stopRecording : l10n.recordSound,
+                    ),
+                    onTap: _toggleRecording,
+                  ),
+                ],
               ),
-              trailing: _importing
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : null,
-              onTap: _importing ? null : _importFile,
-            ),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: Icon(
-                _recording ? Icons.stop_circle_rounded : Icons.mic_rounded,
-                color: _recording ? AppColors.danger : AppColors.info,
-              ),
-              title: Text(
-                _recording ? l10n.stopRecording : l10n.recordSound,
-              ),
-              onTap: _toggleRecording,
             ),
           ],
         ),
@@ -149,9 +196,7 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet> {
   Future<void> _importFile() async {
     setState(() => _importing = true);
     try {
-      final result = await FilePicker.pickFiles(
-        type: FileType.media,
-      );
+      final result = await FilePicker.pickFiles(type: FileType.media);
       final path = result?.files.single.path;
       if (path == null) return;
       // Copy into app documents so the sound survives the picker cache.
@@ -161,9 +206,9 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet> {
           '${docs.path}/custom_sound_${DateTime.now().millisecondsSinceEpoch}.$ext';
       await File(path).copy(dest);
       if (mounted) {
-        Navigator.of(context).pop(
-          SoundSelection(AlarmSound.custom, customPath: dest),
-        );
+        Navigator.of(
+          context,
+        ).pop(SoundSelection(AlarmSound.custom, customPath: dest));
       }
     } finally {
       if (mounted) setState(() => _importing = false);
@@ -175,9 +220,9 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet> {
       final path = await _recorder.stop();
       setState(() => _recording = false);
       if (path != null && mounted) {
-        Navigator.of(context).pop(
-          SoundSelection(AlarmSound.custom, customPath: path),
-        );
+        Navigator.of(
+          context,
+        ).pop(SoundSelection(AlarmSound.custom, customPath: path));
       }
       return;
     }

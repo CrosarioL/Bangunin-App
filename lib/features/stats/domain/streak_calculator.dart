@@ -25,12 +25,13 @@ abstract final class StreakCalculator {
   }
 
   static int bestStreak(List<WakeRecord> records) {
-    final days = records
-        .where((r) => r.success)
-        .map((r) => _day(r.dismissedAt))
-        .toSet()
-        .toList()
-      ..sort();
+    final days =
+        records
+            .where((r) => r.success)
+            .map((r) => _day(r.dismissedAt))
+            .toSet()
+            .toList()
+          ..sort();
     var best = 0;
     var run = 0;
     DateTime? prev;
@@ -54,10 +55,7 @@ abstract final class StreakCalculator {
   }
 
   /// Days of the current month (1-based) with a successful wake.
-  static Set<int> successDaysInMonth(
-    List<WakeRecord> records,
-    DateTime month,
-  ) {
+  static Set<int> successDaysInMonth(List<WakeRecord> records, DateTime month) {
     return records
         .where(
           (r) =>

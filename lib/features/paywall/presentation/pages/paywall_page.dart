@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -8,9 +9,11 @@ import '../../../../app/di/providers.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/widgets/app_card.dart';
+import '../../../../app/widgets/bangunin_mascot.dart';
 import '../../../../app/widgets/max_width_box.dart';
 import '../../../../app/widgets/pressable_scale.dart';
 import '../../../../app/widgets/primary_button.dart';
+import '../../../../app/widgets/sunset_page_header.dart';
 import '../../../../core/config/app_config.dart';
 import '../../../../core/services/analytics/analytics_service.dart';
 import '../../../../core/services/subscriptions/subscription_service.dart';
@@ -63,11 +66,13 @@ class _PaywallPageState extends ConsumerState<PaywallPage> {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (_, _) => _ErrorState(
                 onRetry: () => ref.invalidate(premiumPlansProvider),
+                onAccessCode: _showAccessCodeDialog,
               ),
               data: (plans) {
                 if (plans.isEmpty) {
                   return _ErrorState(
                     onRetry: () => ref.invalidate(premiumPlansProvider),
+                    onAccessCode: _showAccessCodeDialog,
                   );
                 }
                 final selected = plans.firstWhere(
@@ -86,25 +91,19 @@ class _PaywallPageState extends ConsumerState<PaywallPage> {
                   ),
                   children: [
                     const SizedBox(height: AppSpacing.lg),
-                    Text(
-                      userName.isNotEmpty
+                    SunsetPageHeader(
+                      title: userName.isNotEmpty
                           ? l10n.paywallTitleNamed(userName)
                           : l10n.paywallTitle,
-                      style: theme.textTheme.headlineMedium,
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Text(
-                      l10n.paywallGoalLine(
+                      subtitle: l10n.paywallGoalLine(
                         TimeFormat.clock(
                           context,
                           answers.wakeGoalHour,
                           answers.wakeGoalMinute,
                         ),
                       ),
-                      style: theme.textTheme.bodyMedium!.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      icon: Icons.workspace_premium_rounded,
+                      mascotPose: MascotPose.crowing,
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
@@ -192,6 +191,22 @@ class _PaywallPageState extends ConsumerState<PaywallPage> {
                     ),
                     if (selected.hasTrial) ...[
                       const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        Localizations.localeOf(context).languageCode == 'id'
+                            ? 'Setelah uji coba ${selected.trialDays} hari, '
+                                  '${selected.price} per ${selected.period == 'month' ? 'bulan' : 'tahun'}. '
+                                  'Langganan diperpanjang otomatis sampai dibatalkan di ${_storeName()}.'
+                            : 'After the ${selected.trialDays}-day trial, '
+                                  '${selected.price} per ${selected.period}. '
+                                  'Auto-renews until cancelled in ${_storeName()}.',
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodySmall!.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                    if (selected.hasTrial) ...[
+                      const SizedBox(height: AppSpacing.sm),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -217,6 +232,16 @@ class _PaywallPageState extends ConsumerState<PaywallPage> {
                                   .read(purchaseInProgressProvider.notifier)
                                   .restore(),
                         child: Text(l10n.restorePurchases),
+                      ),
+                    ),
+                    Center(
+                      child: TextButton(
+                        onPressed: purchasing ? null : _showAccessCodeDialog,
+                        child: Text(
+                          Localizations.localeOf(context).languageCode == 'id'
+                              ? 'Punya kode akses?'
+                              : 'Have an access code?',
+                        ),
                       ),
                     ),
                     Center(
@@ -278,6 +303,50 @@ class _PaywallPageState extends ConsumerState<PaywallPage> {
     // On success the premium provider flips and the router redirects home.
   }
 
+  Future<void> _showAccessCodeDialog() async {
+    final l10n = context.l10n;
+    final controller = TextEditingController();
+    final code = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.accessCodeTitle),
+        content: TextField(
+          controller: controller,
+          autocorrect: false,
+          enableSuggestions: false,
+          textCapitalization: TextCapitalization.none,
+          keyboardType: TextInputType.visiblePassword,
+          decoration: InputDecoration(hintText: l10n.accessCodeHint),
+          onSubmitted: (value) => Navigator.of(dialogContext).pop(value),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(controller.text),
+            child: Text(l10n.accessCodeRedeem),
+          ),
+        ],
+      ),
+    );
+    // Wait for the dialog's reverse transition before releasing the
+    // controller; the TextField remains mounted during that animation.
+    await Future<void>.delayed(const Duration(milliseconds: 300));
+    controller.dispose();
+    if (code == null || !mounted) return;
+
+    final accepted = await ref
+        .read(subscriptionServiceProvider)
+        .redeemAccessCode(code);
+    if (!accepted && mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.accessCodeInvalid)));
+    }
+  }
+
   static Future<void> _launch(String url) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
@@ -285,6 +354,9 @@ class _PaywallPageState extends ConsumerState<PaywallPage> {
     }
   }
 }
+
+String _storeName() =>
+    defaultTargetPlatform == TargetPlatform.iOS ? 'App Store' : 'Google Play';
 
 class _Feature extends StatelessWidget {
   const _Feature({required this.text});
@@ -339,19 +411,30 @@ class _PlanCard extends StatelessWidget {
           duration: const Duration(milliseconds: 160),
           padding: const EdgeInsets.all(AppSpacing.lg),
           decoration: BoxDecoration(
-            color: selected
-                ? AppColors.primary.withValues(alpha: 0.16)
-                : theme.colorScheme.surface,
+            color: selected ? null : AppColors.glass,
+            gradient: selected
+                ? LinearGradient(
+                    colors: [
+                      AppColors.primary.withValues(alpha: .24),
+                      AppColors.sunsetCoral.withValues(alpha: .2),
+                      AppColors.glass,
+                    ],
+                  )
+                : null,
             borderRadius: BorderRadius.circular(AppSpacing.radiusControl),
             border: Border.all(
-              color: selected ? AppColors.primary : theme.colorScheme.outline,
+              color: selected
+                  ? AppColors.primary
+                  : Colors.white.withValues(alpha: .1),
               width: 2,
             ),
             boxShadow: [
               BoxShadow(
-                color: selected ? AppColors.primaryEdge : AppColors.surfaceEdge,
-                offset: const Offset(0, 3),
-                blurRadius: 0,
+                color: selected
+                    ? AppColors.primary.withValues(alpha: .2)
+                    : AppColors.nightTop.withValues(alpha: .22),
+                offset: const Offset(0, 8),
+                blurRadius: 22,
               ),
             ],
           ),
@@ -430,9 +513,10 @@ class _PlanCard extends StatelessWidget {
 }
 
 class _ErrorState extends StatelessWidget {
-  const _ErrorState({required this.onRetry});
+  const _ErrorState({required this.onRetry, required this.onAccessCode});
 
   final VoidCallback onRetry;
+  final VoidCallback onAccessCode;
 
   @override
   Widget build(BuildContext context) {
@@ -444,6 +528,14 @@ class _ErrorState extends StatelessWidget {
           Text(l10n.paywallLoadError, textAlign: TextAlign.center),
           const SizedBox(height: AppSpacing.lg),
           TextButton(onPressed: onRetry, child: Text(l10n.retry)),
+          TextButton(
+            onPressed: onAccessCode,
+            child: Text(
+              Localizations.localeOf(context).languageCode == 'id'
+                  ? 'Punya kode akses?'
+                  : 'Have an access code?',
+            ),
+          ),
         ],
       ),
     );

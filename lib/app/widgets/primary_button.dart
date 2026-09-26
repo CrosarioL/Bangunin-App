@@ -4,10 +4,8 @@ import '../../core/utils/haptics.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 
-/// The signature chunky push-button (Duolingo-style): a flat bold face
-/// sitting on a solid darker "lip". Pressing it drops the face down onto
-/// the lip so it physically compresses, with a haptic. No gradients, no
-/// blur — deliberately toy-like and satisfying to hit.
+/// The signature sunrise button. It retains the tactile press and haptic,
+/// but uses the yellow-to-amber light of the Bangunin horizon.
 class PrimaryButton extends StatefulWidget {
   const PrimaryButton({
     super.key,
@@ -93,7 +91,26 @@ class _PrimaryButtonState extends State<PrimaryButton> {
               top: dropped ? AppSpacing.buttonLip : 0,
               height: faceHeight,
               child: DecoratedBox(
-                decoration: BoxDecoration(color: face, borderRadius: radius),
+                decoration: BoxDecoration(
+                  color: _enabled && !widget.secondary ? null : face,
+                  gradient: _enabled && !widget.secondary
+                      ? const LinearGradient(
+                          colors: [AppColors.primary, AppColors.horizon],
+                        )
+                      : null,
+                  borderRadius: radius,
+                  border: widget.secondary
+                      ? Border.all(color: AppColors.cyan.withValues(alpha: .28))
+                      : null,
+                  boxShadow: _enabled && !widget.secondary
+                      ? [
+                          BoxShadow(
+                            color: AppColors.primary.withValues(alpha: .22),
+                            blurRadius: 20,
+                          ),
+                        ]
+                      : null,
+                ),
                 child: Center(
                   child: widget.loading
                       ? SizedBox(

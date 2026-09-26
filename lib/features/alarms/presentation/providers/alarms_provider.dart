@@ -55,10 +55,18 @@ class AlarmActions {
     // re-registered Object Hunt photo leaves its predecessor on disk
     // forever.
     if (!isNew) {
-      final previous = await _ref.read(alarmRepositoryProvider).getById(alarm.id);
+      final previous = await _ref
+          .read(alarmRepositoryProvider)
+          .getById(alarm.id);
       if (previous != null) {
-        await _deleteIfReplaced(previous.objectReferencePath, alarm.objectReferencePath);
-        await _deleteIfReplaced(previous.customSoundPath, alarm.customSoundPath);
+        await _deleteIfReplaced(
+          previous.objectReferencePath,
+          alarm.objectReferencePath,
+        );
+        await _deleteIfReplaced(
+          previous.customSoundPath,
+          alarm.customSoundPath,
+        );
       }
     }
 
@@ -66,10 +74,10 @@ class AlarmActions {
     await _resync();
     if (isNew) {
       unawaited(
-        _ref.read(analyticsProvider).logEvent(
-          AnalyticsEvents.alarmCreated,
-          {'mission': alarm.missionType.name, 'repeats': alarm.repeats},
-        ),
+        _ref.read(analyticsProvider).logEvent(AnalyticsEvents.alarmCreated, {
+          'mission': alarm.missionType.name,
+          'repeats': alarm.repeats,
+        }),
       );
     }
   }
@@ -108,6 +116,13 @@ class AlarmActions {
     }
   }
 
+  /// Re-arms every alarm with whichever engine is currently active.
+  ///
+  /// Public because granting AlarmKit authorization changes the engine, and
+  /// without this the user would have "real alarms" switched on with nothing
+  /// actually registered against them.
+  Future<void> resync() => _resync();
+
   Future<void> _resync() async {
     final alarms = await _ref.read(alarmRepositoryProvider).getAll();
     await _ref.read(alarmSchedulerProvider).reschedule(alarms);
@@ -122,20 +137,21 @@ class AlarmActions {
     if (existing.isNotEmpty) return;
 
     final mission = _missionForStruggles(answers.struggles);
-    final alarm = draft(
-      hour: answers.wakeGoalHour,
-      minute: answers.wakeGoalMinute,
-    ).copyWith(
-      repeatDays: const {
-        DateTime.monday,
-        DateTime.tuesday,
-        DateTime.wednesday,
-        DateTime.thursday,
-        DateTime.friday,
-      },
-      missionType: mission,
-      missionReps: mission.isMovement ? mission.defaultReps : 0,
-    );
+    final alarm =
+        draft(
+          hour: answers.wakeGoalHour,
+          minute: answers.wakeGoalMinute,
+        ).copyWith(
+          repeatDays: const {
+            DateTime.monday,
+            DateTime.tuesday,
+            DateTime.wednesday,
+            DateTime.thursday,
+            DateTime.friday,
+          },
+          missionType: mission,
+          missionReps: mission.isMovement ? mission.defaultReps : 0,
+        );
     await save(alarm, isNew: true);
   }
 

@@ -13,12 +13,15 @@ import '../../../../app/widgets/mascot_bubble.dart';
 import '../../../../app/widgets/max_width_box.dart';
 import '../../../../app/widgets/pressable_scale.dart';
 import '../../../../app/widgets/stat_pill.dart';
+import '../../../../app/widgets/sunset_page_header.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/l10n_ext.dart';
 import '../../../../core/utils/time_format.dart';
 import '../../../stats/presentation/providers/stats_provider.dart';
 import '../providers/alarms_provider.dart';
+import '../widgets/alarm_capability_banner.dart';
 import '../widgets/alarm_card.dart';
+import '../widgets/battery_advice_card.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -69,7 +72,7 @@ class HomePage extends ConsumerWidget {
                           AppSpacing.lg,
                           0,
                           AppSpacing.lg,
-                          120,
+                          168,
                         ),
                         sliver: SliverList.separated(
                           itemCount: alarms.length,
@@ -110,26 +113,28 @@ class HomePage extends ConsumerWidget {
       floatingActionButton: PressableScale(
         onPressed: () => context.push(Routes.alarmNew),
         semanticLabel: l10n.newAlarm,
-        // Chunky 3D circle: flat yellow face on a solid darker lip.
         child: Container(
           width: 66,
           height: 66,
-          decoration: const BoxDecoration(
-            color: AppColors.primaryEdge,
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [AppColors.primary, AppColors.horizon],
+            ),
             shape: BoxShape.circle,
+            border: Border.all(color: Colors.white.withValues(alpha: .7)),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withValues(alpha: .36),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-          padding: const EdgeInsets.only(bottom: 4),
-          child: Container(
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.add_rounded,
-              size: 34,
-              color: AppColors.onPrimary,
-              semanticLabel: '',
-            ),
+          child: const Icon(
+            Icons.add_alarm_rounded,
+            size: 32,
+            color: AppColors.onPrimary,
+            semanticLabel: '',
           ),
         ),
       ),
@@ -201,22 +206,25 @@ class _HeaderState extends State<_Header> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                l10n.homeTitle,
-                style: theme.textTheme.headlineMedium,
-              ),
-            ),
-            // Gamified streak chip, always visible — the number to protect.
-            StatPill(
+        SunsetPageHeader(
+          title: l10n.homeTitle,
+          subtitle: nextAt == null ? l10n.noUpcomingAlarm : l10n.nextAlarmIn,
+          icon: Icons.alarm_rounded,
+          trailing: Align(
+            alignment: Alignment.centerLeft,
+            child: StatPill(
               icon: Icons.local_fire_department_rounded,
               value: '${widget.streak}',
               color: AppColors.primaryDeep,
             ),
-          ],
+          ),
         ),
+        // Whether this iPhone can actually ring through Silent Mode and
+        // Focus, stated plainly. The user should never have to guess.
+        const AlarmCapabilityBanner(),
+        // Android vendor battery managers kill alarms regardless of
+        // permissions. Renders nothing on iOS.
+        const BatteryAdviceCard(),
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           child: nextAt == null
@@ -255,8 +263,7 @@ class _HeaderState extends State<_Header> {
                                 TimeFormat.countdown(
                                   nextAt.difference(DateTime.now()),
                                 ),
-                                style: theme.textTheme.headlineMedium!
-                                    .copyWith(
+                                style: theme.textTheme.headlineMedium!.copyWith(
                                   color: AppColors.primary,
                                   fontWeight: FontWeight.w800,
                                 ),

@@ -83,31 +83,24 @@ void main() {
 
   test('creates a weekday alarm at the chosen wake-goal time', () async {
     const answers = OnboardingAnswers(wakeGoalHour: 6, wakeGoalMinute: 45);
-    await container
-        .read(alarmActionsProvider)
-        .createFromOnboarding(answers);
+    await container.read(alarmActionsProvider).createFromOnboarding(answers);
 
     final alarms = await alarmRepository.getAll();
     expect(alarms, hasLength(1));
     expect(alarms.single.hour, 6);
     expect(alarms.single.minute, 45);
-    expect(
-      alarms.single.repeatDays,
-      {
-        DateTime.monday,
-        DateTime.tuesday,
-        DateTime.wednesday,
-        DateTime.thursday,
-        DateTime.friday,
-      },
-    );
+    expect(alarms.single.repeatDays, {
+      DateTime.monday,
+      DateTime.tuesday,
+      DateTime.wednesday,
+      DateTime.thursday,
+      DateTime.friday,
+    });
   });
 
   test('"stay in bed" struggle suggests a movement mission', () async {
     const answers = OnboardingAnswers(struggles: {'stay_in_bed'});
-    await container
-        .read(alarmActionsProvider)
-        .createFromOnboarding(answers);
+    await container.read(alarmActionsProvider).createFromOnboarding(answers);
 
     final alarms = await alarmRepository.getAll();
     expect(alarms.single.missionType, MissionType.squats);
@@ -116,24 +109,22 @@ void main() {
 
   test('"dismiss half asleep" struggle suggests a photo mission', () async {
     const answers = OnboardingAnswers(struggles: {'dismiss_half_asleep'});
-    await container
-        .read(alarmActionsProvider)
-        .createFromOnboarding(answers);
+    await container.read(alarmActionsProvider).createFromOnboarding(answers);
 
     final alarms = await alarmRepository.getAll();
     expect(alarms.single.missionType, MissionType.skyPhoto);
   });
 
-  test('no clear struggle signal leaves the first alarm mission-free',
-      () async {
-    const answers = OnboardingAnswers();
-    await container
-        .read(alarmActionsProvider)
-        .createFromOnboarding(answers);
+  test(
+    'no clear struggle signal leaves the first alarm mission-free',
+    () async {
+      const answers = OnboardingAnswers();
+      await container.read(alarmActionsProvider).createFromOnboarding(answers);
 
-    final alarms = await alarmRepository.getAll();
-    expect(alarms.single.missionType, MissionType.none);
-  });
+      final alarms = await alarmRepository.getAll();
+      expect(alarms.single.missionType, MissionType.none);
+    },
+  );
 
   test('does not create a second alarm if one already exists', () async {
     await alarmRepository.upsert(

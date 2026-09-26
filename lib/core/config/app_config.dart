@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 /// Compile-time configuration for the app.
 ///
 /// Brand: **Bangunin** — colloquial Indonesian for "wake (someone) up"
@@ -11,7 +13,11 @@ abstract final class AppConfig {
   static const supportEmail = 'hello@bangunin.app';
   static const privacyPolicyUrl = 'https://bangunin.app/privacy.html';
   static const termsUrl = 'https://bangunin.app/terms.html';
-  static const appStoreId = '0000000000';
+  static const manageGooglePlaySubscriptionUrl =
+      'https://play.google.com/store/account/subscriptions'
+      '?package=app.bangunin';
+  static const manageAppStoreSubscriptionUrl =
+      'https://apps.apple.com/account/subscriptions';
 
   /// Subscription product identifiers. Store-listed IDR (primary market):
   /// Rp 49.000/month and Rp 199.000/year (≈ Rp 16.600/mo, "save 66%").
@@ -21,22 +27,21 @@ abstract final class AppConfig {
   static const monthlyProductId = 'bangunin.premium.monthly';
   static const yearlyProductId = 'bangunin.premium.yearly';
 
-  static const allProductIds = {
-    monthlyProductId,
-    yearlyProductId,
-  };
+  static const allProductIds = {monthlyProductId, yearlyProductId};
 
-  /// Days of free trial attached to every plan.
+  /// Trial length recognized when an active store offer returns a 3-day phase.
+  /// The app does not create a trial; Play Console/App Store Connect control
+  /// whether one is currently available.
   static const trialDays = 3;
 
   /// Simulated paywall: the paywall renders and behaves exactly like the
-  /// real one (plans, trial toggle, "purchase" flow), but tapping the CTA
+  /// real one (plans and "purchase" flow), but tapping the CTA
   /// grants premium locally without ever contacting StoreKit/Play Billing —
   /// nobody is charged and no store products need to exist. Flip to false
   /// (and create the products in App Store Connect / Play Console) to go
   /// live with real billing.
   static const fakePaywall = bool.fromEnvironment(
     'BANGUNIN_FAKE_PAYWALL',
-    defaultValue: true,
+    defaultValue: kDebugMode,
   );
 }

@@ -3,7 +3,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../app/widgets/app_card.dart';
 import '../../../../app/widgets/max_width_box.dart';
+import '../../../../app/widgets/sunset_page_header.dart';
 import '../../../../core/utils/l10n_ext.dart';
 
 /// The founder's story — why the app exists. Reachable from Settings and
@@ -40,30 +42,18 @@ class FounderStoryPage extends StatelessWidget {
               AppSpacing.xxl,
             ),
             children: [
-              Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.14),
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusControl),
-                ),
-                child: const Icon(
-                  Icons.wb_twilight_rounded,
-                  color: AppColors.primary,
-                  size: 32,
-                ),
+              SunsetPageHeader(
+                title: l10n.founderStoryTitle,
+                icon: Icons.wb_twilight_rounded,
               ),
               const SizedBox(height: AppSpacing.xl),
-              Text(
-                l10n.founderStoryTitle,
-                style: theme.textTheme.headlineMedium,
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              Text(
-                l10n.founderStoryBody,
-                style: theme.textTheme.bodyLarge!.copyWith(
-                  height: 1.6,
-                  color: theme.colorScheme.onSurfaceVariant,
+              AppCard(
+                child: Text(
+                  l10n.founderStoryBody,
+                  style: theme.textTheme.bodyLarge!.copyWith(
+                    height: 1.6,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
               const SizedBox(height: AppSpacing.xl),

@@ -5,9 +5,9 @@ import '../../domain/entities/alarm.dart';
 /// the two never drift out of sync.
 extension AlarmSoundL10n on AlarmSound {
   String localizedName(AppLocalizations l10n) => switch (this) {
-        AlarmSound.classic => l10n.soundClassic,
-        AlarmSound.sunrise => l10n.soundSunrise,
-        AlarmSound.pulse => l10n.soundPulse,
-        AlarmSound.custom => l10n.soundCustom,
-      };
+    AlarmSound.classic => l10n.soundClassic,
+    AlarmSound.sunrise => l10n.soundSunrise,
+    AlarmSound.pulse => l10n.soundPulse,
+    AlarmSound.custom => l10n.soundCustom,
+  };
 }

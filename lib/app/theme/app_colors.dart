@@ -34,6 +34,20 @@ abstract final class AppColors {
   static const danger = Color(0xFFFF5D5D);
   static const info = Color(0xFF6C8CFF);
 
+  // Sunrise experience accents. Cyan is the viewfinder/action color, while
+  // coral and violet let physical and indoor missions feel distinct without
+  // leaving the same Bangunin world.
+  static const cyan = Color(0xFF4DE7FF);
+  static const cyanDeep = Color(0xFF08A9D6);
+  static const sunsetCoral = Color(0xFFFF7A68);
+  static const sunsetViolet = Color(0xFF9B8CFF);
+  static const grass = Color(0xFF5BE28C);
+  static const glass = Color(0xCC111B35);
+  static const glassLight = Color(0xD9FFFFFF);
+  static const nightTop = Color(0xFF06152D);
+  static const nightMid = Color(0xFF163D72);
+  static const horizon = Color(0xFFFFA94D);
+
   // Light theme counterparts. The canvas is a real, unmistakable slate
   // blue — not white, not a whisper of grey. White reads flat and dated,
   // and white cards need actual contrast to sit against.
@@ -46,8 +60,8 @@ abstract final class AppColors {
   static const textTertiaryLight = Color(0xFF9BA1B0);
 
   static const sunriseGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [primary, primaryDeep],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [cyan, primary, horizon],
   );
 }

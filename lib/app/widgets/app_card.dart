@@ -3,10 +3,8 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 
-/// The chunky surface container used for every card (Duolingo-style): a flat
-/// solid fill, a thick outline, and a hard offset "lip" underneath (a
-/// zero-blur shadow) so cards read as physical stacked tiles rather than
-/// floating glass. [lip] can be turned off for cards that sit flush.
+/// The shared sunrise glass card. Content remains high-contrast, while the
+/// background color and warm horizon can breathe through the surface.
 class AppCard extends StatelessWidget {
   const AppCard({
     super.key,
@@ -26,9 +24,7 @@ class AppCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final radius = BorderRadius.circular(AppSpacing.radiusCard);
 
-    final face = color ??
-        (isDark ? AppColors.surfaceRaised : AppColors.surfaceLight);
-    final edge = isDark ? AppColors.surfaceEdge : AppColors.surfaceEdgeLight;
+    final face = color ?? (isDark ? AppColors.glass : AppColors.glassLight);
     final border = isDark
         ? Colors.white.withValues(alpha: 0.06)
         : AppColors.outlineLight;
@@ -40,11 +36,10 @@ class AppCard extends StatelessWidget {
         border: Border.all(color: border, width: 1.5),
         boxShadow: lip
             ? [
-                // Hard, un-blurred: a solid slab peeking out the bottom.
                 BoxShadow(
-                  color: edge,
-                  offset: const Offset(0, AppSpacing.cardLip),
-                  blurRadius: 0,
+                  color: AppColors.nightTop.withValues(alpha: .28),
+                  offset: const Offset(0, 10),
+                  blurRadius: 28,
                 ),
               ]
             : null,

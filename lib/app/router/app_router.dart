@@ -42,12 +42,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   final launchAlarmId = ref.read(notificationServiceProvider).launchPayload;
 
   final router = GoRouter(
-    initialLocation:
-        launchAlarmId != null ? Routes.ringing(launchAlarmId) : Routes.home,
+    initialLocation: launchAlarmId != null
+        ? Routes.ringing(launchAlarmId)
+        : Routes.home,
     refreshListenable: refresh,
     redirect: (context, state) {
       final path = state.uri.path;
-      final inRingingFlow = path.startsWith('/ringing') ||
+      final inRingingFlow =
+          path.startsWith('/ringing') ||
           path.startsWith('/mission') ||
           path == Routes.wakeSuccess;
       // Never gate an actively ringing alarm behind onboarding/paywall.
@@ -156,8 +158,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   // notifications may not fire a tap event, so we navigate ourselves.
   final ticker = ref.read(dueAlarmWatcherProvider)
     ..onDue = (alarmId) {
-      final current =
-          router.routerDelegate.currentConfiguration.uri.path;
+      final current = router.routerDelegate.currentConfiguration.uri.path;
       if (!current.startsWith('/ringing')) {
         router.go(Routes.ringing(alarmId));
       }
