@@ -1495,6 +1495,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tomorrow'**
   String get onboardingReadyTomorrow;
+
+  /// No description provided for @videoAlarmsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Video alarms'**
+  String get videoAlarmsSection;
+
+  /// No description provided for @soundsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Sounds'**
+  String get soundsSection;
 }
 
 class _AppLocalizationsDelegate

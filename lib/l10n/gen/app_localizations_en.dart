@@ -804,4 +804,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardingReadyTomorrow => 'Tomorrow';
+
+  @override
+  String get videoAlarmsSection => 'Video alarms';
+
+  @override
+  String get soundsSection => 'Sounds';
 }

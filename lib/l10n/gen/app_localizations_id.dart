@@ -805,4 +805,10 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get onboardingReadyTomorrow => 'Besok';
+
+  @override
+  String get videoAlarmsSection => 'Alarm video';
+
+  @override
+  String get soundsSection => 'Suara';
 }

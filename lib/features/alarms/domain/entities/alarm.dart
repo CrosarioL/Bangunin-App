@@ -23,6 +23,10 @@ abstract class Alarm with _$Alarm {
     @Default(0) int missionReps,
     @Default(AlarmSound.classic) AlarmSound sound,
     String? customSoundPath,
+
+    /// A video alarm from [AlarmClips]. When set and still in the catalog it
+    /// overrides [sound]; if the clip has been removed, [sound] plays.
+    String? clipId,
     String? objectReferencePath,
     @Default(1.0) double volume,
     @Default(true) bool vibrate,

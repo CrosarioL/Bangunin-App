@@ -12,11 +12,13 @@ import '../../../../app/widgets/bangunin_mascot.dart';
 import '../../../../app/widgets/primary_button.dart';
 import '../../../../core/utils/l10n_ext.dart';
 import '../../../../core/utils/time_format.dart';
+import '../../../alarms/domain/alarm_clip.dart';
 import '../../../alarms/domain/entities/alarm.dart';
 import '../../../alarms/presentation/widgets/alarm_card.dart';
 import '../../../missions/domain/mission_type.dart';
 import '../../../missions/presentation/widgets/mission_experience.dart';
 import '../providers/ringing_provider.dart';
+import '../widgets/alarm_video_background.dart';
 
 /// Full-screen takeover while an alarm rings. The only exits are the
 /// mission (or dismiss, for mission-less alarms) and snooze while snoozes
@@ -94,141 +96,156 @@ class _RingingPageState extends ConsumerState<RingingPage>
     final theme = Theme.of(context);
     final session = ref.watch(ringingSessionProvider);
     final alarm = _alarm;
+    final clip = AlarmClips.byId(alarm?.clipId);
 
     return PopScope(
       canPop: false,
       child: Scaffold(
-        body: SafeArea(
-          // At the largest accessibility text sizes the clock, label, mission
-          // name, button and snooze row cannot all fit. Scrolling is the only
-          // honest answer — the ringing screen is the worst possible place to
-          // silently clip the controls that switch the alarm off.
-          child: LayoutBuilder(
-            builder: (context, constraints) => SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: IntrinsicHeight(
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppSpacing.xl),
-                    child: Column(
-                      children: [
-                        const Align(
-                          alignment: Alignment.centerRight,
-                          child: AlarmActivePill(active: true),
-                        ),
-                        const Spacer(),
-                        FadeTransition(
-                          opacity: _pulseOpacity,
-                          child: ScaleTransition(
-                            scale: _pulseScale,
-                            child: const BanguninMascot(
-                              pose: MascotPose.crowing,
-                              size: 170,
-                              animateIdle: false,
-                              interactive: false,
+        backgroundColor: clip == null ? null : AppColors.nightTop,
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (clip != null) AlarmVideoBackground(clip: clip),
+            SafeArea(
+              // At the largest accessibility text sizes the clock, label, mission
+              // name, button and snooze row cannot all fit. Scrolling is the only
+              // honest answer — the ringing screen is the worst possible place to
+              // silently clip the controls that switch the alarm off.
+              child: LayoutBuilder(
+                builder: (context, constraints) => SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
+                    child: IntrinsicHeight(
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppSpacing.xl),
+                        child: Column(
+                          children: [
+                            const Align(
+                              alignment: Alignment.centerRight,
+                              child: AlarmActivePill(active: true),
                             ),
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.xl),
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.lg,
-                            vertical: AppSpacing.xl,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.glass,
-                            borderRadius: BorderRadius.circular(28),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: .13),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.primary.withValues(alpha: .14),
-                                blurRadius: 28,
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              const _LiveClock(),
-                              const SizedBox(height: AppSpacing.sm),
-                              Text(
-                                alarm == null
-                                    ? ''
-                                    : (alarm.label.isEmpty
-                                          ? l10n.ringingWakeUp
-                                          : alarm.label),
-                                style: theme.textTheme.headlineSmall!.copyWith(
-                                  color: Colors.white70,
+                            const Spacer(),
+                            // A video alarm is the show; the mascot would sit on
+                            // top of the clip's subject.
+                            if (clip == null) ...[
+                              FadeTransition(
+                                opacity: _pulseOpacity,
+                                child: ScaleTransition(
+                                  scale: _pulseScale,
+                                  child: const BanguninMascot(
+                                    pose: MascotPose.crowing,
+                                    size: 170,
+                                    animateIdle: false,
+                                    interactive: false,
+                                  ),
                                 ),
-                                textAlign: TextAlign.center,
                               ),
+                              const SizedBox(height: AppSpacing.xl),
                             ],
-                          ),
-                        ),
-                        const Spacer(),
-                        if (alarm != null) ...[
-                          if (alarm.missionType != MissionType.none) ...[
                             Container(
+                              width: double.infinity,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: AppSpacing.lg,
-                                vertical: AppSpacing.sm,
+                                vertical: AppSpacing.xl,
                               ),
                               decoration: BoxDecoration(
-                                color: alarm.missionType.experienceColor
-                                    .withValues(alpha: .14),
-                                borderRadius: BorderRadius.circular(99),
+                                color: AppColors.glass,
+                                borderRadius: BorderRadius.circular(28),
                                 border: Border.all(
-                                  color: alarm.missionType.experienceColor
-                                      .withValues(alpha: .34),
+                                  color: Colors.white.withValues(alpha: .13),
                                 ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.primary.withValues(
+                                      alpha: .14,
+                                    ),
+                                    blurRadius: 28,
+                                  ),
+                                ],
                               ),
-                              child: Text(
-                                alarm.missionType.localizedName(l10n),
-                                style: theme.textTheme.bodyMedium!.copyWith(
-                                  color: alarm.missionType.experienceColor,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                                textAlign: TextAlign.center,
+                              child: Column(
+                                children: [
+                                  const _LiveClock(),
+                                  const SizedBox(height: AppSpacing.sm),
+                                  Text(
+                                    alarm == null
+                                        ? ''
+                                        : (alarm.label.isEmpty
+                                              ? l10n.ringingWakeUp
+                                              : alarm.label),
+                                    style: theme.textTheme.headlineSmall!
+                                        .copyWith(color: Colors.white70),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
                               ),
                             ),
-                            const SizedBox(height: AppSpacing.md),
-                            PrimaryButton(
-                              label: l10n.startMission,
-                              onPressed: () => _startMission(alarm),
-                            ),
-                          ] else
-                            PrimaryButton(
-                              label: l10n.dismissAlarm,
-                              onPressed: _dismissNoMission,
-                            ),
-                          const SizedBox(height: AppSpacing.md),
-                          if (session?.canSnooze ?? false)
-                            TextButton(
-                              onPressed: _snooze,
-                              child: Text(
-                                l10n.snoozeWithRemaining(
-                                  alarm.snoozeMinutes,
-                                  alarm.maxSnoozes -
-                                      (session?.snoozeCount ?? 0),
+                            const Spacer(),
+                            if (alarm != null) ...[
+                              if (alarm.missionType != MissionType.none) ...[
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: AppSpacing.lg,
+                                    vertical: AppSpacing.sm,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: alarm.missionType.experienceColor
+                                        .withValues(alpha: .14),
+                                    borderRadius: BorderRadius.circular(99),
+                                    border: Border.all(
+                                      color: alarm.missionType.experienceColor
+                                          .withValues(alpha: .34),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    alarm.missionType.localizedName(l10n),
+                                    style: theme.textTheme.bodyMedium!.copyWith(
+                                      color: alarm.missionType.experienceColor,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
                                 ),
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  color: AppColors.textSecondary,
+                                const SizedBox(height: AppSpacing.md),
+                                PrimaryButton(
+                                  label: l10n.startMission,
+                                  onPressed: () => _startMission(alarm),
                                 ),
-                              ),
-                            )
-                          else
-                            const SizedBox(height: 40),
-                        ],
-                      ],
+                              ] else
+                                PrimaryButton(
+                                  label: l10n.dismissAlarm,
+                                  onPressed: _dismissNoMission,
+                                ),
+                              const SizedBox(height: AppSpacing.md),
+                              if (session?.canSnooze ?? false)
+                                TextButton(
+                                  onPressed: _snooze,
+                                  child: Text(
+                                    l10n.snoozeWithRemaining(
+                                      alarm.snoozeMinutes,
+                                      alarm.maxSnoozes -
+                                          (session?.snoozeCount ?? 0),
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                )
+                              else
+                                const SizedBox(height: 40),
+                            ],
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );

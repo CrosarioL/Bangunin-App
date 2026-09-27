@@ -3,10 +3,12 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:vibration/vibration.dart';
 
+import '../../../features/alarms/domain/alarm_clip.dart';
 import '../../../features/alarms/domain/entities/alarm.dart';
 
-/// Plays the looping alarm sound (bundled asset or the user's custom file)
-/// and drives the vibration pattern while an alarm is ringing.
+/// Plays the looping alarm sound (bundled asset, a video alarm's audio track,
+/// or the user's custom file) and drives the vibration pattern while an
+/// alarm is ringing.
 class AlarmAudioService {
   AlarmAudioService([AudioPlayer? player]) : _player = player ?? AudioPlayer();
 
@@ -16,6 +18,21 @@ class AlarmAudioService {
   double _ringingVolume = 1;
 
   bool get isPlaying => _playing;
+
+  /// Fires each time the looping alarm audio wraps back to the start, so a
+  /// video alarm's muted clip can restart with it instead of drifting out of
+  /// sync over a long ring. audioplayers has no loop event in
+  /// [ReleaseMode.loop], so a backwards jump in position stands in for one.
+  Stream<void> get loopRestarts {
+    var last = Duration.zero;
+    return _player.onPositionChanged
+        .where((position) {
+          final wrapped = position < last - const Duration(milliseconds: 500);
+          last = position;
+          return wrapped;
+        })
+        .map((_) {});
+  }
 
   /// iOS: `.playback` category so the alarm ignores the silent switch and
   /// keeps playing when the app is backgrounded (paired with the `audio`
@@ -44,16 +61,16 @@ class AlarmAudioService {
     await _player.setVolume(alarm.volume);
 
     final customPath = alarm.customSoundPath;
-    if (alarm.sound == AlarmSound.custom && customPath != null) {
+    final clip = AlarmClips.byId(alarm.clipId);
+    if (clip != null) {
+      await _player.play(_asset(clip.audioAsset));
+    } else if (alarm.sound == AlarmSound.custom && customPath != null) {
       await _player.play(DeviceFileSource(customPath));
     } else {
       final sound = alarm.sound == AlarmSound.custom
           ? AlarmSound.classic
           : alarm.sound;
-      // AssetSource paths are relative to the assets/ folder.
-      await _player.play(
-        AssetSource(sound.assetPath.replaceFirst('assets/', '')),
-      );
+      await _player.play(_asset(sound.assetPath));
     }
 
     if (alarm.vibrate) {
@@ -100,11 +117,21 @@ class AlarmAudioService {
     if (sound == AlarmSound.custom && customPath != null) {
       await _player.play(DeviceFileSource(customPath));
     } else if (sound != AlarmSound.custom) {
-      await _player.play(
-        AssetSource(sound.assetPath.replaceFirst('assets/', '')),
-      );
+      await _player.play(_asset(sound.assetPath));
     }
   }
+
+  /// Preview of a video alarm's audio, on the same terms as [preview].
+  Future<void> previewClip(AlarmClip clip) async {
+    await _player.setAudioContext(AudioContextConfig().build());
+    await _player.setReleaseMode(ReleaseMode.release);
+    await _player.setVolume(1);
+    await _player.play(_asset(clip.audioAsset));
+  }
+
+  /// AssetSource paths are relative to the assets/ folder.
+  static AssetSource _asset(String path) =>
+      AssetSource(path.replaceFirst('assets/', ''));
 
   Future<void> stopPreview() => _player.stop();
 

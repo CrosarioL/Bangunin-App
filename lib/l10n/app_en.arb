@@ -367,5 +367,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "videoAlarmsSection": "Video alarms",
+  "soundsSection": "Sounds"
 }

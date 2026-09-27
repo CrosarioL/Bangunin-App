@@ -25,6 +25,7 @@ _Alarm _$AlarmFromJson(Map<String, dynamic> json) => _Alarm(
       $enumDecodeNullable(_$AlarmSoundEnumMap, json['sound']) ??
       AlarmSound.classic,
   customSoundPath: json['customSoundPath'] as String?,
+  clipId: json['clipId'] as String?,
   objectReferencePath: json['objectReferencePath'] as String?,
   volume: (json['volume'] as num?)?.toDouble() ?? 1.0,
   vibrate: json['vibrate'] as bool? ?? true,
@@ -45,6 +46,7 @@ Map<String, dynamic> _$AlarmToJson(_Alarm instance) => <String, dynamic>{
   'missionReps': instance.missionReps,
   'sound': _$AlarmSoundEnumMap[instance.sound]!,
   'customSoundPath': instance.customSoundPath,
+  'clipId': instance.clipId,
   'objectReferencePath': instance.objectReferencePath,
   'volume': instance.volume,
   'vibrate': instance.vibrate,

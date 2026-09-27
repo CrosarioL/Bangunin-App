@@ -38,12 +38,16 @@ class OnboardingAnswers {
     this.wakeGoalHour = 7,
     this.wakeGoalMinute = 0,
     this.sound = AlarmSound.classic,
+    this.clipId,
     this.mission = MissionType.randomHunt,
   });
 
   final int wakeGoalHour;
   final int wakeGoalMinute;
   final AlarmSound sound;
+
+  /// A video alarm, which takes over from [sound] when set.
+  final String? clipId;
 
   /// Defaults to Random Hunt: no setup, and the mission people film.
   final MissionType mission;
@@ -64,6 +68,7 @@ class OnboardingAnswers {
     minute: wakeGoalMinute,
     repeatDays: repeatDays,
     sound: sound,
+    clipId: clipId,
     missionType: mission,
     missionReps: mission.defaultReps,
   );
@@ -72,12 +77,14 @@ class OnboardingAnswers {
     int? wakeGoalHour,
     int? wakeGoalMinute,
     AlarmSound? sound,
+    String? Function()? clipId,
     MissionType? mission,
   }) {
     return OnboardingAnswers(
       wakeGoalHour: wakeGoalHour ?? this.wakeGoalHour,
       wakeGoalMinute: wakeGoalMinute ?? this.wakeGoalMinute,
       sound: sound ?? this.sound,
+      clipId: clipId == null ? this.clipId : clipId(),
       mission: mission ?? this.mission,
     );
   }
@@ -95,7 +102,10 @@ class OnboardingAnswersNotifier extends Notifier<OnboardingAnswers> {
   void setWakeGoal(int hour, int minute) =>
       state = state.copyWith(wakeGoalHour: hour, wakeGoalMinute: minute);
 
-  void setSound(AlarmSound sound) => state = state.copyWith(sound: sound);
+  void setSound(AlarmSound sound) =>
+      state = state.copyWith(sound: sound, clipId: () => null);
+
+  void setClip(String clipId) => state = state.copyWith(clipId: () => clipId);
 
   void setMission(MissionType mission) =>
       state = state.copyWith(mission: mission);

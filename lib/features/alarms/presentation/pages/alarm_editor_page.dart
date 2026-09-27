@@ -13,6 +13,7 @@ import '../../../../app/widgets/primary_button.dart';
 import '../../../../app/widgets/sunset_page_header.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/l10n_ext.dart';
+import '../../domain/alarm_clip.dart';
 import '../../domain/entities/alarm.dart';
 import '../providers/alarms_provider.dart';
 import '../widgets/alarm_card.dart';
@@ -190,7 +191,11 @@ class _AlarmEditorPageState extends ConsumerState<AlarmEditorPage> {
                         _SettingRow(
                           icon: Icons.volume_up_rounded,
                           title: l10n.soundSection,
-                          value: alarm.sound.localizedName(l10n),
+                          value:
+                              AlarmClips.byId(alarm.clipId)?.title(
+                                Localizations.localeOf(context).languageCode,
+                              ) ??
+                              alarm.sound.localizedName(l10n),
                           onTap: _pickSound,
                         ),
                         _SettingRow(
@@ -307,12 +312,14 @@ class _AlarmEditorPageState extends ConsumerState<AlarmEditorPage> {
       context,
       current: alarm.sound,
       currentCustomPath: alarm.customSoundPath,
+      currentClipId: alarm.clipId,
     );
     if (selection == null) return;
     _update(
       (a) => a.copyWith(
         sound: selection.sound,
         customSoundPath: selection.customPath,
+        clipId: selection.clipId,
       ),
     );
   }

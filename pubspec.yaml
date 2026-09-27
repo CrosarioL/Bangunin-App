@@ -49,6 +49,7 @@ dependencies:
   in_app_review: ^2.0.12
   google_mlkit_pose_detection: ^0.15.0
   google_mlkit_image_labeling: ^0.16.0
+  video_player: ^2.14.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -68,6 +69,9 @@ flutter:
   assets:
     - assets/sounds/
     - assets/mascot/
+    # Video alarms: <id>.mp4 (muted), <id>.m4a (the alarm audio), <id>.jpg.
+    # Add clips with tool/add_alarm_clip.sh, never by hand.
+    - assets/clips/
 
   # Rounded, playful type (Duolingo-style). Both are variable fonts — one
   # file each covers the whole weight range we use.

@@ -10,6 +10,7 @@ import 'package:wakio/core/services/audio/alarm_audio_service.dart';
 import 'package:wakio/core/storage/local_store.dart';
 import 'package:wakio/features/alarms/data/alarm_repository_impl.dart';
 import 'package:wakio/features/alarms/data/alarm_scheduler.dart';
+import 'package:wakio/features/alarms/domain/alarm_clip.dart';
 import 'package:wakio/features/alarms/domain/entities/alarm.dart';
 import 'package:wakio/features/alarms/domain/repositories/alarm_repository.dart';
 import 'package:wakio/features/ringing/presentation/providers/ringing_provider.dart';
@@ -38,6 +39,12 @@ class _FakeAudioService implements AlarmAudioService {
 
   @override
   Future<void> preview(AlarmSound sound, {String? customPath}) async {}
+
+  @override
+  Future<void> previewClip(AlarmClip clip) async {}
+
+  @override
+  Stream<void> get loopRestarts => const Stream.empty();
 
   @override
   Future<void> stopPreview() async {}

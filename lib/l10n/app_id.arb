@@ -232,5 +232,7 @@
   "onboardingReadyFootnote": "Jam, suara, atau misi bisa diganti kapan saja.",
   "onboardingReadyCta": "Siap!",
   "onboardingReadyToday": "Hari ini",
-  "onboardingReadyTomorrow": "Besok"
+  "onboardingReadyTomorrow": "Besok",
+  "videoAlarmsSection": "Alarm video",
+  "soundsSection": "Suara"
 }

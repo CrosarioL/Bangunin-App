@@ -58,10 +58,12 @@ class _OnboardingFlowPageState extends ConsumerState<OnboardingFlowPage> {
       // Which sound and mission new users pick is the selection-rate signal
       // for deciding what to feature and promote.
       unawaited(
-        ref.read(analyticsProvider).logEvent(
-          AnalyticsEvents.onboardingCompleted,
-          {'sound': answers.sound.name, 'mission': answers.mission.name},
-        ),
+        ref
+            .read(analyticsProvider)
+            .logEvent(AnalyticsEvents.onboardingCompleted, {
+              'sound': answers.clipId ?? answers.sound.name,
+              'mission': answers.mission.name,
+            }),
       );
       return; // Router redirect takes over (→ paywall).
     }

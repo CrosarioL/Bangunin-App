@@ -12,9 +12,11 @@ import '../../../../app/widgets/bangunin_mascot.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/l10n_ext.dart';
 import '../../../../core/utils/time_format.dart';
+import '../../../alarms/domain/alarm_clip.dart';
 import '../../../alarms/domain/entities/alarm.dart';
 import '../../../alarms/presentation/widgets/alarm_card.dart';
 import '../../../alarms/presentation/widgets/alarm_sound_l10n.dart';
+import '../../../alarms/presentation/widgets/sound_picker_sheet.dart';
 import '../../../missions/domain/mission_type.dart';
 import '../../../missions/presentation/widgets/mission_experience.dart';
 import '../providers/onboarding_provider.dart';
@@ -85,8 +87,9 @@ class WakeGoalStep extends ConsumerWidget {
   }
 }
 
-/// Step 3 — the alarm sound. Tapping a sound plays it, so the choice is made
-/// by ear, and the pick is logged at completion as a selection-rate signal.
+/// Step 3 — the alarm sound. Video alarms flagged for onboarding lead, since
+/// they are the most shareable thing in the app; tapping anything previews
+/// it. The pick is logged at completion as a selection-rate signal.
 class SoundStep extends ConsumerStatefulWidget {
   const SoundStep({super.key, required this.onNext});
 
@@ -116,10 +119,18 @@ class _SoundStepState extends ConsumerState<SoundStep> {
     unawaited(_audio.preview(sound));
   }
 
+  void _selectClip(AlarmClip clip) {
+    Haptics.selection();
+    ref.read(onboardingAnswersProvider.notifier).setClip(clip.id);
+    unawaited(_audio.previewClip(clip));
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final selected = ref.watch(onboardingAnswersProvider).sound;
+    final answers = ref.watch(onboardingAnswersProvider);
+    final selected = answers.clipId == null ? answers.sound : null;
+    final clips = AlarmClips.onboarding;
 
     return OnboardingStepScaffold(
       title: l10n.onboardingSoundTitle,
@@ -131,6 +142,23 @@ class _SoundStepState extends ConsumerState<SoundStep> {
       },
       child: Column(
         children: [
+          if (clips.isNotEmpty) ...[
+            SizedBox(
+              height: 176,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: clips.length,
+                separatorBuilder: (_, _) =>
+                    const SizedBox(width: AppSpacing.sm),
+                itemBuilder: (context, index) => ClipTile(
+                  clip: clips[index],
+                  selected: answers.clipId == clips[index].id,
+                  onTap: () => _selectClip(clips[index]),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+          ],
           for (final sound in _sounds) ...[
             SurveyOption(
               label: sound.localizedName(l10n),
