@@ -443,48 +443,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get thisMonth => 'This month';
 
   @override
-  String get onboardingWelcomeTitle => 'Wake up. For real this time.';
+  String get onboardingWelcomeTitle =>
+      'Normal alarms are easy to turn off in your sleep.';
 
   @override
   String get onboardingWelcomeSubtitle =>
-      'The alarm that makes you prove you\'re out of bed before it stops ringing.';
+      'This one won\'t stop until you\'re actually up.';
 
   @override
-  String get snoozeHabitQuestion => 'How often do you hit snooze?';
+  String get wakeGoalQuestion => 'When should we wake you?';
 
   @override
-  String get snoozeHabitNever => 'Almost never';
-
-  @override
-  String get snoozeHabitSometimes => 'A few times a week';
-
-  @override
-  String get snoozeHabitAlways => 'Every single morning';
-
-  @override
-  String get wakeGoalQuestion => 'When do you want to wake up?';
-
-  @override
-  String get wakeGoalSubtitle =>
-      'We\'ll suggest this time for your first alarm.';
-
-  @override
-  String get strugglesQuestion => 'What happens after your alarm rings?';
-
-  @override
-  String get strugglesSubtitle => 'Pick everything that sounds familiar.';
-
-  @override
-  String get struggleDismissAsleep => 'I dismiss it half asleep';
-
-  @override
-  String get struggleStayInBed => 'I stay in bed scrolling';
-
-  @override
-  String get strugglePhoneInBed => 'I fall back asleep';
-
-  @override
-  String get struggleNoRoutine => 'My mornings have no routine';
+  String get wakeGoalSubtitle => 'Weekdays. You can change it any time.';
 
   @override
   String get notificationsTitle => 'Your alarm needs a voice';
@@ -495,18 +465,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get allowNotifications => 'Allow notifications';
-
-  @override
-  String get personalizingTitle => 'Building your wake-up plan…';
-
-  @override
-  String get personalizingItem1 => 'Analyzing your snooze habits';
-
-  @override
-  String get personalizingItem2 => 'Picking your first mission';
-
-  @override
-  String get personalizingItem3 => 'Preparing your streak tracker';
 
   @override
   String get paywallTitle => 'Never oversleep again';
@@ -619,93 +577,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get nameQuestion => 'What should we call you?';
-
-  @override
-  String get nameHint => 'Your first name';
-
-  @override
-  String get ageQuestion => 'How old are you?';
-
-  @override
-  String get ageSubtitle =>
-      'Sleep needs change with age. This tunes your plan.';
-
-  @override
-  String get ageUnder18 => 'Under 18';
-
-  @override
-  String get age18to24 => '18–24';
-
-  @override
-  String get age25to34 => '25–34';
-
-  @override
-  String get age35to54 => '35–54';
-
-  @override
-  String get age55plus => '55+';
-
-  @override
-  String get bedtimeQuestion => 'When do you usually go to bed?';
-
-  @override
-  String get bedtimeSubtitle => 'We\'ll use this to check your sleep window.';
-
-  @override
-  String get painStatPrefix => 'Snoozing will cost you about';
-
-  @override
-  String painStatHours(int hours) {
-    return '$hours hours';
-  }
-
-  @override
-  String get painStatSuffix => 'this year: mornings you never get back.';
-
-  @override
-  String get painStatFootnote =>
-      'Estimated from your answers, at 9 minutes per snooze.';
-
-  @override
-  String sleepWindowNote(String duration) {
-    return 'Your planned sleep window is about $duration.';
-  }
-
-  @override
-  String get motivationsQuestion =>
-      'What will you do with your calmer mornings?';
-
-  @override
-  String get motivationsSubtitle =>
-      'Choose all that apply. This shapes your plan.';
-
-  @override
-  String get motivationExercise => 'Move my body';
-
-  @override
-  String get motivationBreakfast => 'Eat a real breakfast';
-
-  @override
-  String get motivationDeepWork => 'Focus before the noise starts';
-
-  @override
-  String get motivationQuietTime => 'Quiet time for myself';
-
-  @override
-  String get motivationFamily => 'More time with the people I love';
-
-  @override
-  String get commitmentTitle => 'Make it official';
-
-  @override
-  String get commitmentBody =>
-      'People who commit to a wake-up plan are far more likely to stick with it. One tap, no signature needed.';
-
-  @override
-  String get commitmentCta => 'I\'m ready to wake up better';
-
-  @override
   String get socialProofTitle => 'You\'re in good company';
 
   @override
@@ -733,24 +604,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get socialProofAuthor3 => 'Priya';
 
   @override
-  String personalizingTitleNamed(String name) {
-    return 'Building $name\'s wake-up plan…';
-  }
-
-  @override
-  String planRevealTitleNamed(String name) {
-    return '$name, your plan is ready';
-  }
-
-  @override
-  String get planRevealTitle => 'Your plan is ready';
-
-  @override
-  String planRevealSubtitle(String time) {
-    return 'Out of bed at $time within 30 days, one mission at a time.';
-  }
-
-  @override
   String get planChartNow => 'Now';
 
   @override
@@ -761,9 +614,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get planChartDay30 => 'Day 30';
-
-  @override
-  String get planRevealCta => 'See my plan';
 
   @override
   String paywallTitleNamed(String name) {
@@ -907,4 +757,51 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get founderStorySignature => 'The founder of Bangunin';
+
+  @override
+  String get onboardingSoundTitle => 'Pick your alarm sound';
+
+  @override
+  String get onboardingSoundSubtitle => 'Tap one to hear it.';
+
+  @override
+  String get onboardingMissionTitle => 'How will you prove you\'re awake?';
+
+  @override
+  String get onboardingMissionSubtitle =>
+      'The alarm keeps ringing until you do it.';
+
+  @override
+  String get onboardingMissionBadge => 'Most fun';
+
+  @override
+  String onboardingReadyTitle(String when, String time) {
+    return '$when at $time.';
+  }
+
+  @override
+  String get onboardingReadyHunt =>
+      'To turn it off you\'ll have to find a random object. We\'ll tell you which one when it rings.';
+
+  @override
+  String onboardingReadyMission(String mission) {
+    return 'To turn it off: $mission.';
+  }
+
+  @override
+  String get onboardingReadyNoMission =>
+      'One tap turns it off. You can add a mission any time.';
+
+  @override
+  String get onboardingReadyFootnote =>
+      'Change the time, sound or mission whenever you like.';
+
+  @override
+  String get onboardingReadyCta => 'I\'m ready';
+
+  @override
+  String get onboardingReadyToday => 'Today';
+
+  @override
+  String get onboardingReadyTomorrow => 'Tomorrow';
 }

@@ -176,4 +176,15 @@ extension MissionTypeL10n on MissionType {
     MissionType.squats => l10n.missionSquats,
     MissionType.pushups => l10n.missionPushups,
   };
+
+  String localizedDescription(AppLocalizations l10n) => switch (this) {
+    MissionType.none => l10n.missionNoneDescription,
+    MissionType.randomHunt => l10n.missionRandomHuntDescription,
+    MissionType.objectHunt => l10n.missionObjectHuntDescription,
+    MissionType.skyPhoto => l10n.missionSkyPhotoDescription,
+    MissionType.grassPhoto => l10n.missionGrassPhotoDescription,
+    MissionType.makeBed => l10n.missionMakeBedDescription,
+    MissionType.squats => l10n.missionSquatsDescription,
+    MissionType.pushups => l10n.missionPushupsDescription,
+  };
 }

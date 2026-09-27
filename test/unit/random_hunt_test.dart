@@ -83,10 +83,7 @@ void main() {
       missionType: MissionType.randomHunt,
       createdAt: DateTime(2026),
     );
-    expect(
-      Alarm.fromJson(alarm.toJson()).missionType,
-      MissionType.randomHunt,
-    );
+    expect(Alarm.fromJson(alarm.toJson()).missionType, MissionType.randomHunt);
   });
 
   group('verifyHunt', () {

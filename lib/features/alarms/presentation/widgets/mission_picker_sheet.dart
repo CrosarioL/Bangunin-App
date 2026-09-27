@@ -5,7 +5,6 @@ import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/widgets/bangunin_mascot.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/l10n_ext.dart';
-import '../../../../l10n/gen/app_localizations.dart';
 import '../../../missions/domain/mission_type.dart';
 import '../../../missions/presentation/pages/movement_mission_page.dart';
 import '../../../missions/presentation/pages/object_registration_page.dart';
@@ -81,7 +80,7 @@ class _MissionPickerSheet extends StatelessWidget {
                   return _MissionTile(
                     mission: mission,
                     selected: mission == current,
-                    description: _description(mission, l10n),
+                    description: mission.localizedDescription(l10n),
                     onTap: () {
                       Haptics.selection();
                       Navigator.of(context).pop(mission);
@@ -98,18 +97,6 @@ class _MissionPickerSheet extends StatelessWidget {
       ),
     );
   }
-
-  String _description(MissionType mission, AppLocalizations l10n) =>
-      switch (mission) {
-        MissionType.none => l10n.missionNoneDescription,
-        MissionType.randomHunt => l10n.missionRandomHuntDescription,
-        MissionType.objectHunt => l10n.missionObjectHuntDescription,
-        MissionType.skyPhoto => l10n.missionSkyPhotoDescription,
-        MissionType.grassPhoto => l10n.missionGrassPhotoDescription,
-        MissionType.makeBed => l10n.missionMakeBedDescription,
-        MissionType.squats => l10n.missionSquatsDescription,
-        MissionType.pushups => l10n.missionPushupsDescription,
-      };
 
   Future<void> _preview(BuildContext context, MissionType mission) async {
     Haptics.tap();

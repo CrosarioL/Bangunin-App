@@ -6,7 +6,6 @@ import 'package:uuid/uuid.dart';
 
 import '../../../../app/di/providers.dart';
 import '../../../../core/services/analytics/analytics_service.dart';
-import '../../../missions/domain/mission_type.dart';
 import '../../../onboarding/presentation/providers/onboarding_provider.dart';
 import '../../domain/entities/alarm.dart';
 
@@ -128,45 +127,13 @@ class AlarmActions {
     await _ref.read(alarmSchedulerProvider).reschedule(alarms);
   }
 
-  /// Creates the user's first alarm from their onboarding answers — the
-  /// wake-goal time they picked, repeating on weekdays, with a mission
-  /// chosen from the struggle(s) they flagged. Does nothing if an alarm
-  /// already exists (e.g. onboarding was re-entered after a data reset).
+  /// Creates the user's first alarm exactly as they built it in onboarding:
+  /// their time, sound and mission, repeating on
+  /// [OnboardingAnswers.repeatDays]. Does nothing if an alarm already exists
+  /// (e.g. onboarding was re-entered after a data reset).
   Future<void> createFromOnboarding(OnboardingAnswers answers) async {
     final existing = await _ref.read(alarmRepositoryProvider).getAll();
     if (existing.isNotEmpty) return;
-
-    final mission = _missionForStruggles(answers.struggles);
-    final alarm =
-        draft(
-          hour: answers.wakeGoalHour,
-          minute: answers.wakeGoalMinute,
-        ).copyWith(
-          repeatDays: const {
-            DateTime.monday,
-            DateTime.tuesday,
-            DateTime.wednesday,
-            DateTime.thursday,
-            DateTime.friday,
-          },
-          missionType: mission,
-          missionReps: mission.isMovement ? mission.defaultReps : 0,
-        );
-    await save(alarm, isNew: true);
-  }
-
-  /// "I stay in bed" / "I fall back asleep" → a movement mission forces
-  /// them physically up. "I dismiss it half asleep" → a photo mission
-  /// (further from the bed) requires enough alertness to compose a shot.
-  /// No clear signal → no mission, so the very first alarm isn't a wall.
-  MissionType _missionForStruggles(Set<String> struggles) {
-    if (struggles.contains('stay_in_bed') ||
-        struggles.contains('phone_in_bed')) {
-      return MissionType.squats;
-    }
-    if (struggles.contains('dismiss_half_asleep')) {
-      return MissionType.skyPhoto;
-    }
-    return MissionType.none;
+    await save(answers.toAlarm(draft()), isNew: true);
   }
 }

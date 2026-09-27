@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/di/providers.dart';
+import '../../../alarms/domain/entities/alarm.dart';
+import '../../../missions/domain/mission_type.dart';
 
 const _onboardingDoneKey = 'onboarding_completed';
 const _userNameKey = 'user_first_name';
@@ -22,64 +24,61 @@ class OnboardingCompletedNotifier extends Notifier<bool> {
   }
 }
 
-/// The user's first name, persisted at onboarding so the paywall and future
-/// surfaces can address them directly. Empty string when never provided.
+/// The user's first name, if an earlier onboarding version collected it.
+/// Onboarding no longer asks, so new users get the generic paywall headline.
 final userNameProvider = Provider<String>(
   (ref) => ref.read(sharedPreferencesProvider).getString(_userNameKey) ?? '',
 );
 
-/// Answers collected during the onboarding survey. Every answer is spent
-/// later: the pain stat and plan chart are computed from them, the paywall
-/// headline quotes the wake goal back, and the first alarm is created from
-/// the goal + struggles (see AlarmActions.createFromOnboarding).
+/// The first alarm as the user builds it during onboarding. Onboarding *is*
+/// alarm setup: time, sound and mission are picked here, then saved by
+/// AlarmActions.createFromOnboarding before the paywall.
 class OnboardingAnswers {
   const OnboardingAnswers({
-    this.name = '',
-    this.ageRange,
-    this.snoozeHabit,
-    this.bedHour = 23,
-    this.bedMinute = 0,
     this.wakeGoalHour = 7,
     this.wakeGoalMinute = 0,
-    this.struggles = const {},
-    this.motivations = const {},
+    this.sound = AlarmSound.classic,
+    this.mission = MissionType.randomHunt,
   });
 
-  final String name;
-
-  /// Index into the age-range options (0 = under 18 … 4 = 55+).
-  final int? ageRange;
-
-  /// 0 = never, 1 = sometimes, 2 = every morning.
-  final int? snoozeHabit;
-  final int bedHour;
-  final int bedMinute;
   final int wakeGoalHour;
   final int wakeGoalMinute;
-  final Set<String> struggles;
-  final Set<String> motivations;
+  final AlarmSound sound;
+
+  /// Defaults to Random Hunt: no setup, and the mission people film.
+  final MissionType mission;
+
+  /// Weekdays only: a 6:30 alarm that also fires on Saturday is how a new
+  /// user ends up deleting the app on their first weekend.
+  static const repeatDays = {
+    DateTime.monday,
+    DateTime.tuesday,
+    DateTime.wednesday,
+    DateTime.thursday,
+    DateTime.friday,
+  };
+
+  /// The alarm these answers describe, keeping [base]'s id and createdAt.
+  Alarm toAlarm(Alarm base) => base.copyWith(
+    hour: wakeGoalHour,
+    minute: wakeGoalMinute,
+    repeatDays: repeatDays,
+    sound: sound,
+    missionType: mission,
+    missionReps: mission.defaultReps,
+  );
 
   OnboardingAnswers copyWith({
-    String? name,
-    int? ageRange,
-    int? snoozeHabit,
-    int? bedHour,
-    int? bedMinute,
     int? wakeGoalHour,
     int? wakeGoalMinute,
-    Set<String>? struggles,
-    Set<String>? motivations,
+    AlarmSound? sound,
+    MissionType? mission,
   }) {
     return OnboardingAnswers(
-      name: name ?? this.name,
-      ageRange: ageRange ?? this.ageRange,
-      snoozeHabit: snoozeHabit ?? this.snoozeHabit,
-      bedHour: bedHour ?? this.bedHour,
-      bedMinute: bedMinute ?? this.bedMinute,
       wakeGoalHour: wakeGoalHour ?? this.wakeGoalHour,
       wakeGoalMinute: wakeGoalMinute ?? this.wakeGoalMinute,
-      struggles: struggles ?? this.struggles,
-      motivations: motivations ?? this.motivations,
+      sound: sound ?? this.sound,
+      mission: mission ?? this.mission,
     );
   }
 }
@@ -93,32 +92,11 @@ class OnboardingAnswersNotifier extends Notifier<OnboardingAnswers> {
   @override
   OnboardingAnswers build() => const OnboardingAnswers();
 
-  void setName(String value) {
-    final name = value.trim();
-    state = state.copyWith(name: name);
-    // Persisted immediately so the paywall (a separate route) can read it.
-    ref.read(sharedPreferencesProvider).setString(_userNameKey, name);
-  }
-
-  void setAgeRange(int value) => state = state.copyWith(ageRange: value);
-
-  void setSnoozeHabit(int value) => state = state.copyWith(snoozeHabit: value);
-
-  void setBedtime(int hour, int minute) =>
-      state = state.copyWith(bedHour: hour, bedMinute: minute);
-
   void setWakeGoal(int hour, int minute) =>
       state = state.copyWith(wakeGoalHour: hour, wakeGoalMinute: minute);
 
-  void toggleStruggle(String id) {
-    final struggles = {...state.struggles};
-    if (!struggles.remove(id)) struggles.add(id);
-    state = state.copyWith(struggles: struggles);
-  }
+  void setSound(AlarmSound sound) => state = state.copyWith(sound: sound);
 
-  void toggleMotivation(String id) {
-    final motivations = {...state.motivations};
-    if (!motivations.remove(id)) motivations.add(id);
-    state = state.copyWith(motivations: motivations);
-  }
+  void setMission(MissionType mission) =>
+      state = state.copyWith(mission: mission);
 }

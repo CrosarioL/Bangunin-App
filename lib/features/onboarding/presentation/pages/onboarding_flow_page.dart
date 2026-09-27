@@ -13,13 +13,15 @@ import '../../../../core/services/analytics/analytics_service.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../alarms/presentation/providers/alarms_provider.dart';
 import '../providers/onboarding_provider.dart';
-import 'onboarding_narrative_steps.dart';
 import 'onboarding_steps.dart';
 
-/// The onboarding container: progress bar + PageView of steps. The flow
-/// follows the product's philosophy — first make the pain vivid (snooze
-/// habit survey), then promise the outcome, then ask for the permission it
-/// needs, then "personalize" and hand off to the paywall.
+/// The onboarding container: progress bar + PageView of steps.
+///
+/// Onboarding *is* first-alarm setup: hook → time → sound → mission →
+/// permission → "here's when it rings" → paywall. No survey. The user is
+/// setting tomorrow's alarm within seconds, meets the mission (the product's
+/// difference) before being asked for anything, and sees the paywall only
+/// once their alarm exists.
 class OnboardingFlowPage extends ConsumerStatefulWidget {
   const OnboardingFlowPage({super.key});
 
@@ -30,11 +32,7 @@ class OnboardingFlowPage extends ConsumerStatefulWidget {
 class _OnboardingFlowPageState extends ConsumerState<OnboardingFlowPage> {
   final _pageController = PageController();
   int _step = 0;
-  // 13 since the social-proof step was removed: it presented invented
-  // testimonials as real user endorsements (Play "Misrepresentation", and
-  // deceptive endorsements are separately unlawful in our markets) and fired
-  // the store review prompt before the user had used the app at all.
-  static const _stepCount = 13;
+  static const _stepCount = 6;
 
   @override
   void initState() {
@@ -57,10 +55,13 @@ class _OnboardingFlowPageState extends ConsumerState<OnboardingFlowPage> {
       final answers = ref.read(onboardingAnswersProvider);
       await ref.read(alarmActionsProvider).createFromOnboarding(answers);
       await ref.read(onboardingCompletedProvider.notifier).markCompleted();
+      // Which sound and mission new users pick is the selection-rate signal
+      // for deciding what to feature and promote.
       unawaited(
-        ref
-            .read(analyticsProvider)
-            .logEvent(AnalyticsEvents.onboardingCompleted),
+        ref.read(analyticsProvider).logEvent(
+          AnalyticsEvents.onboardingCompleted,
+          {'sound': answers.sound.name, 'mission': answers.mission.name},
+        ),
       );
       return; // Router redirect takes over (→ paywall).
     }
@@ -134,18 +135,11 @@ class _OnboardingFlowPageState extends ConsumerState<OnboardingFlowPage> {
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
                   WelcomeStep(onNext: _next),
-                  NameStep(onNext: _next),
-                  AgeStep(onNext: _next),
-                  SnoozeHabitStep(onNext: _next),
-                  BedtimeStep(onNext: _next),
                   WakeGoalStep(onNext: _next),
-                  PainStatStep(onNext: _next),
-                  StrugglesStep(onNext: _next),
-                  MotivationsStep(onNext: _next),
-                  CommitmentStep(onNext: _next),
+                  SoundStep(onNext: _next),
+                  MissionStep(onNext: _next),
                   NotificationStep(onNext: _next),
-                  PersonalizingStep(onDone: _next),
-                  PlanRevealStep(onNext: _next),
+                  ReadyStep(onNext: _next),
                 ],
               ),
             ),

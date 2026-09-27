@@ -1,6 +1,5 @@
 {
   "@@locale": "en",
-
   "continueLabel": "Continue",
   "cancel": "Cancel",
   "save": "Save",
@@ -12,24 +11,23 @@
   "back": "Back",
   "abandonMission": "Cancel mission, keep ringing",
   "genericError": "Something went wrong.\nPlease try again.",
-
   "tabAlarms": "Alarms",
   "tabStats": "Streak",
   "tabSettings": "Settings",
-
   "homeTitle": "Alarms",
   "noUpcomingAlarm": "No alarm scheduled",
   "ringsIn": "Rings in {countdown}",
   "@ringsIn": {
     "placeholders": {
-      "countdown": {"type": "String"}
+      "countdown": {
+        "type": "String"
+      }
     }
   },
   "emptyAlarmsTitle": "No alarms yet",
   "emptyAlarmsSubtitle": "Create your first alarm and pick a mission that gets you out of bed.",
   "deleteAlarmTitle": "Delete alarm?",
   "deleteAlarmMessage": "This alarm will be removed permanently.",
-
   "repeatOnce": "Once",
   "repeatEveryDay": "Every day",
   "repeatWeekdays": "Weekdays",
@@ -41,7 +39,6 @@
   "dayFriShort": "F",
   "daySatShort": "S",
   "daySunShort": "S",
-
   "missionNone": "No mission",
   "missionObjectHunt": "Object Hunt",
   "missionSkyPhoto": "Sky Photo",
@@ -61,27 +58,32 @@
   "huntFind": "FIND: {object}",
   "@huntFind": {
     "placeholders": {
-      "object": {"type": "String"}
+      "object": {
+        "type": "String"
+      }
     }
   },
   "huntInstruction": "Point the camera at it to stop the alarm.",
   "huntReroll": "Don't have it? Swap ({left} left)",
   "@huntReroll": {
     "placeholders": {
-      "left": {"type": "int"}
+      "left": {
+        "type": "int"
+      }
     }
   },
   "huntNoRerolls": "No swaps left. Go find it!",
   "photoFailTargetNotFound": "Couldn't spot the {object} yet. Get it in the frame",
   "@photoFailTargetNotFound": {
     "placeholders": {
-      "object": {"type": "String"}
+      "object": {
+        "type": "String"
+      }
     }
   },
   "tryMission": "Try mission",
   "missionPreviewTitle": "Mission preview",
   "missionPreviewSuccess": "Preview complete — this did not affect your alarm or streak.",
-
   "newAlarm": "New alarm",
   "editAlarm": "Edit alarm",
   "repeatSection": "Repeat",
@@ -96,11 +98,14 @@
   "snoozeSummary": "{minutes} min, max {count}x",
   "@snoozeSummary": {
     "placeholders": {
-      "minutes": {"type": "int"},
-      "count": {"type": "int"}
+      "minutes": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
     }
   },
-
   "soundClassic": "Classic",
   "soundSunrise": "Sunrise",
   "soundPulse": "Pulse",
@@ -109,12 +114,10 @@
   "importSoundSubtitle": "Use any clip from your library as your alarm.",
   "recordSound": "Record your own",
   "stopRecording": "Stop recording",
-
   "registerObjectTitle": "Register object",
   "registerObjectSubtitle": "Photograph an object far from your bed, like the bathroom sink or the coffee machine. You'll rephotograph it to stop the alarm.",
   "usePhoto": "Use this photo",
   "retakePhoto": "Retake",
-
   "cameraPermissionNeeded": "Camera access is needed to complete photo missions.",
   "openSettings": "Open Settings",
   "batteryTitle": "Keep alarms working on this phone",
@@ -136,78 +139,64 @@
   "alarmEngineEducationBody": "iOS can let Bangunin ring like the built-in Clock — through Silent Mode, through a Focus, and full screen on your lock screen.\n\nWe'll ask for that permission next. Without it, alarms stay as ordinary notifications and are easy to sleep through.",
   "cameraError": "The camera couldn't start.",
   "takePhoto": "Take photo",
-
   "ringingWakeUp": "Wake up!",
   "startMission": "Start mission",
   "dismissAlarm": "Dismiss",
   "snoozeWithRemaining": "Snooze {minutes} min ({remaining} left)",
   "@snoozeWithRemaining": {
     "placeholders": {
-      "minutes": {"type": "int"},
-      "remaining": {"type": "int"}
+      "minutes": {
+        "type": "int"
+      },
+      "remaining": {
+        "type": "int"
+      }
     }
   },
-
   "verifyingPhoto": "Checking your photo…",
   "missionPhotoFailed": "That doesn't look right. Try again!",
   "photoInstructionObject": "Find your registered object and photograph it.",
   "photoInstructionSky": "Step outside and point your camera at the sky.",
   "photoInstructionGrass": "Find grass or a plant and photograph it.",
   "photoInstructionBed": "Make your bed, then photograph it.",
-
   "movementInstructionSquats": "Hold your phone against your chest and do squats.",
   "movementInstructionPushups": "Hold your phone in one hand and do pushups.",
   "repsOf": "of {target}",
   "@repsOf": {
     "placeholders": {
-      "target": {"type": "int"}
+      "target": {
+        "type": "int"
+      }
     }
   },
   "movementHint": "Move at a steady pace. Rushed shakes don't count.",
-
   "notificationDefaultTitle": "Wake up!",
   "notificationBodyNoMission": "Time to get up.",
   "notificationBodyMission": "Complete your mission to stop the alarm.",
   "notificationBodySnoozeOver": "Snooze is over.",
-
   "wakeSuccessTitle": "You're up. Mission complete!",
   "streakCount": "{count, plural, =1{1 day streak} other{{count} day streak}}",
   "@streakCount": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "startMyDay": "Start my day",
-
   "statsTitle": "Your mornings",
   "currentStreak": "Current streak",
   "bestStreak": "Best streak",
   "avgWakeTime": "Avg wake time",
   "totalWakes": "Total wakes",
   "thisMonth": "This month",
-
-  "onboardingWelcomeTitle": "Wake up. For real this time.",
-  "onboardingWelcomeSubtitle": "The alarm that makes you prove you're out of bed before it stops ringing.",
-  "snoozeHabitQuestion": "How often do you hit snooze?",
-  "snoozeHabitNever": "Almost never",
-  "snoozeHabitSometimes": "A few times a week",
-  "snoozeHabitAlways": "Every single morning",
-  "wakeGoalQuestion": "When do you want to wake up?",
-  "wakeGoalSubtitle": "We'll suggest this time for your first alarm.",
-  "strugglesQuestion": "What happens after your alarm rings?",
-  "strugglesSubtitle": "Pick everything that sounds familiar.",
-  "struggleDismissAsleep": "I dismiss it half asleep",
-  "struggleStayInBed": "I stay in bed scrolling",
-  "strugglePhoneInBed": "I fall back asleep",
-  "struggleNoRoutine": "My mornings have no routine",
+  "onboardingWelcomeTitle": "Normal alarms are easy to turn off in your sleep.",
+  "onboardingWelcomeSubtitle": "This one won't stop until you're actually up.",
+  "wakeGoalQuestion": "When should we wake you?",
+  "wakeGoalSubtitle": "Weekdays. You can change it any time.",
   "notificationsTitle": "Your alarm needs a voice",
   "notificationsSubtitle": "Allow notifications so your alarm can ring even when the app is closed.",
   "allowNotifications": "Allow notifications",
-  "personalizingTitle": "Building your wake-up plan…",
-  "personalizingItem1": "Analyzing your snooze habits",
-  "personalizingItem2": "Picking your first mission",
-  "personalizingItem3": "Preparing your streak tracker",
-
   "paywallTitle": "Never oversleep again",
   "paywallSubtitle": "Join thousands who replaced snoozing with real mornings.",
   "paywallFeatureMissions": "All wake-up missions: photos, squats, pushups",
@@ -219,14 +208,15 @@
   "pricePerYear": "{price} per year",
   "@pricePerYear": {
     "placeholders": {
-      "price": {"type": "String"}
+      "price": {
+        "type": "String"
+      }
     }
   },
   "restorePurchases": "Restore purchases",
   "paywallLegal": "Auto-renews until cancelled. Cancel anytime in your store account settings.",
   "purchaseFailed": "Purchase didn't complete. You haven't been charged.",
   "paywallLoadError": "Plans couldn't be loaded.\nCheck your connection and try again.",
-
   "premiumActive": "Premium active",
   "premiumActiveSubtitle": "All missions and features unlocked.",
   "settingsSectionGeneral": "GENERAL",
@@ -249,46 +239,11 @@
   "appVersion": "Version {version}",
   "@appVersion": {
     "placeholders": {
-      "version": {"type": "String"}
+      "version": {
+        "type": "String"
+      }
     }
   },
-
-  "nameQuestion": "What should we call you?",
-  "nameHint": "Your first name",
-  "ageQuestion": "How old are you?",
-  "ageSubtitle": "Sleep needs change with age. This tunes your plan.",
-  "ageUnder18": "Under 18",
-  "age18to24": "18–24",
-  "age25to34": "25–34",
-  "age35to54": "35–54",
-  "age55plus": "55+",
-  "bedtimeQuestion": "When do you usually go to bed?",
-  "bedtimeSubtitle": "We'll use this to check your sleep window.",
-  "painStatPrefix": "Snoozing will cost you about",
-  "painStatHours": "{hours} hours",
-  "@painStatHours": {
-    "placeholders": {
-      "hours": {"type": "int"}
-    }
-  },
-  "painStatSuffix": "this year: mornings you never get back.",
-  "painStatFootnote": "Estimated from your answers, at 9 minutes per snooze.",
-  "sleepWindowNote": "Your planned sleep window is about {duration}.",
-  "@sleepWindowNote": {
-    "placeholders": {
-      "duration": {"type": "String"}
-    }
-  },
-  "motivationsQuestion": "What will you do with your calmer mornings?",
-  "motivationsSubtitle": "Choose all that apply. This shapes your plan.",
-  "motivationExercise": "Move my body",
-  "motivationBreakfast": "Eat a real breakfast",
-  "motivationDeepWork": "Focus before the noise starts",
-  "motivationQuietTime": "Quiet time for myself",
-  "motivationFamily": "More time with the people I love",
-  "commitmentTitle": "Make it official",
-  "commitmentBody": "People who commit to a wake-up plan are far more likely to stick with it. One tap, no signature needed.",
-  "commitmentCta": "I'm ready to wake up better",
   "socialProofTitle": "You're in good company",
   "socialProofSubtitle": "Loved by early risers everywhere",
   "socialProofQuote1": "The squat mission sounds silly until it works. I haven't snoozed in three weeks.",
@@ -297,53 +252,41 @@
   "socialProofAuthor2": "Jonas",
   "socialProofQuote3": "I used to lose an hour every day. Now I'm up before my kids, and it changes everything.",
   "socialProofAuthor3": "Priya",
-  "personalizingTitleNamed": "Building {name}'s wake-up plan…",
-  "@personalizingTitleNamed": {
-    "placeholders": {
-      "name": {"type": "String"}
-    }
-  },
-  "planRevealTitleNamed": "{name}, your plan is ready",
-  "@planRevealTitleNamed": {
-    "placeholders": {
-      "name": {"type": "String"}
-    }
-  },
-  "planRevealTitle": "Your plan is ready",
-  "planRevealSubtitle": "Out of bed at {time} within 30 days, one mission at a time.",
-  "@planRevealSubtitle": {
-    "placeholders": {
-      "time": {"type": "String"}
-    }
-  },
   "planChartNow": "Now",
   "planChartGoal": "Goal",
   "planChartDay1": "Day 1",
   "planChartDay30": "Day 30",
-  "planRevealCta": "See my plan",
   "paywallTitleNamed": "{name}, never oversleep again",
   "@paywallTitleNamed": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "paywallGoalLine": "Your plan: out of bed at {time}, every day.",
   "@paywallGoalLine": {
     "placeholders": {
-      "time": {"type": "String"}
+      "time": {
+        "type": "String"
+      }
     }
   },
   "planMonthly": "Monthly",
   "pricePerMonth": "{price} per month",
   "@pricePerMonth": {
     "placeholders": {
-      "price": {"type": "String"}
+      "price": {
+        "type": "String"
+      }
     }
   },
   "monthlyEquivalent": "≈ {price}/month",
   "@monthlyEquivalent": {
     "placeholders": {
-      "price": {"type": "String"}
+      "price": {
+        "type": "String"
+      }
     }
   },
   "saveBadge": "SAVE 50%",
@@ -355,21 +298,23 @@
   "trialDayFinal": "Day {day}",
   "@trialDayFinal": {
     "placeholders": {
-      "day": {"type": "int"}
+      "day": {
+        "type": "int"
+      }
     }
   },
   "trialDayFinalBody": "Your subscription starts. Cancel anytime before.",
   "paywallCtaTrial": "Start my {days}-day free trial",
   "@paywallCtaTrial": {
     "placeholders": {
-      "days": {"type": "int"}
+      "days": {
+        "type": "int"
+      }
     }
   },
   "paywallCtaNoTrial": "Continue",
   "noPaymentNow": "No payment due now",
-
   "manageSubscription": "Manage subscription",
-
   "photoFailTooDark": "Too dark to check — try again in brighter light",
   "photoFailTooBright": "Too bright to check — move away from the light",
   "photoFailNotEnoughDetail": "We couldn't make out enough detail — get a bit closer",
@@ -378,7 +323,6 @@
   "photoFailNoMatch": "That doesn't look like your registered object",
   "photoFailNoHand": "Put your hand in the shot, touching the grass",
   "photoFailNoReference": "No object registered yet — set one up in the alarm",
-
   "missionSafetyNote": "Place the phone securely so your full body is visible. Do not hold it while exercising. Stop if you feel pain or dizzy.",
   "poseGuidanceNoPerson": "We can't see you — step into the frame",
   "poseGuidanceJointsHidden": "Move back so your arms and legs are fully visible",
@@ -386,14 +330,42 @@
   "poseGuidanceGoDown": "Go down",
   "poseGuidanceComeUp": "Come back up",
   "poseGuidanceComplete": "Done — nice work",
-
   "accessCodeTitle": "Enter access code",
   "accessCodeHint": "Access code",
   "accessCodeRedeem": "Redeem",
   "accessCodeInvalid": "That access code is not valid.",
-
   "settingsOurStory": "Our story",
   "founderStoryTitle": "Why Bangunin exists",
   "founderStoryBody": "In 2023 I was a third-semester student, living in a kos, a rented room, away from home for the first time.\n\nBack home, my mom always woke me up. \"Wake up, it's late!\" Every morning. I never realised how much I leaned on that until it was gone.\n\nIn the kos I set six alarms. I turned them all off with my eyes shut. I missed my 7 AM class three times in one month, my attendance grade tanked, and I hated myself every time I woke at 9 to the class group chat already blowing up.\n\nI tried every alarm on the Play Store. The one with a math problem: I memorised the answer. The one you shake: I shook it in my sleep. All of them were too easy to cheat, because a brain at 5 AM has exactly one goal: get back to bed.\n\nSo I built one I couldn't lie to. It only goes quiet once you're actually out of bed. Photograph the sky outside, do ten squats, photograph the bathroom sink. Things that are impossible half-asleep.\n\nThe first time I used it, I was furious. The second time, I laughed. By the third week, I hadn't overslept once.\n\nI gave it to my kos-mates. Then my whole cohort. Now I'm giving it to you.\n\nBangunin wasn't built by a big startup in Silicon Valley. It was made by one student who was tired of missing class, for you, who feels exactly the same.\n\nGood morning. For real this time.",
-  "founderStorySignature": "The founder of Bangunin"
+  "founderStorySignature": "The founder of Bangunin",
+  "onboardingSoundTitle": "Pick your alarm sound",
+  "onboardingSoundSubtitle": "Tap one to hear it.",
+  "onboardingMissionTitle": "How will you prove you're awake?",
+  "onboardingMissionSubtitle": "The alarm keeps ringing until you do it.",
+  "onboardingMissionBadge": "Most fun",
+  "onboardingReadyTitle": "{when} at {time}.",
+  "onboardingReadyHunt": "To turn it off you'll have to find a random object. We'll tell you which one when it rings.",
+  "onboardingReadyMission": "To turn it off: {mission}.",
+  "onboardingReadyNoMission": "One tap turns it off. You can add a mission any time.",
+  "onboardingReadyFootnote": "Change the time, sound or mission whenever you like.",
+  "onboardingReadyCta": "I'm ready",
+  "onboardingReadyToday": "Today",
+  "onboardingReadyTomorrow": "Tomorrow",
+  "@onboardingReadyTitle": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@onboardingReadyMission": {
+    "placeholders": {
+      "mission": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -98,33 +98,28 @@ void main() {
     });
   });
 
-  test('"stay in bed" struggle suggests a movement mission', () async {
-    const answers = OnboardingAnswers(struggles: {'stay_in_bed'});
+  test('saves the sound and mission picked in onboarding', () async {
+    const answers = OnboardingAnswers(
+      sound: AlarmSound.pulse,
+      mission: MissionType.squats,
+    );
     await container.read(alarmActionsProvider).createFromOnboarding(answers);
 
-    final alarms = await alarmRepository.getAll();
-    expect(alarms.single.missionType, MissionType.squats);
-    expect(alarms.single.missionReps, greaterThan(0));
+    final alarm = (await alarmRepository.getAll()).single;
+    expect(alarm.sound, AlarmSound.pulse);
+    expect(alarm.missionType, MissionType.squats);
+    expect(alarm.missionReps, greaterThan(0));
   });
 
-  test('"dismiss half asleep" struggle suggests a photo mission', () async {
-    const answers = OnboardingAnswers(struggles: {'dismiss_half_asleep'});
-    await container.read(alarmActionsProvider).createFromOnboarding(answers);
+  test('defaults to Random Hunt when nothing is changed', () async {
+    await container
+        .read(alarmActionsProvider)
+        .createFromOnboarding(const OnboardingAnswers());
 
-    final alarms = await alarmRepository.getAll();
-    expect(alarms.single.missionType, MissionType.skyPhoto);
+    final alarm = (await alarmRepository.getAll()).single;
+    expect(alarm.missionType, MissionType.randomHunt);
+    expect(alarm.missionReps, 0);
   });
-
-  test(
-    'no clear struggle signal leaves the first alarm mission-free',
-    () async {
-      const answers = OnboardingAnswers();
-      await container.read(alarmActionsProvider).createFromOnboarding(answers);
-
-      final alarms = await alarmRepository.getAll();
-      expect(alarms.single.missionType, MissionType.none);
-    },
-  );
 
   test('does not create a second alarm if one already exists', () async {
     await alarmRepository.upsert(

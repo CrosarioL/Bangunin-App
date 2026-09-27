@@ -442,48 +442,18 @@ class AppLocalizationsId extends AppLocalizations {
   String get thisMonth => 'Bulan ini';
 
   @override
-  String get onboardingWelcomeTitle => 'Bangun. Kali ini beneran.';
+  String get onboardingWelcomeTitle =>
+      'Alarm biasa gampang dimatiin sambil tidur.';
 
   @override
   String get onboardingWelcomeSubtitle =>
-      'Alarm yang minta bukti kamu sudah keluar dari kasur sebelum berhenti bunyi.';
+      'Yang ini nggak akan berhenti sampai kamu beneran bangun.';
 
   @override
-  String get snoozeHabitQuestion => 'Seberapa sering kamu pencet snooze?';
+  String get wakeGoalQuestion => 'Mau dibangunin jam berapa?';
 
   @override
-  String get snoozeHabitNever => 'Hampir tidak pernah';
-
-  @override
-  String get snoozeHabitSometimes => 'Beberapa kali seminggu';
-
-  @override
-  String get snoozeHabitAlways => 'Setiap pagi';
-
-  @override
-  String get wakeGoalQuestion => 'Jam berapa kamu mau bangun?';
-
-  @override
-  String get wakeGoalSubtitle =>
-      'Kami akan sarankan jam ini untuk alarm pertamamu.';
-
-  @override
-  String get strugglesQuestion => 'Apa yang terjadi setelah alarmmu bunyi?';
-
-  @override
-  String get strugglesSubtitle => 'Pilih semua yang terasa familiar.';
-
-  @override
-  String get struggleDismissAsleep => 'Kumatikan sambil setengah tidur';
-
-  @override
-  String get struggleStayInBed => 'Aku tetap di kasur scrolling';
-
-  @override
-  String get strugglePhoneInBed => 'Aku ketiduran lagi';
-
-  @override
-  String get struggleNoRoutine => 'Pagiku tidak punya rutinitas';
+  String get wakeGoalSubtitle => 'Hari kerja. Bisa diubah kapan saja.';
 
   @override
   String get notificationsTitle => 'Alarmmu butuh suara';
@@ -494,18 +464,6 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get allowNotifications => 'Izinkan notifikasi';
-
-  @override
-  String get personalizingTitle => 'Menyusun rencana bangunmu…';
-
-  @override
-  String get personalizingItem1 => 'Menganalisis kebiasaan snooze-mu';
-
-  @override
-  String get personalizingItem2 => 'Memilih misi pertamamu';
-
-  @override
-  String get personalizingItem3 => 'Menyiapkan pelacak streak-mu';
 
   @override
   String get paywallTitle => 'Jangan kesiangan lagi';
@@ -618,95 +576,6 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
-  String get nameQuestion => 'Kami panggil kamu siapa?';
-
-  @override
-  String get nameHint => 'Nama panggilanmu';
-
-  @override
-  String get ageQuestion => 'Berapa umurmu?';
-
-  @override
-  String get ageSubtitle =>
-      'Kebutuhan tidur berubah seiring usia. Ini menyetel rencanamu.';
-
-  @override
-  String get ageUnder18 => 'Di bawah 18';
-
-  @override
-  String get age18to24 => '18–24';
-
-  @override
-  String get age25to34 => '25–34';
-
-  @override
-  String get age35to54 => '35–54';
-
-  @override
-  String get age55plus => '55+';
-
-  @override
-  String get bedtimeQuestion => 'Biasanya jam berapa kamu tidur?';
-
-  @override
-  String get bedtimeSubtitle =>
-      'Kami pakai ini untuk mengecek jendela tidurmu.';
-
-  @override
-  String get painStatPrefix => 'Snooze akan merampas sekitar';
-
-  @override
-  String painStatHours(int hours) {
-    return '$hours jam';
-  }
-
-  @override
-  String get painStatSuffix =>
-      'tahun ini: pagi yang tidak akan pernah kembali.';
-
-  @override
-  String get painStatFootnote =>
-      'Diperkirakan dari jawabanmu, 9 menit per snooze.';
-
-  @override
-  String sleepWindowNote(String duration) {
-    return 'Jendela tidurmu sekitar $duration.';
-  }
-
-  @override
-  String get motivationsQuestion =>
-      'Mau kamu pakai apa pagimu yang lebih tenang?';
-
-  @override
-  String get motivationsSubtitle =>
-      'Pilih semua yang cocok. Ini membentuk rencanamu.';
-
-  @override
-  String get motivationExercise => 'Olahraga';
-
-  @override
-  String get motivationBreakfast => 'Sarapan beneran';
-
-  @override
-  String get motivationDeepWork => 'Fokus sebelum dunia berisik';
-
-  @override
-  String get motivationQuietTime => 'Waktu tenang untuk diriku';
-
-  @override
-  String get motivationFamily => 'Lebih banyak waktu dengan orang tersayang';
-
-  @override
-  String get commitmentTitle => 'Resmikan niatmu';
-
-  @override
-  String get commitmentBody =>
-      'Orang yang berkomitmen pada rencana bangun jauh lebih mungkin bertahan. Satu ketukan, tanpa tanda tangan.';
-
-  @override
-  String get commitmentCta => 'Aku siap bangun lebih baik';
-
-  @override
   String get socialProofTitle => 'Kamu tidak sendirian';
 
   @override
@@ -734,24 +603,6 @@ class AppLocalizationsId extends AppLocalizations {
   String get socialProofAuthor3 => 'Priya';
 
   @override
-  String personalizingTitleNamed(String name) {
-    return 'Menyusun rencana bangun $name…';
-  }
-
-  @override
-  String planRevealTitleNamed(String name) {
-    return '$name, rencanamu sudah siap';
-  }
-
-  @override
-  String get planRevealTitle => 'Rencanamu sudah siap';
-
-  @override
-  String planRevealSubtitle(String time) {
-    return 'Bangun jam $time dalam 30 hari, satu misi setiap pagi.';
-  }
-
-  @override
   String get planChartNow => 'Sekarang';
 
   @override
@@ -762,9 +613,6 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get planChartDay30 => 'Hari 30';
-
-  @override
-  String get planRevealCta => 'Lihat rencanaku';
 
   @override
   String paywallTitleNamed(String name) {
@@ -910,4 +758,51 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get founderStorySignature => 'Pendiri Bangunin';
+
+  @override
+  String get onboardingSoundTitle => 'Pilih suara alarm';
+
+  @override
+  String get onboardingSoundSubtitle => 'Ketuk untuk dengar.';
+
+  @override
+  String get onboardingMissionTitle => 'Mau buktiin bangun pakai apa?';
+
+  @override
+  String get onboardingMissionSubtitle =>
+      'Alarm terus bunyi sampai kamu selesaikan.';
+
+  @override
+  String get onboardingMissionBadge => 'Paling seru';
+
+  @override
+  String onboardingReadyTitle(String when, String time) {
+    return '$when jam $time.';
+  }
+
+  @override
+  String get onboardingReadyHunt =>
+      'Buat matiin, kamu harus cari benda acak. Bendanya baru dikasih tahu pas alarm bunyi.';
+
+  @override
+  String onboardingReadyMission(String mission) {
+    return 'Buat matiin: $mission.';
+  }
+
+  @override
+  String get onboardingReadyNoMission =>
+      'Sekali ketuk langsung mati. Misi bisa ditambah kapan saja.';
+
+  @override
+  String get onboardingReadyFootnote =>
+      'Jam, suara, atau misi bisa diganti kapan saja.';
+
+  @override
+  String get onboardingReadyCta => 'Siap!';
+
+  @override
+  String get onboardingReadyToday => 'Hari ini';
+
+  @override
+  String get onboardingReadyTomorrow => 'Besok';
 }

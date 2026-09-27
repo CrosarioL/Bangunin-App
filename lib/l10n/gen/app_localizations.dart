@@ -869,86 +869,26 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingWelcomeTitle.
   ///
   /// In en, this message translates to:
-  /// **'Wake up. For real this time.'**
+  /// **'Normal alarms are easy to turn off in your sleep.'**
   String get onboardingWelcomeTitle;
 
   /// No description provided for @onboardingWelcomeSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'The alarm that makes you prove you\'re out of bed before it stops ringing.'**
+  /// **'This one won\'t stop until you\'re actually up.'**
   String get onboardingWelcomeSubtitle;
-
-  /// No description provided for @snoozeHabitQuestion.
-  ///
-  /// In en, this message translates to:
-  /// **'How often do you hit snooze?'**
-  String get snoozeHabitQuestion;
-
-  /// No description provided for @snoozeHabitNever.
-  ///
-  /// In en, this message translates to:
-  /// **'Almost never'**
-  String get snoozeHabitNever;
-
-  /// No description provided for @snoozeHabitSometimes.
-  ///
-  /// In en, this message translates to:
-  /// **'A few times a week'**
-  String get snoozeHabitSometimes;
-
-  /// No description provided for @snoozeHabitAlways.
-  ///
-  /// In en, this message translates to:
-  /// **'Every single morning'**
-  String get snoozeHabitAlways;
 
   /// No description provided for @wakeGoalQuestion.
   ///
   /// In en, this message translates to:
-  /// **'When do you want to wake up?'**
+  /// **'When should we wake you?'**
   String get wakeGoalQuestion;
 
   /// No description provided for @wakeGoalSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'We\'ll suggest this time for your first alarm.'**
+  /// **'Weekdays. You can change it any time.'**
   String get wakeGoalSubtitle;
-
-  /// No description provided for @strugglesQuestion.
-  ///
-  /// In en, this message translates to:
-  /// **'What happens after your alarm rings?'**
-  String get strugglesQuestion;
-
-  /// No description provided for @strugglesSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Pick everything that sounds familiar.'**
-  String get strugglesSubtitle;
-
-  /// No description provided for @struggleDismissAsleep.
-  ///
-  /// In en, this message translates to:
-  /// **'I dismiss it half asleep'**
-  String get struggleDismissAsleep;
-
-  /// No description provided for @struggleStayInBed.
-  ///
-  /// In en, this message translates to:
-  /// **'I stay in bed scrolling'**
-  String get struggleStayInBed;
-
-  /// No description provided for @strugglePhoneInBed.
-  ///
-  /// In en, this message translates to:
-  /// **'I fall back asleep'**
-  String get strugglePhoneInBed;
-
-  /// No description provided for @struggleNoRoutine.
-  ///
-  /// In en, this message translates to:
-  /// **'My mornings have no routine'**
-  String get struggleNoRoutine;
 
   /// No description provided for @notificationsTitle.
   ///
@@ -967,30 +907,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Allow notifications'**
   String get allowNotifications;
-
-  /// No description provided for @personalizingTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Building your wake-up plan…'**
-  String get personalizingTitle;
-
-  /// No description provided for @personalizingItem1.
-  ///
-  /// In en, this message translates to:
-  /// **'Analyzing your snooze habits'**
-  String get personalizingItem1;
-
-  /// No description provided for @personalizingItem2.
-  ///
-  /// In en, this message translates to:
-  /// **'Picking your first mission'**
-  String get personalizingItem2;
-
-  /// No description provided for @personalizingItem3.
-  ///
-  /// In en, this message translates to:
-  /// **'Preparing your streak tracker'**
-  String get personalizingItem3;
 
   /// No description provided for @paywallTitle.
   ///
@@ -1190,162 +1106,6 @@ abstract class AppLocalizations {
   /// **'Version {version}'**
   String appVersion(String version);
 
-  /// No description provided for @nameQuestion.
-  ///
-  /// In en, this message translates to:
-  /// **'What should we call you?'**
-  String get nameQuestion;
-
-  /// No description provided for @nameHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Your first name'**
-  String get nameHint;
-
-  /// No description provided for @ageQuestion.
-  ///
-  /// In en, this message translates to:
-  /// **'How old are you?'**
-  String get ageQuestion;
-
-  /// No description provided for @ageSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Sleep needs change with age. This tunes your plan.'**
-  String get ageSubtitle;
-
-  /// No description provided for @ageUnder18.
-  ///
-  /// In en, this message translates to:
-  /// **'Under 18'**
-  String get ageUnder18;
-
-  /// No description provided for @age18to24.
-  ///
-  /// In en, this message translates to:
-  /// **'18–24'**
-  String get age18to24;
-
-  /// No description provided for @age25to34.
-  ///
-  /// In en, this message translates to:
-  /// **'25–34'**
-  String get age25to34;
-
-  /// No description provided for @age35to54.
-  ///
-  /// In en, this message translates to:
-  /// **'35–54'**
-  String get age35to54;
-
-  /// No description provided for @age55plus.
-  ///
-  /// In en, this message translates to:
-  /// **'55+'**
-  String get age55plus;
-
-  /// No description provided for @bedtimeQuestion.
-  ///
-  /// In en, this message translates to:
-  /// **'When do you usually go to bed?'**
-  String get bedtimeQuestion;
-
-  /// No description provided for @bedtimeSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'We\'ll use this to check your sleep window.'**
-  String get bedtimeSubtitle;
-
-  /// No description provided for @painStatPrefix.
-  ///
-  /// In en, this message translates to:
-  /// **'Snoozing will cost you about'**
-  String get painStatPrefix;
-
-  /// No description provided for @painStatHours.
-  ///
-  /// In en, this message translates to:
-  /// **'{hours} hours'**
-  String painStatHours(int hours);
-
-  /// No description provided for @painStatSuffix.
-  ///
-  /// In en, this message translates to:
-  /// **'this year: mornings you never get back.'**
-  String get painStatSuffix;
-
-  /// No description provided for @painStatFootnote.
-  ///
-  /// In en, this message translates to:
-  /// **'Estimated from your answers, at 9 minutes per snooze.'**
-  String get painStatFootnote;
-
-  /// No description provided for @sleepWindowNote.
-  ///
-  /// In en, this message translates to:
-  /// **'Your planned sleep window is about {duration}.'**
-  String sleepWindowNote(String duration);
-
-  /// No description provided for @motivationsQuestion.
-  ///
-  /// In en, this message translates to:
-  /// **'What will you do with your calmer mornings?'**
-  String get motivationsQuestion;
-
-  /// No description provided for @motivationsSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose all that apply. This shapes your plan.'**
-  String get motivationsSubtitle;
-
-  /// No description provided for @motivationExercise.
-  ///
-  /// In en, this message translates to:
-  /// **'Move my body'**
-  String get motivationExercise;
-
-  /// No description provided for @motivationBreakfast.
-  ///
-  /// In en, this message translates to:
-  /// **'Eat a real breakfast'**
-  String get motivationBreakfast;
-
-  /// No description provided for @motivationDeepWork.
-  ///
-  /// In en, this message translates to:
-  /// **'Focus before the noise starts'**
-  String get motivationDeepWork;
-
-  /// No description provided for @motivationQuietTime.
-  ///
-  /// In en, this message translates to:
-  /// **'Quiet time for myself'**
-  String get motivationQuietTime;
-
-  /// No description provided for @motivationFamily.
-  ///
-  /// In en, this message translates to:
-  /// **'More time with the people I love'**
-  String get motivationFamily;
-
-  /// No description provided for @commitmentTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Make it official'**
-  String get commitmentTitle;
-
-  /// No description provided for @commitmentBody.
-  ///
-  /// In en, this message translates to:
-  /// **'People who commit to a wake-up plan are far more likely to stick with it. One tap, no signature needed.'**
-  String get commitmentBody;
-
-  /// No description provided for @commitmentCta.
-  ///
-  /// In en, this message translates to:
-  /// **'I\'m ready to wake up better'**
-  String get commitmentCta;
-
   /// No description provided for @socialProofTitle.
   ///
   /// In en, this message translates to:
@@ -1394,30 +1154,6 @@ abstract class AppLocalizations {
   /// **'Priya'**
   String get socialProofAuthor3;
 
-  /// No description provided for @personalizingTitleNamed.
-  ///
-  /// In en, this message translates to:
-  /// **'Building {name}\'s wake-up plan…'**
-  String personalizingTitleNamed(String name);
-
-  /// No description provided for @planRevealTitleNamed.
-  ///
-  /// In en, this message translates to:
-  /// **'{name}, your plan is ready'**
-  String planRevealTitleNamed(String name);
-
-  /// No description provided for @planRevealTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Your plan is ready'**
-  String get planRevealTitle;
-
-  /// No description provided for @planRevealSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Out of bed at {time} within 30 days, one mission at a time.'**
-  String planRevealSubtitle(String time);
-
   /// No description provided for @planChartNow.
   ///
   /// In en, this message translates to:
@@ -1441,12 +1177,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Day 30'**
   String get planChartDay30;
-
-  /// No description provided for @planRevealCta.
-  ///
-  /// In en, this message translates to:
-  /// **'See my plan'**
-  String get planRevealCta;
 
   /// No description provided for @paywallTitleNamed.
   ///
@@ -1687,6 +1417,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The founder of Bangunin'**
   String get founderStorySignature;
+
+  /// No description provided for @onboardingSoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick your alarm sound'**
+  String get onboardingSoundTitle;
+
+  /// No description provided for @onboardingSoundSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap one to hear it.'**
+  String get onboardingSoundSubtitle;
+
+  /// No description provided for @onboardingMissionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How will you prove you\'re awake?'**
+  String get onboardingMissionTitle;
+
+  /// No description provided for @onboardingMissionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The alarm keeps ringing until you do it.'**
+  String get onboardingMissionSubtitle;
+
+  /// No description provided for @onboardingMissionBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Most fun'**
+  String get onboardingMissionBadge;
+
+  /// No description provided for @onboardingReadyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{when} at {time}.'**
+  String onboardingReadyTitle(String when, String time);
+
+  /// No description provided for @onboardingReadyHunt.
+  ///
+  /// In en, this message translates to:
+  /// **'To turn it off you\'ll have to find a random object. We\'ll tell you which one when it rings.'**
+  String get onboardingReadyHunt;
+
+  /// No description provided for @onboardingReadyMission.
+  ///
+  /// In en, this message translates to:
+  /// **'To turn it off: {mission}.'**
+  String onboardingReadyMission(String mission);
+
+  /// No description provided for @onboardingReadyNoMission.
+  ///
+  /// In en, this message translates to:
+  /// **'One tap turns it off. You can add a mission any time.'**
+  String get onboardingReadyNoMission;
+
+  /// No description provided for @onboardingReadyFootnote.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the time, sound or mission whenever you like.'**
+  String get onboardingReadyFootnote;
+
+  /// No description provided for @onboardingReadyCta.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m ready'**
+  String get onboardingReadyCta;
+
+  /// No description provided for @onboardingReadyToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get onboardingReadyToday;
+
+  /// No description provided for @onboardingReadyTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow'**
+  String get onboardingReadyTomorrow;
 }
 
 class _AppLocalizationsDelegate

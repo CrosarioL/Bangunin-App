@@ -3,18 +3,24 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../app/di/providers.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/widgets/bangunin_mascot.dart';
-import '../../../../app/widgets/max_width_box.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/l10n_ext.dart';
+import '../../../../core/utils/time_format.dart';
+import '../../../alarms/domain/entities/alarm.dart';
+import '../../../alarms/presentation/widgets/alarm_card.dart';
+import '../../../alarms/presentation/widgets/alarm_sound_l10n.dart';
+import '../../../missions/domain/mission_type.dart';
+import '../../../missions/presentation/widgets/mission_experience.dart';
 import '../providers/onboarding_provider.dart';
 import 'onboarding_flow_page.dart';
 
-/// Step 1 — value proposition.
+/// Step 1 — the hook: ordinary alarms lose to a half-asleep thumb.
 class WelcomeStep extends StatelessWidget {
   const WelcomeStep({super.key, required this.onNext});
 
@@ -33,46 +39,8 @@ class WelcomeStep extends StatelessWidget {
   }
 }
 
-/// Step 2 — snooze-habit survey question.
-class SnoozeHabitStep extends ConsumerWidget {
-  const SnoozeHabitStep({super.key, required this.onNext});
-
-  final VoidCallback onNext;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = context.l10n;
-    final answers = ref.watch(onboardingAnswersProvider);
-    final options = [
-      l10n.snoozeHabitNever,
-      l10n.snoozeHabitSometimes,
-      l10n.snoozeHabitAlways,
-    ];
-
-    return OnboardingStepScaffold(
-      title: l10n.snoozeHabitQuestion,
-      ctaLabel: l10n.continueLabel,
-      ctaEnabled: answers.snoozeHabit != null,
-      onNext: onNext,
-      child: Column(
-        children: [
-          for (var i = 0; i < options.length; i++) ...[
-            SurveyOption(
-              label: options[i],
-              selected: answers.snoozeHabit == i,
-              onTap: () => ref
-                  .read(onboardingAnswersProvider.notifier)
-                  .setSnoozeHabit(i),
-            ),
-            const SizedBox(height: AppSpacing.md),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-/// Step 3 — wake goal time picker.
+/// Step 2 — the first alarm's time. Seconds into the app, the user is
+/// already setting tomorrow morning rather than answering a survey.
 class WakeGoalStep extends ConsumerWidget {
   const WakeGoalStep({super.key, required this.onNext});
 
@@ -117,38 +85,60 @@ class WakeGoalStep extends ConsumerWidget {
   }
 }
 
-/// Step 4 — multi-select of morning struggles.
-class StrugglesStep extends ConsumerWidget {
-  const StrugglesStep({super.key, required this.onNext});
+/// Step 3 — the alarm sound. Tapping a sound plays it, so the choice is made
+/// by ear, and the pick is logged at completion as a selection-rate signal.
+class SoundStep extends ConsumerStatefulWidget {
+  const SoundStep({super.key, required this.onNext});
 
   final VoidCallback onNext;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SoundStep> createState() => _SoundStepState();
+}
+
+class _SoundStepState extends ConsumerState<SoundStep> {
+  /// Custom sounds need an import or recording; that stays in the editor.
+  static final _sounds = AlarmSound.values
+      .where((s) => s != AlarmSound.custom)
+      .toList();
+
+  // Read eagerly: `ref` is unusable by the time dispose() runs.
+  late final _audio = ref.read(alarmAudioServiceProvider);
+
+  @override
+  void dispose() {
+    unawaited(_audio.stopPreview());
+    super.dispose();
+  }
+
+  void _select(AlarmSound sound) {
+    ref.read(onboardingAnswersProvider.notifier).setSound(sound);
+    unawaited(_audio.preview(sound));
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final answers = ref.watch(onboardingAnswersProvider);
-    final struggles = {
-      'dismiss_half_asleep': l10n.struggleDismissAsleep,
-      'stay_in_bed': l10n.struggleStayInBed,
-      'phone_in_bed': l10n.strugglePhoneInBed,
-      'no_routine': l10n.struggleNoRoutine,
-    };
+    final selected = ref.watch(onboardingAnswersProvider).sound;
 
     return OnboardingStepScaffold(
-      title: l10n.strugglesQuestion,
-      subtitle: l10n.strugglesSubtitle,
+      title: l10n.onboardingSoundTitle,
+      subtitle: l10n.onboardingSoundSubtitle,
       ctaLabel: l10n.continueLabel,
-      ctaEnabled: answers.struggles.isNotEmpty,
-      onNext: onNext,
+      onNext: () {
+        unawaited(_audio.stopPreview());
+        widget.onNext();
+      },
       child: Column(
         children: [
-          for (final entry in struggles.entries) ...[
+          for (final sound in _sounds) ...[
             SurveyOption(
-              label: entry.value,
-              selected: answers.struggles.contains(entry.key),
-              onTap: () => ref
-                  .read(onboardingAnswersProvider.notifier)
-                  .toggleStruggle(entry.key),
+              label: sound.localizedName(l10n),
+              icon: selected == sound
+                  ? Icons.volume_up_rounded
+                  : Icons.music_note_rounded,
+              selected: selected == sound,
+              onTap: () => _select(sound),
             ),
             const SizedBox(height: AppSpacing.md),
           ],
@@ -158,7 +148,62 @@ class StrugglesStep extends ConsumerWidget {
   }
 }
 
-/// Step 5 — notification permission prime + system prompt.
+/// Step 4 — the mission, the product's whole difference. Random Hunt is
+/// pre-selected and badged: it needs no setup and it's the one people film.
+class MissionStep extends ConsumerWidget {
+  const MissionStep({super.key, required this.onNext});
+
+  final VoidCallback onNext;
+
+  /// Missions that work with zero setup. Object Hunt needs a reference photo
+  /// registered first, and pushups need the phone propped on the floor, so
+  /// both are left for the editor.
+  static const missions = [
+    MissionType.randomHunt,
+    MissionType.squats,
+    MissionType.skyPhoto,
+    MissionType.makeBed,
+    MissionType.none,
+  ];
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final selected = ref.watch(onboardingAnswersProvider).mission;
+
+    return OnboardingStepScaffold(
+      title: l10n.onboardingMissionTitle,
+      subtitle: l10n.onboardingMissionSubtitle,
+      ctaLabel: l10n.continueLabel,
+      onNext: onNext,
+      child: Column(
+        children: [
+          for (final mission in missions) ...[
+            SurveyOption(
+              label: mission.localizedName(l10n),
+              description: mission.localizedDescription(l10n),
+              icon: mission.icon,
+              accent: mission == MissionType.none
+                  ? null
+                  : mission.experienceColor,
+              badge: mission == MissionType.randomHunt
+                  ? l10n.onboardingMissionBadge
+                  : null,
+              selected: selected == mission,
+              onTap: () => ref
+                  .read(onboardingAnswersProvider.notifier)
+                  .setMission(mission),
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Step 5 — notification permission, asked only now that there is an alarm
+/// it is obviously for.
 class NotificationStep extends ConsumerStatefulWidget {
   const NotificationStep({super.key, required this.onNext});
 
@@ -208,127 +253,111 @@ class _NotificationStepState extends ConsumerState<NotificationStep> {
   }
 }
 
-/// Step 6 — "building your plan" loader with sequential checkmarks.
-class PersonalizingStep extends ConsumerStatefulWidget {
-  const PersonalizingStep({super.key, required this.onDone});
+/// Step 6 — "Besok jam 06:30." The alarm exists; say exactly when it rings
+/// and what it will take to stop it, then hand off to the paywall.
+class ReadyStep extends ConsumerWidget {
+  const ReadyStep({super.key, required this.onNext, this.now});
 
-  final VoidCallback onDone;
+  final VoidCallback onNext;
 
-  @override
-  ConsumerState<PersonalizingStep> createState() => _PersonalizingStepState();
-}
-
-class _PersonalizingStepState extends ConsumerState<PersonalizingStep> {
-  int _completed = 0;
-  Timer? _timer;
-  bool _started = false;
+  /// Injectable clock for tests.
+  final DateTime? now;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_started) return;
-    _started = true;
-    _timer = Timer.periodic(const Duration(milliseconds: 800), (timer) {
-      if (!mounted) return;
-      setState(() => _completed++);
-      Haptics.tap();
-      if (_completed >= 3) {
-        timer.cancel();
-        Future<void>.delayed(const Duration(milliseconds: 600), () {
-          if (mounted) widget.onDone();
-        });
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
-    final name = ref.watch(onboardingAnswersProvider).name.trim();
-    final title = name.isNotEmpty
-        ? l10n.personalizingTitleNamed(name)
-        : l10n.personalizingTitle;
-    final items = [
-      l10n.personalizingItem1,
-      l10n.personalizingItem2,
-      l10n.personalizingItem3,
-    ];
+    final answers = ref.watch(onboardingAnswersProvider);
+    final from = now ?? DateTime.now();
+    final firstRing = answers
+        .toAlarm(Alarm(id: '', hour: 0, minute: 0, createdAt: from))
+        .nextTrigger(from);
 
-    return MaxWidthBox(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xl),
+    final time = TimeFormat.clock(
+      context,
+      answers.wakeGoalHour,
+      answers.wakeGoalMinute,
+    );
+    final when = _dayLabel(context, from, firstRing);
+    final mission = answers.mission;
+    final missionLine = switch (mission) {
+      MissionType.none => l10n.onboardingReadyNoMission,
+      MissionType.randomHunt => l10n.onboardingReadyHunt,
+      _ => l10n.onboardingReadyMission(mission.localizedName(l10n)),
+    };
+
+    return OnboardingStepScaffold(
+      title: l10n.onboardingReadyTitle(when, time),
+      subtitle: missionLine,
+      ctaLabel: l10n.onboardingReadyCta,
+      onNext: () {
+        Haptics.success();
+        onNext();
+      },
+      child: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Center(
-              child: SizedBox(
-                width: 56,
-                height: 56,
-                child: CircularProgressIndicator(
-                  color: AppColors.primary,
-                  backgroundColor: theme.colorScheme.surfaceContainerHighest,
-                ),
+            const BanguninMascot(pose: MascotPose.crowing, size: 180),
+            const SizedBox(height: AppSpacing.lg),
+            Text(
+              l10n.onboardingReadyFootnote,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodySmall!.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
-            const SizedBox(height: AppSpacing.xxl),
-            Text(title, style: theme.textTheme.headlineSmall),
-            const SizedBox(height: AppSpacing.xl),
-            for (var i = 0; i < items.length; i++) ...[
-              Row(
-                children: [
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 250),
-                    transitionBuilder: (child, animation) =>
-                        ScaleTransition(scale: animation, child: child),
-                    child: i < _completed
-                        ? const Icon(
-                            Icons.check_circle_rounded,
-                            key: ValueKey('done'),
-                            color: AppColors.success,
-                          )
-                        : Icon(
-                            Icons.circle_outlined,
-                            key: const ValueKey('pending'),
-                            color: theme.colorScheme.outline,
-                          ),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Text(items[i], style: theme.textTheme.bodyLarge),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.lg),
-            ],
           ],
         ),
       ),
     );
   }
+
+  String _dayLabel(BuildContext context, DateTime from, DateTime ring) {
+    final l10n = context.l10n;
+    final today = DateTime(from.year, from.month, from.day);
+    final days = DateTime(
+      ring.year,
+      ring.month,
+      ring.day,
+    ).difference(today).inDays;
+    if (days == 0) return l10n.onboardingReadyToday;
+    if (days == 1) return l10n.onboardingReadyTomorrow;
+    return DateFormat.EEEE(
+      Localizations.localeOf(context).toLanguageTag(),
+    ).format(ring);
+  }
 }
 
-/// A selectable survey row shared by the question steps.
+/// A selectable row shared by the choice steps.
 class SurveyOption extends StatelessWidget {
   const SurveyOption({
     super.key,
     required this.label,
     required this.selected,
     required this.onTap,
+    this.description,
+    this.icon,
+    this.accent,
+    this.badge,
   });
 
   final String label;
   final bool selected;
   final VoidCallback onTap;
+  final String? description;
+  final IconData? icon;
+
+  /// Tint for the icon; the selection colour stays the brand primary.
+  final Color? accent;
+
+  /// Short pill beside the label, e.g. "Most fun".
+  final String? badge;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final iconColor = accent ?? AppColors.primary;
     return GestureDetector(
       onTap: () {
         Haptics.selection();
@@ -358,11 +387,79 @@ class SurveyOption extends StatelessWidget {
             ),
           ],
         ),
-        child: Text(
-          label,
-          style: theme.textTheme.titleSmall!.copyWith(
-            color: selected ? AppColors.primary : theme.colorScheme.onSurface,
-          ),
+        child: Row(
+          children: [
+            if (icon != null) ...[
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: iconColor),
+              ),
+              const SizedBox(width: AppSpacing.md),
+            ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          label,
+                          style: theme.textTheme.titleSmall!.copyWith(
+                            color: selected
+                                ? AppColors.primary
+                                : theme.colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                      if (badge != null) ...[
+                        const SizedBox(width: AppSpacing.sm),
+                        _Badge(text: badge!),
+                      ],
+                    ],
+                  ),
+                  if (description != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      description!,
+                      style: theme.textTheme.bodySmall!.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Badge extends StatelessWidget {
+  const _Badge({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: AppColors.primary,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusCapsule),
+      ),
+      child: Text(
+        text,
+        style: Theme.of(context).textTheme.labelSmall!.copyWith(
+          color: AppColors.nightTop,
+          fontWeight: FontWeight.w800,
         ),
       ),
     );
