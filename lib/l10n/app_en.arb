@@ -56,6 +56,28 @@
   "missionMakeBedDescription": "Take a photo of your made bed.",
   "missionSquatsDescription": "Place your phone securely and complete squats.",
   "missionPushupsDescription": "Place your phone securely and complete pushups.",
+  "missionRandomHunt": "Find It",
+  "missionRandomHuntDescription": "A random object is picked when it rings. Go find it. No setup.",
+  "huntFind": "FIND: {object}",
+  "@huntFind": {
+    "placeholders": {
+      "object": {"type": "String"}
+    }
+  },
+  "huntInstruction": "Point the camera at it to stop the alarm.",
+  "huntReroll": "Don't have it? Swap ({left} left)",
+  "@huntReroll": {
+    "placeholders": {
+      "left": {"type": "int"}
+    }
+  },
+  "huntNoRerolls": "No swaps left. Go find it!",
+  "photoFailTargetNotFound": "Couldn't spot the {object} yet. Get it in the frame",
+  "@photoFailTargetNotFound": {
+    "placeholders": {
+      "object": {"type": "String"}
+    }
+  },
   "tryMission": "Try mission",
   "missionPreviewTitle": "Mission preview",
   "missionPreviewSuccess": "Preview complete — this did not affect your alarm or streak.",

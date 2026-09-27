@@ -1,4 +1,8 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/services.dart';
+import 'package:google_mlkit_image_labeling/google_mlkit_image_labeling.dart';
 
 import '../domain/mission_type.dart';
 
@@ -91,4 +95,33 @@ class SceneClassifier {
       return const SceneEvidence.unsupported();
     }
   }
+
+  /// Object labels for Random Hunt, lower-cased, from whichever engine this
+  /// device has: Apple Vision on iOS, ML Kit's on-device labeler on Android.
+  ///
+  /// Kept separate from [inspect] on purpose. The sky/grass/bed missions were
+  /// calibrated against Vision only; letting ML Kit's different taxonomy veto
+  /// them on Android would reject real beds (ML Kit has no `bed` label).
+  Future<SceneEvidence> objectLabels(String path) async {
+    final vision = await inspect(path);
+    if (vision.supported) return _lowerCased(vision.labels);
+    if (!Platform.isAndroid) return const SceneEvidence.unsupported();
+
+    final labeler = ImageLabeler(
+      options: ImageLabelerOptions(confidenceThreshold: 0.3),
+    );
+    try {
+      final found = await labeler.processImage(InputImage.fromFilePath(path));
+      return _lowerCased({for (final l in found) l.label: l.confidence});
+    } on Exception {
+      return const SceneEvidence.unsupported();
+    } finally {
+      unawaited(labeler.close());
+    }
+  }
+
+  SceneEvidence _lowerCased(Map<String, double> labels) => SceneEvidence(
+    supported: true,
+    labels: {for (final e in labels.entries) e.key.toLowerCase(): e.value},
+  );
 }

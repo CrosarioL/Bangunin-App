@@ -102,6 +102,7 @@ class _MissionPickerSheet extends StatelessWidget {
   String _description(MissionType mission, AppLocalizations l10n) =>
       switch (mission) {
         MissionType.none => l10n.missionNoneDescription,
+        MissionType.randomHunt => l10n.missionRandomHuntDescription,
         MissionType.objectHunt => l10n.missionObjectHuntDescription,
         MissionType.skyPhoto => l10n.missionSkyPhotoDescription,
         MissionType.grassPhoto => l10n.missionGrassPhotoDescription,

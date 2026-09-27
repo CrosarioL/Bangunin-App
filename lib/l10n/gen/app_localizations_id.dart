@@ -154,6 +154,35 @@ class AppLocalizationsId extends AppLocalizations {
       'Letakkan HP dengan aman dan selesaikan push-up.';
 
   @override
+  String get missionRandomHunt => 'Cari Benda';
+
+  @override
+  String get missionRandomHuntDescription =>
+      'Bendanya dipilih acak saat alarm bunyi. Cari sampai ketemu. Tanpa setup.';
+
+  @override
+  String huntFind(String object) {
+    return 'CARI: $object';
+  }
+
+  @override
+  String get huntInstruction =>
+      'Arahkan kamera ke bendanya untuk matikan alarm.';
+
+  @override
+  String huntReroll(int left) {
+    return 'Nggak punya? Ganti benda (sisa $left)';
+  }
+
+  @override
+  String get huntNoRerolls => 'Jatah ganti habis. Cari sampai ketemu!';
+
+  @override
+  String photoFailTargetNotFound(String object) {
+    return '$object belum kelihatan. Masukkan ke dalam frame';
+  }
+
+  @override
   String get tryMission => 'Coba misi';
 
   @override

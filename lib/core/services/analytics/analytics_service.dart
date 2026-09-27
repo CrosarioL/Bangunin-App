@@ -46,4 +46,6 @@ abstract final class AnalyticsEvents {
   static const missionStarted = 'mission_started';
   static const missionCompleted = 'mission_completed';
   static const missionFailed = 'mission_failed';
+  static const huntTargetAssigned = 'hunt_target_assigned';
+  static const huntRerolled = 'hunt_rerolled';
 }

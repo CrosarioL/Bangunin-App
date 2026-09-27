@@ -155,6 +155,34 @@ class AppLocalizationsEn extends AppLocalizations {
       'Place your phone securely and complete pushups.';
 
   @override
+  String get missionRandomHunt => 'Find It';
+
+  @override
+  String get missionRandomHuntDescription =>
+      'A random object is picked when it rings. Go find it. No setup.';
+
+  @override
+  String huntFind(String object) {
+    return 'FIND: $object';
+  }
+
+  @override
+  String get huntInstruction => 'Point the camera at it to stop the alarm.';
+
+  @override
+  String huntReroll(int left) {
+    return 'Don\'t have it? Swap ($left left)';
+  }
+
+  @override
+  String get huntNoRerolls => 'No swaps left. Go find it!';
+
+  @override
+  String photoFailTargetNotFound(String object) {
+    return 'Couldn\'t spot the $object yet. Get it in the frame';
+  }
+
+  @override
   String get tryMission => 'Try mission';
 
   @override

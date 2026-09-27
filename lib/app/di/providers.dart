@@ -91,7 +91,8 @@ final alarmSchedulerProvider = Provider<AlarmScheduler>(
 );
 
 /// Apple Vision scene understanding. Reports unsupported on Android and in
-/// tests, where the verifier falls back to pixel heuristics alone.
+/// tests, where the verifier falls back to pixel heuristics alone — except
+/// Random Hunt's object labels, which use ML Kit on Android.
 final sceneClassifierProvider = Provider<SceneClassifier>(
   (ref) => SceneClassifier(),
 );

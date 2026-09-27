@@ -29,6 +29,7 @@ Map<String, dynamic> _$WakeRecordToJson(_WakeRecord instance) =>
 
 const _$MissionTypeEnumMap = {
   MissionType.none: 'none',
+  MissionType.randomHunt: 'randomHunt',
   MissionType.objectHunt: 'objectHunt',
   MissionType.skyPhoto: 'skyPhoto',
   MissionType.grassPhoto: 'grassPhoto',

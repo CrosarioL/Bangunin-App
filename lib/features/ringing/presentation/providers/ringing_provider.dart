@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
@@ -6,6 +7,7 @@ import 'package:uuid/uuid.dart';
 import '../../../../app/di/providers.dart';
 import '../../../../core/services/analytics/analytics_service.dart';
 import '../../../alarms/domain/entities/alarm.dart';
+import '../../../missions/domain/hunt_target.dart';
 import '../../../stats/domain/entities/wake_record.dart';
 
 /// Watches the clock while the app is foregrounded and reports alarms that
@@ -68,6 +70,19 @@ class RingingSession {
   );
 }
 
+/// The object a Random Hunt ring is asking for.
+class HuntAssignment {
+  const HuntAssignment({
+    required this.alarmId,
+    required this.target,
+    required this.rerollsLeft,
+  });
+
+  final String alarmId;
+  final HuntTarget target;
+  final int rerollsLeft;
+}
+
 final ringingSessionProvider =
     NotifierProvider<RingingSessionNotifier, RingingSession?>(
       RingingSessionNotifier.new,
@@ -81,8 +96,53 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
   /// snooze round-trips. Reset when the wake completes.
   final _snoozeCounts = <String, int>{};
 
+  /// Random Hunt target for the ringing alarm. Held here rather than in the
+  /// mission page so backing out and re-entering the mission doesn't roll a
+  /// fresh object for free — only [rerollHunt] does, and it is capped.
+  HuntAssignment? _hunt;
+
+  final _random = math.Random();
+
   @override
   RingingSession? build() => null;
+
+  /// The object this ring asks for, assigned on first request.
+  HuntAssignment huntAssignment(String alarmId) {
+    final existing = _hunt;
+    if (existing != null && existing.alarmId == alarmId) return existing;
+    final assignment = HuntAssignment(
+      alarmId: alarmId,
+      target: HuntTargets.pick(_random),
+      rerollsLeft: HuntTargets.maxRerolls,
+    );
+    _hunt = assignment;
+    _logHunt(AnalyticsEvents.huntTargetAssigned, assignment);
+    return assignment;
+  }
+
+  /// Swaps in a different object, or returns null once rerolls run out.
+  HuntAssignment? rerollHunt(String alarmId) {
+    final current = huntAssignment(alarmId);
+    if (current.rerollsLeft <= 0) return null;
+    final next = HuntAssignment(
+      alarmId: alarmId,
+      target: HuntTargets.pick(_random, exclude: {current.target.id}),
+      rerollsLeft: current.rerollsLeft - 1,
+    );
+    _hunt = next;
+    _logHunt(AnalyticsEvents.huntRerolled, next, from: current.target.id);
+    return next;
+  }
+
+  void _logHunt(String event, HuntAssignment assignment, {String? from}) {
+    unawaited(
+      ref.read(analyticsProvider).logEvent(event, {
+        'target': assignment.target.id,
+        'from': ?from,
+        'rerolls_left': assignment.rerollsLeft,
+      }),
+    );
+  }
 
   /// Starts (or resumes) ringing for [alarmId]. Safe to call twice.
   Future<Alarm?> begin(String alarmId) async {
@@ -156,6 +216,7 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
 
     final alarm = session.alarm;
     _snoozeCounts.remove(alarm.id);
+    _hunt = null;
     // The wake is done, so any snooze the scheduler is holding for re-arming
     // is stale — drop it before the resync below calls reschedule().
     ref.read(alarmSchedulerProvider).clearPendingSnooze();

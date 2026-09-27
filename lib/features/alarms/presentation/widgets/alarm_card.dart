@@ -168,6 +168,7 @@ class _MissionChip extends StatelessWidget {
 extension MissionTypeL10n on MissionType {
   String localizedName(AppLocalizations l10n) => switch (this) {
     MissionType.none => l10n.missionNone,
+    MissionType.randomHunt => l10n.missionRandomHunt,
     MissionType.objectHunt => l10n.missionObjectHunt,
     MissionType.skyPhoto => l10n.missionSkyPhoto,
     MissionType.grassPhoto => l10n.missionGrassPhoto,

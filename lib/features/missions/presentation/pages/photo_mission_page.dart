@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,6 +18,7 @@ import '../../../alarms/domain/entities/alarm.dart';
 import '../../../alarms/presentation/widgets/alarm_card.dart';
 import '../../../ringing/presentation/providers/ringing_provider.dart';
 import '../../data/photo_mission_verifier.dart';
+import '../../domain/hunt_target.dart';
 import '../../domain/mission_type.dart';
 import '../widgets/mission_camera.dart';
 import '../widgets/mission_experience.dart';
@@ -56,6 +58,9 @@ class _PhotoMissionPageState extends ConsumerState<PhotoMissionPage> {
     unawaited(_load());
   }
 
+  /// Random Hunt only: the object this attempt is looking for.
+  HuntAssignment? _hunt;
+
   Future<void> _load() async {
     final alarm = widget.isPreview
         ? Alarm(
@@ -67,7 +72,46 @@ class _PhotoMissionPageState extends ConsumerState<PhotoMissionPage> {
             createdAt: DateTime.now(),
           )
         : await ref.read(alarmRepositoryProvider).getById(widget.alarmId!);
-    if (mounted) setState(() => _alarm = alarm);
+    HuntAssignment? hunt;
+    if (alarm?.missionType == MissionType.randomHunt) {
+      // A preview has no ringing session to hold the target, so it rolls its
+      // own. A real ring asks the session, so re-entering keeps the object.
+      hunt = widget.isPreview
+          ? HuntAssignment(
+              alarmId: alarm!.id,
+              target: HuntTargets.pick(math.Random()),
+              rerollsLeft: HuntTargets.maxRerolls,
+            )
+          : ref.read(ringingSessionProvider.notifier).huntAssignment(alarm!.id);
+    }
+    if (mounted) {
+      setState(() {
+        _alarm = alarm;
+        _hunt = hunt;
+      });
+    }
+  }
+
+  void _reroll() {
+    final current = _hunt;
+    if (current == null || current.rerollsLeft <= 0) return;
+    Haptics.selection();
+    final next = widget.isPreview
+        ? HuntAssignment(
+            alarmId: current.alarmId,
+            target: HuntTargets.pick(
+              math.Random(),
+              exclude: {current.target.id},
+            ),
+            rerollsLeft: current.rerollsLeft - 1,
+          )
+        : ref.read(ringingSessionProvider.notifier).rerollHunt(current.alarmId);
+    if (next == null) return;
+    setState(() {
+      _hunt = next;
+      _state = _VerifyState.idle;
+      _failure = null;
+    });
   }
 
   Future<void> _onCaptured(String path) async {
@@ -75,13 +119,15 @@ class _PhotoMissionPageState extends ConsumerState<PhotoMissionPage> {
     if (alarm == null) return;
     setState(() => _state = _VerifyState.verifying);
 
-    final verification = await ref
-        .read(photoMissionVerifierProvider)
-        .verify(
-          alarm.missionType,
-          path,
-          referencePath: alarm.objectReferencePath,
-        );
+    final verifier = ref.read(photoMissionVerifierProvider);
+    final hunt = _hunt;
+    final verification = hunt != null
+        ? await verifier.verifyHunt(hunt.target, path)
+        : await verifier.verify(
+            alarm.missionType,
+            path,
+            referencePath: alarm.objectReferencePath,
+          );
     // Nothing in the product ever shows this capture again (there's no
     // gallery), and a failed attempt lets the user retake immediately, so
     // the file is disposable the moment verification finishes. Without
@@ -107,6 +153,7 @@ class _PhotoMissionPageState extends ConsumerState<PhotoMissionPage> {
         ref.read(analyticsProvider).logEvent(AnalyticsEvents.missionFailed, {
           'mission': alarm.missionType.name,
           'reason': verification.failure?.name ?? 'unknown',
+          'target': ?hunt?.target.id,
         }),
       );
       setState(() {
@@ -118,17 +165,21 @@ class _PhotoMissionPageState extends ConsumerState<PhotoMissionPage> {
 
   /// Deliberately hedged wording. These checks are heuristics, not proof, so
   /// they say "we couldn't verify", never "that is not grass".
-  String _failureMessage(AppLocalizations l10n) => switch (_failure) {
-    PhotoFailure.tooDark => l10n.photoFailTooDark,
-    PhotoFailure.tooBright => l10n.photoFailTooBright,
-    PhotoFailure.notEnoughTexture => l10n.photoFailNotEnoughDetail,
-    PhotoFailure.surfaceDoesNotLookRight => l10n.photoFailSurface,
-    PhotoFailure.sceneNotLive => l10n.photoFailNotLive,
-    PhotoFailure.doesNotMatchReference => l10n.photoFailNoMatch,
-    PhotoFailure.noHandVisible => l10n.photoFailNoHand,
-    PhotoFailure.missingReference => l10n.photoFailNoReference,
-    PhotoFailure.invalidImage || null => l10n.missionPhotoFailed,
-  };
+  String _failureMessage(BuildContext context, AppLocalizations l10n) =>
+      switch (_failure) {
+        PhotoFailure.targetNotFound => l10n.photoFailTargetNotFound(
+          _huntName(context) ?? '',
+        ),
+        PhotoFailure.tooDark => l10n.photoFailTooDark,
+        PhotoFailure.tooBright => l10n.photoFailTooBright,
+        PhotoFailure.notEnoughTexture => l10n.photoFailNotEnoughDetail,
+        PhotoFailure.surfaceDoesNotLookRight => l10n.photoFailSurface,
+        PhotoFailure.sceneNotLive => l10n.photoFailNotLive,
+        PhotoFailure.doesNotMatchReference => l10n.photoFailNoMatch,
+        PhotoFailure.noHandVisible => l10n.photoFailNoHand,
+        PhotoFailure.missingReference => l10n.photoFailNoReference,
+        PhotoFailure.invalidImage || null => l10n.missionPhotoFailed,
+      };
 
   Future<void> _deleteQuietly(String path) async {
     try {
@@ -164,7 +215,7 @@ class _PhotoMissionPageState extends ConsumerState<PhotoMissionPage> {
     final status = switch (_state) {
       _VerifyState.verifying => l10n.verifyingPhoto,
       _VerifyState.passed => l10n.poseGuidanceComplete,
-      _VerifyState.failed => _failureMessage(l10n),
+      _VerifyState.failed => _failureMessage(context, l10n),
       _VerifyState.idle => null,
     };
 
@@ -210,26 +261,41 @@ class _PhotoMissionPageState extends ConsumerState<PhotoMissionPage> {
                       left: AppSpacing.lg,
                       right: AppSpacing.lg,
                       bottom: 126,
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 250),
-                        child: MissionGlassPanel(
-                          key: ValueKey(_state),
-                          mission: alarm.missionType,
-                          title: _instruction(alarm.missionType, l10n),
-                          subtitle: _subtitle(alarm.missionType, context),
-                          status: status,
-                          statusColor: switch (_state) {
-                            _VerifyState.failed => AppColors.danger,
-                            _VerifyState.passed => AppColors.success,
-                            _ => mission?.experienceColor,
-                          },
-                          statusIcon: switch (_state) {
-                            _VerifyState.verifying =>
-                              Icons.hourglass_top_rounded,
-                            _VerifyState.failed => Icons.error_rounded,
-                            _ => Icons.check_circle_rounded,
-                          },
-                        ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 250),
+                            child: MissionGlassPanel(
+                              key: ValueKey((_state, _hunt?.target.id)),
+                              mission: alarm.missionType,
+                              icon: _hunt?.target.icon,
+                              title: _instruction(alarm.missionType, context),
+                              subtitle: _subtitle(alarm.missionType, context),
+                              status: status,
+                              statusColor: switch (_state) {
+                                _VerifyState.failed => AppColors.danger,
+                                _VerifyState.passed => AppColors.success,
+                                _ => mission?.experienceColor,
+                              },
+                              statusIcon: switch (_state) {
+                                _VerifyState.verifying =>
+                                  Icons.hourglass_top_rounded,
+                                _VerifyState.failed => Icons.error_rounded,
+                                _ => Icons.check_circle_rounded,
+                              },
+                            ),
+                          ),
+                          if (_hunt case final hunt?) ...[
+                            const SizedBox(height: AppSpacing.sm),
+                            _RerollButton(
+                              rerollsLeft: hunt.rerollsLeft,
+                              onPressed: _state == _VerifyState.verifying
+                                  ? null
+                                  : _reroll,
+                            ),
+                          ],
+                        ],
                       ),
                     ),
                   ],
@@ -239,18 +305,27 @@ class _PhotoMissionPageState extends ConsumerState<PhotoMissionPage> {
     );
   }
 
-  String _instruction(MissionType mission, AppLocalizations l10n) =>
-      switch (mission) {
-        MissionType.objectHunt => l10n.photoInstructionObject,
-        MissionType.skyPhoto => l10n.photoInstructionSky,
-        MissionType.grassPhoto => l10n.photoInstructionGrass,
-        MissionType.makeBed => l10n.photoInstructionBed,
-        _ => '',
-      };
+  String? _huntName(BuildContext context) =>
+      _hunt?.target.name(Localizations.localeOf(context).languageCode);
+
+  String _instruction(MissionType mission, BuildContext context) {
+    final l10n = context.l10n;
+    return switch (mission) {
+      MissionType.randomHunt => l10n.huntFind(
+        (_huntName(context) ?? '').toUpperCase(),
+      ),
+      MissionType.objectHunt => l10n.photoInstructionObject,
+      MissionType.skyPhoto => l10n.photoInstructionSky,
+      MissionType.grassPhoto => l10n.photoInstructionGrass,
+      MissionType.makeBed => l10n.photoInstructionBed,
+      _ => '',
+    };
+  }
 
   String _subtitle(MissionType mission, BuildContext context) {
     final id = Localizations.localeOf(context).languageCode == 'id';
     return switch (mission) {
+      MissionType.randomHunt => context.l10n.huntInstruction,
       MissionType.skyPhoto =>
         id
             ? 'Cari langit pagi yang nyata dan terang.'
@@ -269,5 +344,37 @@ class _PhotoMissionPageState extends ConsumerState<PhotoMissionPage> {
             : 'Match the angle and distance of your reference.',
       _ => '',
     };
+  }
+}
+
+/// "Don't have it? Swap" — the Random Hunt escape hatch for an object the
+/// user genuinely doesn't own. Capped, so it can't shop for the easy one.
+class _RerollButton extends StatelessWidget {
+  const _RerollButton({required this.rerollsLeft, required this.onPressed});
+
+  final int rerollsLeft;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final canReroll = rerollsLeft > 0;
+    return TextButton.icon(
+      onPressed: canReroll ? onPressed : null,
+      style: TextButton.styleFrom(
+        foregroundColor: Colors.white,
+        backgroundColor: AppColors.nightTop.withValues(alpha: .62),
+        disabledForegroundColor: Colors.white60,
+        shape: const StadiumBorder(),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg,
+          vertical: AppSpacing.sm,
+        ),
+      ),
+      icon: Icon(canReroll ? Icons.shuffle_rounded : Icons.search_rounded),
+      label: Text(
+        canReroll ? l10n.huntReroll(rerollsLeft) : l10n.huntNoRerolls,
+      ),
+    );
   }
 }

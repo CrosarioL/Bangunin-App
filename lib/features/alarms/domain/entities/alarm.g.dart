@@ -56,6 +56,7 @@ Map<String, dynamic> _$AlarmToJson(_Alarm instance) => <String, dynamic>{
 
 const _$MissionTypeEnumMap = {
   MissionType.none: 'none',
+  MissionType.randomHunt: 'randomHunt',
   MissionType.objectHunt: 'objectHunt',
   MissionType.skyPhoto: 'skyPhoto',
   MissionType.grassPhoto: 'grassPhoto',

@@ -374,6 +374,48 @@ abstract class AppLocalizations {
   /// **'Place your phone securely and complete pushups.'**
   String get missionPushupsDescription;
 
+  /// No description provided for @missionRandomHunt.
+  ///
+  /// In en, this message translates to:
+  /// **'Find It'**
+  String get missionRandomHunt;
+
+  /// No description provided for @missionRandomHuntDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'A random object is picked when it rings. Go find it. No setup.'**
+  String get missionRandomHuntDescription;
+
+  /// No description provided for @huntFind.
+  ///
+  /// In en, this message translates to:
+  /// **'FIND: {object}'**
+  String huntFind(String object);
+
+  /// No description provided for @huntInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at it to stop the alarm.'**
+  String get huntInstruction;
+
+  /// No description provided for @huntReroll.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t have it? Swap ({left} left)'**
+  String huntReroll(int left);
+
+  /// No description provided for @huntNoRerolls.
+  ///
+  /// In en, this message translates to:
+  /// **'No swaps left. Go find it!'**
+  String get huntNoRerolls;
+
+  /// No description provided for @photoFailTargetNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t spot the {object} yet. Get it in the frame'**
+  String photoFailTargetNotFound(String object);
+
   /// No description provided for @tryMission.
   ///
   /// In en, this message translates to:

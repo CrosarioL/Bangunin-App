@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 
+import '../domain/hunt_target.dart';
 import '../domain/mission_type.dart';
 import 'scene_classifier.dart';
 
@@ -40,6 +41,9 @@ enum PhotoFailure {
 
   /// Touch Grass: the surface looks right but no hand is reaching into it.
   noHandVisible,
+
+  /// Random Hunt: the classifier did not see the requested object.
+  targetNotFound,
 }
 
 /// Outcome of verifying a mission photo.
@@ -137,11 +141,58 @@ class PhotoMissionVerifier {
           return const PhotoVerification.fail(PhotoFailure.invalidImage);
         }
         return _verifyObject(photo, reference);
+      case MissionType.randomHunt:
+      // Needs the assigned target; see [verifyHunt].
       case MissionType.none:
       case MissionType.squats:
       case MissionType.pushups:
         return const PhotoVerification.fail(PhotoFailure.invalidImage);
     }
+  }
+
+  /// Random Hunt: did the on-device classifier see [target]?
+  ///
+  /// Fails open where no classifier is available (an old OS, a labeler
+  /// error): with nothing to judge by, rejecting would trap the user under a
+  /// ringing alarm, which Alarmy's own launch data shows costs more users
+  /// than the occasional easy pass. Exposure is still checked first, since
+  /// that is the one failure the user can fix instantly.
+  Future<PhotoVerification> verifyHunt(
+    HuntTarget target,
+    String photoPath,
+  ) async {
+    final photo = await _load(photoPath);
+    if (photo == null) {
+      return const PhotoVerification.fail(PhotoFailure.invalidImage);
+    }
+    final brightness = _meanBrightness(photo);
+    if (brightness < 30) {
+      return const PhotoVerification.fail(PhotoFailure.tooDark);
+    }
+    if (brightness > 240) {
+      return const PhotoVerification.fail(PhotoFailure.tooBright);
+    }
+
+    final classifier = sceneClassifier;
+    if (classifier == null) return const PhotoVerification.pass();
+    final evidence = await classifier.objectLabels(photoPath);
+    if (!evidence.supported) return const PhotoVerification.pass();
+
+    return target.confidenceIn(evidence.labels) >= huntConfidence
+        ? const PhotoVerification.pass()
+        : const PhotoVerification.fail(PhotoFailure.targetNotFound);
+  }
+
+  /// Lower than [SceneClassifier.supportingConfidence]: a cup half out of
+  /// frame at 5am should still count. Starting value, not calibrated.
+  static const huntConfidence = 0.3;
+
+  double _meanBrightness(img.Image photo) {
+    var total = 0.0;
+    for (final p in photo) {
+      total += (p.r + p.g + p.b) / 3;
+    }
+    return total / (photo.width * photo.height);
   }
 
   /// Reconciles Apple Vision's opinion with the pixel heuristics.

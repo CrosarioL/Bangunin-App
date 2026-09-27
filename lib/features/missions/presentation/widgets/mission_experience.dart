@@ -13,7 +13,7 @@ extension MissionExperience on MissionType {
     MissionType.skyPhoto || MissionType.squats => AppColors.cyan,
     MissionType.grassPhoto => AppColors.grass,
     MissionType.makeBed => AppColors.sunsetViolet,
-    MissionType.objectHunt => AppColors.primary,
+    MissionType.objectHunt || MissionType.randomHunt => AppColors.primary,
     MissionType.pushups => AppColors.sunsetCoral,
     MissionType.none => AppColors.cyan,
   };
@@ -26,6 +26,7 @@ extension MissionExperience on MissionType {
       MissionType.makeBed =>
         id ? 'Tunjukkan seluruh kasur!' : 'Show the whole bed!',
       MissionType.objectHunt => id ? 'Cocokkan bendanya!' : 'Match the object!',
+      MissionType.randomHunt => id ? 'Ayo cari!' : 'Go find it!',
       MissionType.squats =>
         id ? 'Seluruh badan terlihat!' : 'Keep your full body visible!',
       MissionType.pushups =>
@@ -86,8 +87,11 @@ class MissionGlassPanel extends StatelessWidget {
     this.status,
     this.statusColor,
     this.statusIcon = Icons.check_circle_rounded,
+    this.icon,
   });
 
+  /// Overrides the mission's own icon, e.g. with the Random Hunt target's.
+  final IconData? icon;
   final MissionType mission;
   final String title;
   final String? subtitle;
@@ -128,7 +132,7 @@ class MissionGlassPanel extends StatelessWidget {
                   color: accent.withValues(alpha: .16),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(mission.icon, color: accent, size: 28),
+                child: Icon(icon ?? mission.icon, color: accent, size: 28),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
