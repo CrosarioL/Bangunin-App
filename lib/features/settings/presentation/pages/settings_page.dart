@@ -21,6 +21,7 @@ import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/l10n_ext.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../../paywall/presentation/providers/premium_provider.dart';
+import '../../../tutorial/presentation/providers/tutorial_provider.dart';
 
 /// Native (untranslated) names for each shipped locale — a language picker
 /// shows every option in its own language, not the current UI language.
@@ -187,15 +188,33 @@ class SettingsPage extends ConsumerWidget {
                   ),
                 ],
               ),
+              // Debug builds only: never ship a developer menu to users.
+              if (kDebugMode) ...[
+                const SizedBox(height: AppSpacing.lg),
+                _Section(
+                  title: 'DEVELOPER TOOLS',
+                  children: [
+                    _SettingsTile(
+                      icon: Icons.refresh_rounded,
+                      title: 'Restart Tutorial',
+                      onTap: () {
+                        ref.read(tutorialCompletedProvider.notifier).reset();
+                        context.go(Routes.home);
+                      },
+                    ),
+                  ],
+                ),
+              ],
               const SizedBox(height: AppSpacing.xl),
               Center(
                 child: Text(
-                  l10n.appVersion('1.0.0'),
+                  l10n.appVersion('1.0.1'),
                   style: theme.textTheme.bodySmall!.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
               ),
+              const SizedBox(height: 120),
             ],
           ),
         ),

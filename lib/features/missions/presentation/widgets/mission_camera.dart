@@ -175,7 +175,7 @@ class _MissionCameraState extends State<MissionCamera>
               left: AppSpacing.xl,
               right: AppSpacing.xl,
               top: 78,
-              bottom: 176,
+              bottom: 246,
               child: MissionGuideFrame(mission: widget.mission),
             ),
             Positioned(

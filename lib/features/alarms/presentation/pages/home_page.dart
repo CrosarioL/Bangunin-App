@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/router/routes.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
-import '../../../../app/widgets/app_card.dart';
 import '../../../../app/widgets/bangunin_mascot.dart';
 import '../../../../app/widgets/mascot_bubble.dart';
 import '../../../../app/widgets/max_width_box.dart';
@@ -16,7 +13,7 @@ import '../../../../app/widgets/stat_pill.dart';
 import '../../../../app/widgets/sunset_page_header.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/l10n_ext.dart';
-import '../../../../core/utils/time_format.dart';
+import '../../../shell/presentation/app_shell.dart';
 import '../../../stats/presentation/providers/stats_provider.dart';
 import '../providers/alarms_provider.dart';
 import '../widgets/alarm_capability_banner.dart';
@@ -30,7 +27,6 @@ class HomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final alarmsAsync = ref.watch(alarmsProvider);
-    final nextAt = ref.watch(nextAlarmProvider)?.at;
     final streak = ref.watch(currentStreakProvider);
 
     return Scaffold(
@@ -49,9 +45,7 @@ class HomePage extends ConsumerWidget {
                   AppSpacing.lg,
                   AppSpacing.lg,
                 ),
-                sliver: SliverToBoxAdapter(
-                  child: _Header(nextAt: nextAt, streak: streak),
-                ),
+                sliver: SliverToBoxAdapter(child: _Header(streak: streak)),
               ),
               alarmsAsync.when(
                 loading: () => const SliverFillRemaining(
@@ -110,31 +104,35 @@ class HomePage extends ConsumerWidget {
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: PressableScale(
-        onPressed: () => context.push(Routes.alarmNew),
-        semanticLabel: l10n.newAlarm,
-        child: Container(
-          width: 66,
-          height: 66,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [AppColors.primary, AppColors.horizon],
-            ),
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.white.withValues(alpha: .7)),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withValues(alpha: .36),
-                blurRadius: 24,
-                offset: const Offset(0, 8),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 84.0),
+        child: PressableScale(
+          onPressed: () => context.push(Routes.alarmNew),
+          semanticLabel: l10n.newAlarm,
+          child: Container(
+            key: fabKey,
+            width: 66,
+            height: 66,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [AppColors.primary, AppColors.horizon],
               ),
-            ],
-          ),
-          child: const Icon(
-            Icons.add_alarm_rounded,
-            size: 32,
-            color: AppColors.onPrimary,
-            semanticLabel: '',
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white.withValues(alpha: .7)),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: .36),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: const Icon(
+              Icons.add_alarm_rounded,
+              size: 32,
+              color: AppColors.onPrimary,
+              semanticLabel: '',
+            ),
           ),
         ),
       ),
@@ -167,54 +165,26 @@ class HomePage extends ConsumerWidget {
   }
 }
 
-/// Owns its own 30s ticker so the "rings in Xh Ym" countdown stays fresh
-/// without rebuilding the rest of the alarm list above it.
-class _Header extends StatefulWidget {
-  const _Header({required this.nextAt, required this.streak});
+class _Header extends StatelessWidget {
+  const _Header({required this.streak});
 
-  final DateTime? nextAt;
   final int streak;
 
   @override
-  State<_Header> createState() => _HeaderState();
-}
-
-class _HeaderState extends State<_Header> {
-  Timer? _minuteTicker;
-
-  @override
-  void initState() {
-    super.initState();
-    _minuteTicker = Timer.periodic(
-      const Duration(seconds: 30),
-      (_) => setState(() {}),
-    );
-  }
-
-  @override
-  void dispose() {
-    _minuteTicker?.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = context.l10n;
-    final nextAt = widget.nextAt;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SunsetPageHeader(
           title: l10n.homeTitle,
-          subtitle: nextAt == null ? l10n.noUpcomingAlarm : l10n.nextAlarmIn,
           icon: Icons.alarm_rounded,
           trailing: Align(
             alignment: Alignment.centerLeft,
             child: StatPill(
               icon: Icons.local_fire_department_rounded,
-              value: '${widget.streak}',
+              value: '$streak',
               color: AppColors.primaryDeep,
             ),
           ),
@@ -225,58 +195,6 @@ class _HeaderState extends State<_Header> {
         // Android vendor battery managers kill alarms regardless of
         // permissions. Renders nothing on iOS.
         const BatteryAdviceCard(),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: nextAt == null
-              ? Padding(
-                  key: const ValueKey('none'),
-                  padding: const EdgeInsets.only(top: AppSpacing.xs),
-                  child: Text(
-                    l10n.noUpcomingAlarm,
-                    style: theme.textTheme.bodyMedium!.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                )
-              // Hero card: the countdown is the one number that matters on
-              // this screen, so it gets card treatment with the mascot
-              // keeping watch beside it.
-              : Padding(
-                  key: const ValueKey('next'),
-                  padding: const EdgeInsets.only(top: AppSpacing.lg),
-                  child: AppCard(
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                l10n.nextAlarmIn.toUpperCase(),
-                                style: theme.textTheme.labelSmall!.copyWith(
-                                  color: theme.colorScheme.onSurfaceVariant,
-                                  letterSpacing: 1.4,
-                                ),
-                              ),
-                              const SizedBox(height: AppSpacing.xs),
-                              Text(
-                                TimeFormat.countdown(
-                                  nextAt.difference(DateTime.now()),
-                                ),
-                                style: theme.textTheme.headlineMedium!.copyWith(
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const BanguninMascot(size: 76, flap: true),
-                      ],
-                    ),
-                  ),
-                ),
-        ),
       ],
     );
   }
