@@ -6,6 +6,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/widgets/bangunin_mascot.dart';
 import '../../../../app/widgets/primary_button.dart';
+import '../../../../app/widgets/swipe_carousel.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/l10n_ext.dart';
 import '../../../missions/domain/mission_type.dart';
@@ -70,19 +71,6 @@ class _MissionPickerSheetState extends State<_MissionPickerSheet> {
     return index < 0 || widget.current == MissionType.none ? 0 : index;
   }();
 
-  // Neighbouring cards peek in at the edges, which is what tells people
-  // they can swipe.
-  late final _controller = PageController(
-    initialPage: _page,
-    viewportFraction: .84,
-  );
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
   bool _removes(MissionType m) =>
       widget.removeLabel != null && m == MissionType.none;
 
@@ -123,46 +111,24 @@ class _MissionPickerSheetState extends State<_MissionPickerSheet> {
               ),
             ),
             const SizedBox(height: AppSpacing.md),
-            SizedBox(
-              height: 330,
-              child: PageView.builder(
-                controller: _controller,
-                itemCount: _missions.length,
-                onPageChanged: (page) {
-                  Haptics.selection();
-                  setState(() => _page = page);
-                },
-                itemBuilder: (context, index) {
-                  final m = _missions[index];
-                  return _MissionCard(
-                    mission: m,
-                    name: _removes(m)
-                        ? widget.removeLabel!
-                        : m.localizedName(l10n),
-                    description: _removes(m)
-                        ? ''
-                        : m.localizedDescription(l10n),
-                    selected: m == widget.current,
-                    focused: index == _page,
-                    onTap: () {
-                      if (index == _page) {
-                        _choose(m);
-                      } else {
-                        unawaited(
-                          _controller.animateToPage(
-                            index,
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeOutCubic,
-                          ),
-                        );
-                      }
-                    },
-                  );
-                },
-              ),
+            SwipeCarousel(
+              itemCount: _missions.length,
+              initialPage: _page,
+              onPageChanged: (page) => setState(() => _page = page),
+              onTapFocused: (index) => _choose(_missions[index]),
+              itemBuilder: (context, index, focused) {
+                final m = _missions[index];
+                return MissionCard(
+                  mission: m,
+                  name: _removes(m)
+                      ? widget.removeLabel!
+                      : m.localizedName(l10n),
+                  description: _removes(m) ? '' : m.localizedDescription(l10n),
+                  focused: focused,
+                  badge: m == widget.current ? l10n.missionCurrent : null,
+                );
+              },
             ),
-            const SizedBox(height: AppSpacing.md),
-            _Dots(count: _missions.length, active: _page),
             const SizedBox(height: AppSpacing.lg),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
@@ -232,158 +198,97 @@ class _MissionPickerSheetState extends State<_MissionPickerSheet> {
   }
 }
 
-class _MissionCard extends StatelessWidget {
-  const _MissionCard({
+/// One mission as a carousel card: big icon, name, short description, and
+/// an optional corner [badge] ("Current", "Most fun"). Shared with onboarding.
+class MissionCard extends StatelessWidget {
+  const MissionCard({
+    super.key,
     required this.mission,
     required this.name,
     required this.description,
-    required this.selected,
     required this.focused,
-    required this.onTap,
+    this.badge,
   });
 
   final MissionType mission;
   final String name;
   final String description;
-  final bool selected;
   final bool focused;
-  final VoidCallback onTap;
+  final String? badge;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = context.l10n;
     final accent = mission.experienceColor;
-    return AnimatedScale(
-      // The card in focus sits forward; its neighbours step back.
-      scale: focused ? 1 : .92,
-      duration: const Duration(milliseconds: 200),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
-        child: Semantics(
-          button: true,
-          selected: selected,
-          label: name,
-          child: GestureDetector(
-            onTap: onTap,
-            child: Container(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    accent.withValues(alpha: .26),
-                    AppColors.nightTop.withValues(alpha: .6),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(28),
-                border: Border.all(
-                  color: selected
-                      ? accent
-                      : Colors.white.withValues(alpha: .12),
-                  width: selected ? 3 : 1.5,
-                ),
-              ),
-              child: Column(
-                children: [
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: SizedBox(
-                      height: 28,
-                      child: selected
-                          ? Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: accent,
-                                borderRadius: BorderRadius.circular(
-                                  AppSpacing.radiusCapsule,
-                                ),
-                              ),
-                              child: Text(
-                                l10n.missionCurrent,
-                                style: theme.textTheme.labelMedium!.copyWith(
-                                  color: AppColors.nightTop,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                            )
-                          : null,
-                    ),
-                  ),
-                  const Spacer(),
-                  Container(
-                    width: 104,
-                    height: 104,
-                    decoration: BoxDecoration(
-                      color: accent.withValues(alpha: .18),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: accent.withValues(alpha: .3),
-                          blurRadius: 30,
-                        ),
-                      ],
-                    ),
-                    child: Icon(mission.icon, color: accent, size: 56),
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  Text(
-                    name,
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.headlineSmall!.copyWith(
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    description,
-                    textAlign: TextAlign.center,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodyMedium!.copyWith(
-                      color: Colors.white70,
-                    ),
-                  ),
-                  const Spacer(),
-                ],
-              ),
-            ),
+    return Semantics(
+      button: true,
+      label: name,
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              accent.withValues(alpha: .26),
+              AppColors.nightTop.withValues(alpha: .6),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(
+            color: focused ? accent : Colors.white.withValues(alpha: .12),
+            width: focused ? 3 : 1.5,
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _Dots extends StatelessWidget {
-  const _Dots({required this.count, required this.active});
-
-  final int count;
-  final int active;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        for (var i = 0; i < count; i++)
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            margin: const EdgeInsets.symmetric(horizontal: 3),
-            width: i == active ? 22 : 7,
-            height: 7,
-            decoration: BoxDecoration(
-              color: i == active
-                  ? AppColors.primary
-                  : Colors.white.withValues(alpha: .25),
-              borderRadius: BorderRadius.circular(99),
+        child: Column(
+          children: [
+            Align(
+              alignment: Alignment.topRight,
+              child: SizedBox(
+                height: 28,
+                child: badge == null
+                    ? null
+                    : CarouselBadge(text: badge!, color: accent),
+              ),
             ),
-          ),
-      ],
+            const Spacer(),
+            Container(
+              width: 104,
+              height: 104,
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: .18),
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: accent.withValues(alpha: .3),
+                    blurRadius: 30,
+                  ),
+                ],
+              ),
+              child: Icon(mission.icon, color: accent, size: 56),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Text(
+              name,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.headlineSmall!.copyWith(
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              description,
+              textAlign: TextAlign.center,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodyMedium!.copyWith(
+                color: Colors.white70,
+              ),
+            ),
+            const Spacer(),
+          ],
+        ),
+      ),
     );
   }
 }

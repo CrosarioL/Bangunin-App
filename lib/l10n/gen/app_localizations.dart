@@ -1427,7 +1427,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingSoundSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Tap one to hear it.'**
+  /// **'Swipe to hear each one.'**
   String get onboardingSoundSubtitle;
 
   /// No description provided for @onboardingMissionTitle.
@@ -1753,6 +1753,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Import'**
   String get importSoundShort;
+
+  /// No description provided for @notifyPointOnTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Rings on time, even with the app closed'**
+  String get notifyPointOnTime;
+
+  /// No description provided for @notifyPointLockScreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows up on your lock screen'**
+  String get notifyPointLockScreen;
+
+  /// No description provided for @notifyPointNoSpam.
+  ///
+  /// In en, this message translates to:
+  /// **'Only your alarms. Never spam.'**
+  String get notifyPointNoSpam;
 }
 
 class _AppLocalizationsDelegate

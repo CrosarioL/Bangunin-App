@@ -763,7 +763,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get onboardingSoundTitle => 'Pilih suara alarm';
 
   @override
-  String get onboardingSoundSubtitle => 'Ketuk untuk dengar.';
+  String get onboardingSoundSubtitle => 'Geser untuk dengar satu per satu.';
 
   @override
   String get onboardingMissionTitle => 'Mau buktiin bangun pakai apa?';
@@ -955,4 +955,13 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get importSoundShort => 'Impor';
+
+  @override
+  String get notifyPointOnTime => 'Bunyi tepat waktu, walau aplikasi ditutup';
+
+  @override
+  String get notifyPointLockScreen => 'Muncul di layar kunci';
+
+  @override
+  String get notifyPointNoSpam => 'Cuma alarmmu. Nggak ada spam.';
 }

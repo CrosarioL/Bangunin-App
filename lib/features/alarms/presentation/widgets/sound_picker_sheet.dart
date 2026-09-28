@@ -13,6 +13,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/widgets/bangunin_mascot.dart';
 import '../../../../app/widgets/primary_button.dart';
+import '../../../../app/widgets/swipe_carousel.dart';
 import '../../../../core/services/audio/alarm_audio_service.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/l10n_ext.dart';
@@ -65,16 +66,59 @@ class _SoundPickerSheet extends ConsumerStatefulWidget {
   ConsumerState<_SoundPickerSheet> createState() => _SoundPickerSheetState();
 }
 
-/// One card in the sound carousel: a meme clip, a bundled sound, or the
-/// user's own imported/recorded file.
-class _SoundItem {
-  const _SoundItem.clip(AlarmClip this.clip) : sound = null, custom = false;
-  const _SoundItem.sound(AlarmSound this.sound) : clip = null, custom = false;
-  const _SoundItem.custom() : clip = null, sound = null, custom = true;
+/// One card in a sound carousel: a meme clip, a bundled sound, or the user's
+/// own imported/recorded file. Shared by the sound picker and onboarding.
+class SoundOption {
+  const SoundOption.clip(AlarmClip this.clip) : sound = null, custom = false;
+  const SoundOption.sound(AlarmSound this.sound) : clip = null, custom = false;
+  const SoundOption.custom() : clip = null, sound = null, custom = true;
 
   final AlarmClip? clip;
   final AlarmSound? sound;
   final bool custom;
+
+  static const bundled = [
+    SoundOption.sound(AlarmSound.classic),
+    SoundOption.sound(AlarmSound.sunrise),
+    SoundOption.sound(AlarmSound.pulse),
+  ];
+
+  String name(BuildContext context) {
+    final l10n = context.l10n;
+    if (clip != null) {
+      return clip!.title(Localizations.localeOf(context).languageCode);
+    }
+    if (custom) return l10n.soundCustom;
+    return sound!.localizedName(l10n);
+  }
+
+  /// Bundled and custom sounds reuse the clip art card, so every card in a
+  /// carousel looks like it belongs to the same set.
+  AlarmClip art(BuildContext context) {
+    if (clip != null) return clip!;
+    final (category, emoji) = custom
+        ? (ClipCategory.motivation, '🎤')
+        : switch (sound!) {
+            AlarmSound.classic => (ClipCategory.motivation, '⏰'),
+            AlarmSound.sunrise => (ClipCategory.calm, '🌅'),
+            AlarmSound.pulse => (ClipCategory.loud, '📳'),
+            AlarmSound.custom => (ClipCategory.motivation, '🎤'),
+          };
+    final title = name(context);
+    return AlarmClip(
+      id: 'bundled',
+      titleEn: title,
+      titleId: title,
+      category: category,
+      emoji: emoji,
+    );
+  }
+
+  Future<void> preview(AlarmAudioService audio, {String? customPath}) {
+    if (clip != null) return audio.previewClip(clip!);
+    if (custom) return audio.preview(AlarmSound.custom, customPath: customPath);
+    return audio.preview(sound!);
+  }
 }
 
 class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet> {
@@ -95,15 +139,10 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet> {
 
   /// Memes first (they're the point), then the plain sounds, then the
   /// user's own file if the alarm already has one.
-  late final List<_SoundItem> _items = [
-    for (final clip in AlarmClips.all) _SoundItem.clip(clip),
-    for (final sound in const [
-      AlarmSound.classic,
-      AlarmSound.sunrise,
-      AlarmSound.pulse,
-    ])
-      _SoundItem.sound(sound),
-    if (widget.currentCustomPath != null) const _SoundItem.custom(),
+  late final List<SoundOption> _items = [
+    for (final clip in AlarmClips.all) SoundOption.clip(clip),
+    ...SoundOption.bundled,
+    if (widget.currentCustomPath != null) const SoundOption.custom(),
   ];
 
   late int _page = () {
@@ -111,12 +150,7 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet> {
     return index < 0 ? 0 : index;
   }();
 
-  late final _controller = PageController(
-    initialPage: _page,
-    viewportFraction: .84,
-  );
-
-  bool _isCurrent(_SoundItem item) {
+  bool _isCurrent(SoundOption item) {
     if (item.clip != null) return item.clip!.id == widget.currentClipId;
     if (widget.currentClipId != null) return false;
     if (item.custom) return widget.currentCustomPath != null;
@@ -126,7 +160,6 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet> {
   @override
   void dispose() {
     _previewDebounce?.cancel();
-    _controller.dispose();
     unawaited(_audio.stopPreview());
     unawaited(_recorder.dispose());
     super.dispose();
@@ -142,21 +175,10 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet> {
     );
   }
 
-  Future<void> _play(_SoundItem item) async {
-    final clip = item.clip;
-    if (clip != null) {
-      await _audio.previewClip(clip);
-    } else if (item.custom) {
-      await _audio.preview(
-        AlarmSound.custom,
-        customPath: widget.currentCustomPath,
-      );
-    } else {
-      await _audio.preview(item.sound!);
-    }
-  }
+  Future<void> _play(SoundOption item) =>
+      item.preview(_audio, customPath: widget.currentCustomPath);
 
-  void _choose(_SoundItem item) {
+  void _choose(SoundOption item) {
     Haptics.selection();
     final clip = item.clip;
     Navigator.of(context).pop(
@@ -173,36 +195,6 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet> {
             )
           : SoundSelection(item.sound!),
     );
-  }
-
-  /// Bundled and custom sounds reuse the clip art card, so every card in
-  /// the carousel looks like it belongs to the same set.
-  AlarmClip _artFor(_SoundItem item, String name) {
-    if (item.clip != null) return item.clip!;
-    final (category, emoji) = item.custom
-        ? (ClipCategory.motivation, '🎤')
-        : switch (item.sound!) {
-            AlarmSound.classic => (ClipCategory.motivation, '⏰'),
-            AlarmSound.sunrise => (ClipCategory.calm, '🌅'),
-            AlarmSound.pulse => (ClipCategory.loud, '📳'),
-            AlarmSound.custom => (ClipCategory.motivation, '🎤'),
-          };
-    return AlarmClip(
-      id: 'bundled',
-      titleEn: name,
-      titleId: name,
-      category: category,
-      emoji: emoji,
-    );
-  }
-
-  String _nameFor(_SoundItem item) {
-    final l10n = context.l10n;
-    if (item.clip != null) {
-      return item.clip!.title(Localizations.localeOf(context).languageCode);
-    }
-    if (item.custom) return l10n.soundCustom;
-    return item.sound!.localizedName(l10n);
   }
 
   @override
@@ -243,44 +235,27 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet> {
               ),
             ),
             const SizedBox(height: AppSpacing.md),
-            SizedBox(
+            SwipeCarousel(
+              itemCount: _items.length,
+              initialPage: _page,
               height: 340,
-              child: PageView.builder(
-                controller: _controller,
-                itemCount: _items.length,
-                onPageChanged: (page) {
-                  Haptics.selection();
-                  setState(() => _page = page);
-                  _schedulePreview();
-                },
-                itemBuilder: (context, index) {
-                  final entry = _items[index];
-                  final name = _nameFor(entry);
-                  return _SoundCard(
-                    art: _artFor(entry, name),
-                    name: name,
-                    selected: _isCurrent(entry),
-                    focused: index == _page,
-                    onTap: () {
-                      if (index == _page) {
-                        Haptics.tap();
-                        unawaited(_play(entry));
-                      } else {
-                        unawaited(
-                          _controller.animateToPage(
-                            index,
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeOutCubic,
-                          ),
-                        );
-                      }
-                    },
-                  );
-                },
-              ),
+              onPageChanged: (page) {
+                setState(() => _page = page);
+                _schedulePreview();
+              },
+              onTapFocused: (index) {
+                Haptics.tap();
+                unawaited(_play(_items[index]));
+              },
+              itemBuilder: (context, index, focused) {
+                final entry = _items[index];
+                return SoundCard(
+                  option: entry,
+                  focused: focused,
+                  badge: _isCurrent(entry) ? l10n.missionCurrent : null,
+                );
+              },
             ),
-            const SizedBox(height: AppSpacing.md),
-            _PageDots(count: _items.length, active: _page),
             const SizedBox(height: AppSpacing.lg),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
@@ -379,221 +354,61 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet> {
   }
 }
 
-/// A video alarm's thumbnail card. Public so onboarding can offer the same
-/// tiles as the editor.
-class ClipTile extends StatelessWidget {
-  const ClipTile({
+/// A sound as a carousel card: its art, a speaker hint, and an optional
+/// corner [badge]. Shared with onboarding.
+class SoundCard extends StatelessWidget {
+  const SoundCard({
     super.key,
-    required this.clip,
-    required this.selected,
-    required this.onTap,
+    required this.option,
+    required this.focused,
+    this.badge,
   });
 
-  final AlarmClip clip;
-  final bool selected;
-  final VoidCallback onTap;
+  final SoundOption option;
+  final bool focused;
+  final String? badge;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final language = Localizations.localeOf(context).languageCode;
+    final art = option.art(context);
+    final accent = art.category.gradient.first;
     return Semantics(
       button: true,
-      selected: selected,
-      label: clip.title(language),
-      child: GestureDetector(
-        onTap: onTap,
-        child: SizedBox(
-          width: 108,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 160),
-                height: 136,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusControl),
-                  border: Border.all(
-                    color: selected
-                        ? AppColors.primary
-                        : Colors.white.withValues(alpha: .12),
-                    width: selected ? 3 : 1.5,
-                  ),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    if (clip.hasVideo)
-                      Image.asset(
-                        clip.thumbnailAsset,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) => ClipArt(clip: clip),
-                      )
-                    else
-                      ClipArt(clip: clip),
-                    Align(
-                      alignment: clip.hasVideo
-                          ? Alignment.center
-                          : Alignment.topRight,
-                      child: Padding(
-                        padding: const EdgeInsets.all(6),
-                        child: Icon(
-                          selected
-                              ? Icons.check_circle_rounded
-                              : Icons.play_circle_fill_rounded,
-                          color: Colors.white.withValues(alpha: .9),
-                          size: clip.hasVideo ? 34 : 24,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                clip.title(language),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.labelMedium,
-              ),
-            ],
+      label: option.name(context),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(
+            color: focused ? Colors.white : Colors.white.withValues(alpha: .12),
+            width: focused ? 3 : 1.5,
           ),
+          boxShadow: [
+            if (focused)
+              BoxShadow(color: accent.withValues(alpha: .35), blurRadius: 28),
+          ],
         ),
-      ),
-    );
-  }
-}
-
-class _SoundCard extends StatelessWidget {
-  const _SoundCard({
-    required this.art,
-    required this.name,
-    required this.selected,
-    required this.focused,
-    required this.onTap,
-  });
-
-  final AlarmClip art;
-  final String name;
-  final bool selected;
-  final bool focused;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final accent = art.category.gradient.first;
-    return AnimatedScale(
-      scale: focused ? 1 : .92,
-      duration: const Duration(milliseconds: 200),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
-        child: Semantics(
-          button: true,
-          selected: selected,
-          label: name,
-          child: GestureDetector(
-            onTap: onTap,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(28),
-                border: Border.all(
-                  color: selected
-                      ? Colors.white
-                      : Colors.white.withValues(alpha: .12),
-                  width: selected ? 3 : 1.5,
-                ),
-                boxShadow: [
-                  if (focused)
-                    BoxShadow(
-                      color: accent.withValues(alpha: .35),
-                      blurRadius: 28,
-                    ),
-                ],
+        clipBehavior: Clip.antiAlias,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            ClipArt(clip: art, large: true),
+            if (badge != null)
+              Positioned(
+                top: AppSpacing.md,
+                right: AppSpacing.md,
+                child: CarouselBadge(text: badge!, color: Colors.white),
               ),
-              clipBehavior: Clip.antiAlias,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  ClipArt(clip: art, large: true),
-                  Positioned(
-                    top: AppSpacing.md,
-                    right: AppSpacing.md,
-                    child: selected
-                        ? Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(
-                                AppSpacing.radiusCapsule,
-                              ),
-                            ),
-                            child: Text(
-                              context.l10n.missionCurrent,
-                              style: theme.textTheme.labelMedium!.copyWith(
-                                color: AppColors.nightTop,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          )
-                        : const SizedBox.shrink(),
-                  ),
-                  Positioned(
-                    left: AppSpacing.md,
-                    bottom: AppSpacing.md,
-                    child: Icon(
-                      Icons.volume_up_rounded,
-                      color: Colors.white.withValues(alpha: .85),
-                    ),
-                  ),
-                ],
+            Positioned(
+              left: AppSpacing.md,
+              bottom: AppSpacing.md,
+              child: Icon(
+                Icons.volume_up_rounded,
+                color: Colors.white.withValues(alpha: .85),
               ),
             ),
-          ),
+          ],
         ),
       ),
-    );
-  }
-}
-
-class _PageDots extends StatelessWidget {
-  const _PageDots({required this.count, required this.active});
-
-  final int count;
-  final int active;
-
-  @override
-  Widget build(BuildContext context) {
-    // Past a dozen dots they turn into noise; a counter reads better.
-    if (count > 12) {
-      return Text(
-        '${active + 1} / $count',
-        style: Theme.of(
-          context,
-        ).textTheme.labelLarge!.copyWith(color: Colors.white70),
-      );
-    }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        for (var i = 0; i < count; i++)
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            margin: const EdgeInsets.symmetric(horizontal: 3),
-            width: i == active ? 22 : 7,
-            height: 7,
-            decoration: BoxDecoration(
-              color: i == active
-                  ? AppColors.primary
-                  : Colors.white.withValues(alpha: .25),
-              borderRadius: BorderRadius.circular(99),
-            ),
-          ),
-      ],
     );
   }
 }

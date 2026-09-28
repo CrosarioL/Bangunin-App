@@ -163,6 +163,7 @@ class OnboardingStepScaffold extends StatelessWidget {
     required this.ctaLabel,
     this.ctaEnabled = true,
     required this.onNext,
+    this.fullBleedChild = false,
   });
 
   final String title;
@@ -171,6 +172,10 @@ class OnboardingStepScaffold extends StatelessWidget {
   final String ctaLabel;
   final bool ctaEnabled;
   final VoidCallback onNext;
+
+  /// Lets the body run edge to edge (carousels peek at the screen edges);
+  /// the header and button keep their margins.
+  final bool fullBleedChild;
 
   @override
   Widget build(BuildContext context) {
@@ -183,15 +188,18 @@ class OnboardingStepScaffold extends StatelessWidget {
       behavior: HitTestBehavior.translucent,
       child: MaxWidthBox(
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xl),
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: AppSpacing.sm),
-              SunsetPageHeader(
-                title: title,
-                subtitle: subtitle,
-                icon: Icons.wb_sunny_rounded,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+                child: SunsetPageHeader(
+                  title: title,
+                  subtitle: subtitle,
+                  icon: Icons.wb_sunny_rounded,
+                ),
               ),
               const SizedBox(height: AppSpacing.xl),
               Expanded(
@@ -202,19 +210,29 @@ class OnboardingStepScaffold extends StatelessWidget {
                       constraints: BoxConstraints(
                         minHeight: constraints.maxHeight,
                       ),
-                      child: child,
+                      child: fullBleedChild
+                          ? child
+                          : Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.xl,
+                              ),
+                              child: child,
+                            ),
                     ),
                   ),
                 ),
               ),
-              PrimaryButton(
-                label: ctaLabel,
-                onPressed: ctaEnabled
-                    ? () {
-                        FocusScope.of(context).unfocus();
-                        onNext();
-                      }
-                    : null,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+                child: PrimaryButton(
+                  label: ctaLabel,
+                  onPressed: ctaEnabled
+                      ? () {
+                          FocusScope.of(context).unfocus();
+                          onNext();
+                        }
+                      : null,
+                ),
               ),
             ],
           ),

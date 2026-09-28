@@ -8,7 +8,9 @@ import 'package:intl/intl.dart';
 import '../../../../app/di/providers.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../app/widgets/app_card.dart';
 import '../../../../app/widgets/bangunin_mascot.dart';
+import '../../../../app/widgets/swipe_carousel.dart';
 import '../../../../core/services/audio/alarm_audio_service.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/l10n_ext.dart';
@@ -16,10 +18,9 @@ import '../../../../core/utils/time_format.dart';
 import '../../../alarms/domain/alarm_clip.dart';
 import '../../../alarms/domain/entities/alarm.dart';
 import '../../../alarms/presentation/widgets/alarm_card.dart';
-import '../../../alarms/presentation/widgets/alarm_sound_l10n.dart';
+import '../../../alarms/presentation/widgets/mission_picker_sheet.dart';
 import '../../../alarms/presentation/widgets/sound_picker_sheet.dart';
 import '../../../missions/domain/mission_type.dart';
-import '../../../missions/presentation/widgets/mission_experience.dart';
 import '../providers/onboarding_provider.dart';
 import 'onboarding_flow_page.dart';
 
@@ -60,26 +61,36 @@ class WakeGoalStep extends ConsumerWidget {
       ctaLabel: l10n.continueLabel,
       onNext: onNext,
       child: Center(
-        child: SizedBox(
-          height: 200,
-          child: CupertinoTheme(
-            data: CupertinoThemeData(brightness: Theme.of(context).brightness),
-            child: CupertinoDatePicker(
-              mode: CupertinoDatePickerMode.time,
-              initialDateTime: DateTime(
-                2000,
-                1,
-                1,
-                answers.wakeGoalHour,
-                answers.wakeGoalMinute,
+        child: AppCard(
+          padding: EdgeInsets.zero,
+          child: SizedBox(
+            height: 210,
+            child: CupertinoTheme(
+              data: CupertinoThemeData(
+                brightness: Theme.of(context).brightness,
+                textTheme: CupertinoTextThemeData(
+                  dateTimePickerTextStyle: Theme.of(
+                    context,
+                  ).textTheme.headlineMedium,
+                ),
               ),
-              use24hFormat: MediaQuery.of(context).alwaysUse24HourFormat,
-              onDateTimeChanged: (value) {
-                Haptics.selection();
-                ref
-                    .read(onboardingAnswersProvider.notifier)
-                    .setWakeGoal(value.hour, value.minute);
-              },
+              child: CupertinoDatePicker(
+                mode: CupertinoDatePickerMode.time,
+                initialDateTime: DateTime(
+                  2000,
+                  1,
+                  1,
+                  answers.wakeGoalHour,
+                  answers.wakeGoalMinute,
+                ),
+                use24hFormat: MediaQuery.of(context).alwaysUse24HourFormat,
+                onDateTimeChanged: (value) {
+                  Haptics.selection();
+                  ref
+                      .read(onboardingAnswersProvider.notifier)
+                      .setWakeGoal(value.hour, value.minute);
+                },
+              ),
             ),
           ),
         ),
@@ -88,9 +99,10 @@ class WakeGoalStep extends ConsumerWidget {
   }
 }
 
-/// Step 3 — the alarm sound. Video alarms flagged for onboarding lead, since
-/// they are the most shareable thing in the app; tapping anything previews
-/// it. The pick is logged at completion as a selection-rate signal.
+/// Step 3 — the alarm sound, in the same swipe carousel as the editor's
+/// sound picker. The card in front is the choice; landing on one plays it.
+/// Onboarding memes lead, then the plain sounds. The pick is logged at
+/// completion as a selection-rate signal.
 class SoundStep extends ConsumerStatefulWidget {
   const SoundStep({super.key, required this.onNext});
 
@@ -101,91 +113,105 @@ class SoundStep extends ConsumerStatefulWidget {
 }
 
 class _SoundStepState extends ConsumerState<SoundStep> {
-  /// Custom sounds need an import or recording; that stays in the editor.
-  static final _sounds = AlarmSound.values
-      .where((s) => s != AlarmSound.custom)
-      .toList();
+  static final _options = [
+    for (final clip in AlarmClips.onboarding) SoundOption.clip(clip),
+    ...SoundOption.bundled,
+  ];
 
   // Read in initState, not lazily: a lazy read first touched in dispose()
-  // (picker closed without playing anything) uses `ref` after unmount.
+  // (step left without playing anything) uses `ref` after unmount.
   late final AlarmAudioService _audio;
+  late final int _initialPage;
+  Timer? _previewDebounce;
 
   @override
   void initState() {
     super.initState();
     _audio = ref.read(alarmAudioServiceProvider);
+    // Untouched answers still say Classic; start new users on the first
+    // meme instead, since that is the card they see first. Deferred: the
+    // provider can't change while this widget is building.
+    final answers = ref.read(onboardingAnswersProvider);
+    final first = _options.first.clip;
+    final untouched =
+        first != null &&
+        answers.clipId == null &&
+        answers.sound == AlarmSound.classic;
+    _initialPage = untouched ? 0 : _indexOf(answers);
+    if (untouched) {
+      Future.microtask(
+        () => ref.read(onboardingAnswersProvider.notifier).setClip(first.id),
+      );
+    }
   }
 
   @override
   void dispose() {
+    _previewDebounce?.cancel();
     unawaited(_audio.stopPreview());
     super.dispose();
   }
 
-  void _select(AlarmSound sound) {
-    ref.read(onboardingAnswersProvider.notifier).setSound(sound);
-    unawaited(_audio.preview(sound));
+  int _indexOf(OnboardingAnswers answers) {
+    final index = _options.indexWhere(
+      (o) => answers.clipId != null
+          ? o.clip?.id == answers.clipId
+          : o.sound == answers.sound,
+    );
+    return index < 0 ? 0 : index;
   }
 
-  void _selectClip(AlarmClip clip) {
-    Haptics.selection();
-    ref.read(onboardingAnswersProvider.notifier).setClip(clip.id);
-    unawaited(_audio.previewClip(clip));
+  void _select(SoundOption option) {
+    final notifier = ref.read(onboardingAnswersProvider.notifier);
+    final clip = option.clip;
+    if (clip != null) {
+      notifier.setClip(clip.id);
+    } else {
+      notifier.setSound(option.sound!);
+    }
+    // Debounced so a fast flick plays only the card you stop on.
+    _previewDebounce?.cancel();
+    _previewDebounce = Timer(
+      const Duration(milliseconds: 350),
+      () => unawaited(option.preview(_audio)),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final answers = ref.watch(onboardingAnswersProvider);
-    final selected = answers.clipId == null ? answers.sound : null;
-    final clips = AlarmClips.onboarding;
 
     return OnboardingStepScaffold(
       title: l10n.onboardingSoundTitle,
       subtitle: l10n.onboardingSoundSubtitle,
       ctaLabel: l10n.continueLabel,
+      fullBleedChild: true,
       onNext: () {
         unawaited(_audio.stopPreview());
         widget.onNext();
       },
-      child: Column(
-        children: [
-          if (clips.isNotEmpty) ...[
-            SizedBox(
-              height: 176,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: clips.length,
-                separatorBuilder: (_, _) =>
-                    const SizedBox(width: AppSpacing.sm),
-                itemBuilder: (context, index) => ClipTile(
-                  clip: clips[index],
-                  selected: answers.clipId == clips[index].id,
-                  onTap: () => _selectClip(clips[index]),
-                ),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-          ],
-          for (final sound in _sounds) ...[
-            SurveyOption(
-              label: sound.localizedName(l10n),
-              icon: selected == sound
-                  ? Icons.volume_up_rounded
-                  : Icons.music_note_rounded,
-              selected: selected == sound,
-              onTap: () => _select(sound),
-            ),
-            const SizedBox(height: AppSpacing.md),
-          ],
-        ],
+      child: Center(
+        child: SwipeCarousel(
+          itemCount: _options.length,
+          initialPage: _initialPage,
+          height: 340,
+          onPageChanged: (page) => _select(_options[page]),
+          onTapFocused: (index) {
+            Haptics.tap();
+            unawaited(_options[index].preview(_audio));
+          },
+          itemBuilder: (context, index, focused) =>
+              SoundCard(option: _options[index], focused: focused),
+        ),
       ),
     );
   }
 }
 
-/// Step 4 — the mission, the product's whole difference. Random Hunt is
-/// pre-selected and badged: it needs no setup and it's the one people film.
+/// Step 4 — the mission, the product's whole difference, in the same swipe
+/// carousel as the editor's mission picker. The card in front is the choice.
+/// Random Hunt comes first and is badged: it needs no setup and it's the
+/// one people film.
 class MissionStep extends ConsumerWidget {
   const MissionStep({super.key, required this.onNext});
 
@@ -207,34 +233,36 @@ class MissionStep extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final selected = ref.watch(onboardingAnswersProvider).mission;
+    final initial = missions.indexOf(
+      ref.read(onboardingAnswersProvider).mission,
+    );
 
     return OnboardingStepScaffold(
       title: l10n.onboardingMissionTitle,
       subtitle: l10n.onboardingMissionSubtitle,
       ctaLabel: l10n.continueLabel,
+      fullBleedChild: true,
       onNext: onNext,
-      child: Column(
-        children: [
-          for (final mission in missions) ...[
-            SurveyOption(
-              label: mission.localizedName(l10n),
+      child: Center(
+        child: SwipeCarousel(
+          itemCount: missions.length,
+          initialPage: initial < 0 ? 0 : initial,
+          onPageChanged: (page) => ref
+              .read(onboardingAnswersProvider.notifier)
+              .setMission(missions[page]),
+          itemBuilder: (context, index, focused) {
+            final mission = missions[index];
+            return MissionCard(
+              mission: mission,
+              name: mission.localizedName(l10n),
               description: mission.localizedDescription(l10n),
-              icon: mission.icon,
-              accent: mission == MissionType.none
-                  ? null
-                  : mission.experienceColor,
+              focused: focused,
               badge: mission == MissionType.randomHunt
                   ? l10n.onboardingMissionBadge
                   : null,
-              selected: selected == mission,
-              onTap: () => ref
-                  .read(onboardingAnswersProvider.notifier)
-                  .setMission(mission),
-            ),
-            const SizedBox(height: AppSpacing.md),
-          ],
-        ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -273,17 +301,49 @@ class _NotificationStepState extends ConsumerState<NotificationStep> {
       ctaEnabled: !_requesting,
       onNext: _request,
       child: Center(
-        child: Container(
-          width: 140,
-          height: 140,
-          decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.14),
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(
-            Icons.notifications_active_rounded,
-            size: 64,
-            color: AppColors.primary,
+        child: AppCard(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 88,
+                height: 88,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.14),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.notifications_active_rounded,
+                  size: 44,
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              for (final point in [
+                l10n.notifyPointOnTime,
+                l10n.notifyPointLockScreen,
+                l10n.notifyPointNoSpam,
+              ])
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.check_circle_rounded,
+                        color: AppColors.success,
+                        size: 22,
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Text(
+                          point,
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
           ),
         ),
       ),
@@ -336,8 +396,20 @@ class ReadyStep extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const BanguninMascot(pose: MascotPose.crowing, size: 180),
+            const BanguninMascot(pose: MascotPose.crowing, size: 130),
             const SizedBox(height: AppSpacing.lg),
+            // Exactly what the home screen will show, so the first thing
+            // after the paywall is already familiar.
+            IgnorePointer(
+              child: AlarmCard(
+                alarm: answers.toAlarm(
+                  Alarm(id: 'preview', hour: 0, minute: 0, createdAt: from),
+                ),
+                onTap: () {},
+                onToggle: (_) {},
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
             Text(
               l10n.onboardingReadyFootnote,
               textAlign: TextAlign.center,
@@ -364,142 +436,5 @@ class ReadyStep extends ConsumerWidget {
     return DateFormat.EEEE(
       Localizations.localeOf(context).toLanguageTag(),
     ).format(ring);
-  }
-}
-
-/// A selectable row shared by the choice steps.
-class SurveyOption extends StatelessWidget {
-  const SurveyOption({
-    super.key,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-    this.description,
-    this.icon,
-    this.accent,
-    this.badge,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  final String? description;
-  final IconData? icon;
-
-  /// Tint for the icon; the selection colour stays the brand primary.
-  final Color? accent;
-
-  /// Short pill beside the label, e.g. "Most fun".
-  final String? badge;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final iconColor = accent ?? AppColors.primary;
-    return GestureDetector(
-      onTap: () {
-        Haptics.selection();
-        onTap();
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 160),
-        curve: Curves.easeOut,
-        width: double.infinity,
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        // Chunky tappable tile: thick border + a hard solid lip, tinted to
-        // the accent when picked so selection feels physical.
-        decoration: BoxDecoration(
-          color: selected
-              ? AppColors.primary.withValues(alpha: 0.16)
-              : theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(AppSpacing.radiusControl),
-          border: Border.all(
-            color: selected ? AppColors.primary : theme.colorScheme.outline,
-            width: 2,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: selected ? AppColors.primaryEdge : AppColors.surfaceEdge,
-              offset: const Offset(0, 3),
-              blurRadius: 0,
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            if (icon != null) ...[
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: iconColor.withValues(alpha: 0.14),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, color: iconColor),
-              ),
-              const SizedBox(width: AppSpacing.md),
-            ],
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          label,
-                          style: theme.textTheme.titleSmall!.copyWith(
-                            color: selected
-                                ? AppColors.primary
-                                : theme.colorScheme.onSurface,
-                          ),
-                        ),
-                      ),
-                      if (badge != null) ...[
-                        const SizedBox(width: AppSpacing.sm),
-                        _Badge(text: badge!),
-                      ],
-                    ],
-                  ),
-                  if (description != null) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      description!,
-                      style: theme.textTheme.bodySmall!.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Badge extends StatelessWidget {
-  const _Badge({required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusCapsule),
-      ),
-      child: Text(
-        text,
-        style: Theme.of(context).textTheme.labelSmall!.copyWith(
-          color: AppColors.nightTop,
-          fontWeight: FontWeight.w800,
-        ),
-      ),
-    );
   }
 }

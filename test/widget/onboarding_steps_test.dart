@@ -1,5 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:wakio/app/di/providers.dart';
+import 'package:wakio/core/services/audio/alarm_audio_service.dart';
+import 'package:wakio/features/alarms/domain/alarm_clip.dart';
 import 'package:wakio/features/missions/domain/mission_type.dart';
 import 'package:wakio/features/onboarding/presentation/pages/onboarding_steps.dart';
 import 'package:wakio/features/onboarding/presentation/providers/onboarding_provider.dart';
@@ -16,7 +20,33 @@ class _Seeded extends OnboardingAnswersNotifier {
   OnboardingAnswers build() => _initial;
 }
 
+class _SilentAudio implements AlarmAudioService {
+  @override
+  Future<void> stopPreview() async {}
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 void main() {
+  testWidgets('sound step starts new users on the first meme', (tester) async {
+    final container = ProviderContainer(
+      overrides: [alarmAudioServiceProvider.overrideWithValue(_SilentAudio())],
+    );
+    addTearDown(container.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: testApp(child: SoundStep(onNext: () {})),
+      ),
+    );
+    await tester.pump();
+    expect(
+      container.read(onboardingAnswersProvider).clipId,
+      AlarmClips.onboarding.first.id,
+    );
+  });
+
   testWidgets('welcome step shows the hook and CTA advances', (tester) async {
     var advanced = false;
     await tester.pumpWidget(
@@ -31,7 +61,7 @@ void main() {
     expect(advanced, isTrue);
   });
 
-  testWidgets('mission step pre-selects Random Hunt and switches on tap', (
+  testWidgets('mission step starts on Random Hunt; swiping changes the pick', (
     tester,
   ) async {
     final container = ProviderContainer();
@@ -49,13 +79,9 @@ void main() {
       MissionType.randomHunt,
     );
 
-    await tester.ensureVisible(find.text('Squats'));
-    await tester.tap(find.text('Squats'));
-    await tester.pump();
-    expect(
-      container.read(onboardingAnswersProvider).mission,
-      MissionType.squats,
-    );
+    await tester.fling(find.byType(PageView), const Offset(-300, 0), 1000);
+    await tester.pumpAndSettle();
+    expect(container.read(onboardingAnswersProvider).mission, MissionType.math);
   });
 
   Future<void> pumpReady(

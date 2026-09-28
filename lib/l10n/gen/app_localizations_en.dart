@@ -762,7 +762,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingSoundTitle => 'Pick your alarm sound';
 
   @override
-  String get onboardingSoundSubtitle => 'Tap one to hear it.';
+  String get onboardingSoundSubtitle => 'Swipe to hear each one.';
 
   @override
   String get onboardingMissionTitle => 'How will you prove you\'re awake?';
@@ -954,4 +954,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get importSoundShort => 'Import';
+
+  @override
+  String get notifyPointOnTime => 'Rings on time, even with the app closed';
+
+  @override
+  String get notifyPointLockScreen => 'Shows up on your lock screen';
+
+  @override
+  String get notifyPointNoSpam => 'Only your alarms. Never spam.';
 }

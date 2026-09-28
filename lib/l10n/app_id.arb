@@ -221,7 +221,7 @@
   "founderStoryBody": "Tahun 2023 aku mahasiswa semester 3, ngekos jauh dari rumah untuk pertama kalinya.\n\nDi rumah, ibuku yang selalu bangunin aku. \"Bangun, udah siang!\" Setiap pagi. Aku nggak pernah sadar betapa aku mengandalkan itu, sampai nggak ada lagi.\n\nDi kos, aku pasang enam alarm. Semuanya kumatiin sambil merem. Aku bablas kelas jam 7 tiga kali dalam sebulan, absenku jeblok, dan aku benci diriku sendiri tiap kebangun jam 9 lihat grup kelas udah rame.\n\nAku coba semua alarm di Play Store. Yang matiin pakai soal matematika, aku hafal jawabannya. Yang harus di-shake, aku shake sambil tidur. Semuanya terlalu gampang dibohongin, karena otak jam 5 pagi cuma punya satu tujuan: balik tidur.\n\nJadi aku bikin satu yang nggak bisa kubohongin. Dia baru diam kalau aku benar-benar keluar dari kasur: foto langit di luar, squat sepuluh kali, foto wastafel kamar mandi. Hal-hal yang mustahil dilakukan sambil setengah tidur.\n\nPertama kali pakai, aku kesel banget. Kedua kali, aku ketawa. Minggu ketiga, aku belum sekali pun bablas.\n\nAku kasih ke teman-teman sekosan. Terus ke seangkatan. Sekarang aku kasih ke kamu.\n\nBangunin bukan buatan startup gede di Silicon Valley. Ini dibuat satu mahasiswa yang capek ketinggalan kelas, buat kamu yang lagi ngerasain hal yang sama.\n\nSelamat pagi. Beneran kali ini.",
   "founderStorySignature": "Pendiri Bangunin",
   "onboardingSoundTitle": "Pilih suara alarm",
-  "onboardingSoundSubtitle": "Ketuk untuk dengar.",
+  "onboardingSoundSubtitle": "Geser untuk dengar satu per satu.",
   "onboardingMissionTitle": "Mau buktiin bangun pakai apa?",
   "onboardingMissionSubtitle": "Alarm terus bunyi sampai kamu selesaikan.",
   "onboardingMissionBadge": "Paling seru",
@@ -275,5 +275,8 @@
   "missionSwipeHint": "Geser untuk lihat semua misi",
   "chooseSound": "Pilih suara ini",
   "soundSwipeHint": "Geser untuk dengar satu per satu",
-  "importSoundShort": "Impor"
+  "importSoundShort": "Impor",
+  "notifyPointOnTime": "Bunyi tepat waktu, walau aplikasi ditutup",
+  "notifyPointLockScreen": "Muncul di layar kunci",
+  "notifyPointNoSpam": "Cuma alarmmu. Nggak ada spam."
 }
