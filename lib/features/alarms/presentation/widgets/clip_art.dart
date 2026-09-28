@@ -80,7 +80,7 @@ class ClipArt extends StatelessWidget {
                       child: Text(
                         clip.emoji,
                         style: TextStyle(
-                          fontSize: large ? 110 : 44,
+                          fontSize: large ? 110 : 60,
                           shadows: const [
                             Shadow(color: Colors.black26, blurRadius: 16),
                           ],
@@ -88,29 +88,29 @@ class ClipArt extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(height: large ? 24 : 6),
-                  Text(
-                    clip.title(language).toUpperCase(),
-                    textAlign: TextAlign.center,
-                    maxLines: large ? 3 : 2,
-                    overflow: TextOverflow.ellipsis,
-                    style:
-                        (large
-                                ? theme.textTheme.displaySmall
-                                : theme.textTheme.labelLarge)!
-                            .copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w900,
-                              height: 1.05,
-                              shadows: const [
-                                Shadow(
-                                  color: Colors.black38,
-                                  offset: Offset(0, 2),
-                                  blurRadius: 6,
-                                ),
-                              ],
-                            ),
-                  ),
+                  // Small cards sit above their own caption, so the name would
+                  // only be shown twice (and truncated). Emoji alone reads better.
+                  if (large) ...[
+                    const SizedBox(height: 24),
+                    Text(
+                      clip.title(language).toUpperCase(),
+                      textAlign: TextAlign.center,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.displaySmall!.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                        height: 1.05,
+                        shadows: const [
+                          Shadow(
+                            color: Colors.black38,
+                            offset: Offset(0, 2),
+                            blurRadius: 6,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

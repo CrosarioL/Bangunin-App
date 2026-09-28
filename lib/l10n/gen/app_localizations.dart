@@ -1499,7 +1499,7 @@ abstract class AppLocalizations {
   /// No description provided for @videoAlarmsSection.
   ///
   /// In en, this message translates to:
-  /// **'Video alarms'**
+  /// **'Meme alarms'**
   String get videoAlarmsSection;
 
   /// No description provided for @soundsSection.

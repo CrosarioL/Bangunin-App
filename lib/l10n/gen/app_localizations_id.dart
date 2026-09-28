@@ -807,7 +807,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get onboardingReadyTomorrow => 'Besok';
 
   @override
-  String get videoAlarmsSection => 'Alarm video';
+  String get videoAlarmsSection => 'Alarm meme';
 
   @override
   String get soundsSection => 'Suara';

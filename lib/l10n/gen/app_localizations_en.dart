@@ -806,7 +806,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingReadyTomorrow => 'Tomorrow';
 
   @override
-  String get videoAlarmsSection => 'Video alarms';
+  String get videoAlarmsSection => 'Meme alarms';
 
   @override
   String get soundsSection => 'Sounds';
