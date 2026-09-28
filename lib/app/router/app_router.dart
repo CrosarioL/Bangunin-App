@@ -8,6 +8,7 @@ import '../../features/alarms/presentation/pages/alarm_editor_page.dart';
 import '../../features/alarms/presentation/pages/home_page.dart';
 import '../../features/missions/presentation/pages/movement_mission_page.dart';
 import '../../features/missions/presentation/pages/object_registration_page.dart';
+import '../../features/missions/presentation/pages/phone_task_mission_page.dart';
 import '../../features/missions/presentation/pages/photo_mission_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_flow_page.dart';
 import '../../features/onboarding/presentation/providers/onboarding_provider.dart';
@@ -133,6 +134,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: Routes.movementMissionPattern,
         builder: (context, state) =>
             MovementMissionPage(alarmId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: Routes.phoneMissionPattern,
+        builder: (context, state) =>
+            PhoneTaskMissionPage(alarmId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: Routes.objectRegistration,

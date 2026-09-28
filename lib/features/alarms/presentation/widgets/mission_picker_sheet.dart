@@ -8,6 +8,7 @@ import '../../../../core/utils/l10n_ext.dart';
 import '../../../missions/domain/mission_type.dart';
 import '../../../missions/presentation/pages/movement_mission_page.dart';
 import '../../../missions/presentation/pages/object_registration_page.dart';
+import '../../../missions/presentation/pages/phone_task_mission_page.dart';
 import '../../../missions/presentation/pages/photo_mission_page.dart';
 import '../../../missions/presentation/widgets/mission_experience.dart';
 import 'alarm_card.dart';
@@ -116,6 +117,8 @@ class _MissionPickerSheet extends StatelessWidget {
         fullscreenDialog: true,
         builder: (_) => mission.isMovement
             ? MovementMissionPage(previewMission: mission)
+            : mission.isPhoneTask
+            ? PhoneTaskMissionPage(previewMission: mission)
             : PhotoMissionPage(
                 previewMission: mission,
                 previewReferencePath: referencePath,

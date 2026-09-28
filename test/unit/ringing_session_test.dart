@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakio/app/di/providers.dart';
 import 'package:wakio/core/services/alarms/alarm_kit_service.dart';
 import 'package:wakio/core/services/audio/alarm_audio_service.dart';
@@ -102,9 +103,12 @@ void main() {
     alarmRepository = HiveAlarmRepository(store);
     audioService = _FakeAudioService();
     scheduler = _FakeAlarmScheduler();
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
 
     container = ProviderContainer(
       overrides: [
+        sharedPreferencesProvider.overrideWithValue(prefs),
         alarmRepositoryProvider.overrideWithValue(alarmRepository),
         wakeStatsRepositoryProvider.overrideWithValue(
           HiveWakeStatsRepository(store),
@@ -190,6 +194,30 @@ void main() {
           .getAll();
       expect(records, hasLength(1));
       expect(records.single.alarmId, 'ring-test');
+    },
+  );
+
+  test(
+    'emergency escape stops the alarm but records a failed morning',
+    () async {
+      await alarmRepository.upsert(testAlarm());
+      final notifier = container.read(ringingSessionProvider.notifier);
+      expect(notifier.emergencyEscapesThisMonth(), 0);
+
+      await notifier.begin('ring-test');
+      await notifier.escape();
+
+      expect(audioService.ringing, isFalse);
+      expect(container.read(ringingSessionProvider), isNull);
+      final records = await container
+          .read(wakeStatsRepositoryProvider)
+          .getAll();
+      expect(records.single.success, isFalse, reason: 'must not feed a streak');
+      expect(notifier.emergencyEscapesThisMonth(), 1);
+
+      await notifier.begin('ring-test');
+      await notifier.escape();
+      expect(notifier.emergencyEscapesThisMonth(), 2);
     },
   );
 

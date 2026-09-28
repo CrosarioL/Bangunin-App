@@ -19,6 +19,7 @@ import '../../../missions/domain/mission_type.dart';
 import '../../../missions/presentation/widgets/mission_experience.dart';
 import '../providers/ringing_provider.dart';
 import '../widgets/alarm_video_background.dart';
+import '../widgets/emergency_escape_sheet.dart';
 
 /// Full-screen takeover while an alarm rings. The only exits are the
 /// mission (or dismiss, for mission-less alarms) and snooze while snoozes
@@ -236,6 +237,21 @@ class _RingingPageState extends ConsumerState<RingingPage>
                                 )
                               else
                                 const SizedBox(height: 40),
+                              // Mission alarms only: without a mission the
+                              // dismiss button already is the way out.
+                              if (alarm.missionType != MissionType.none)
+                                TextButton(
+                                  onPressed: _emergencyEscape,
+                                  child: Text(
+                                    l10n.emergencyLink,
+                                    textAlign: TextAlign.center,
+                                    style: theme.textTheme.bodySmall!.copyWith(
+                                      color: AppColors.textTertiary,
+                                      decoration: TextDecoration.underline,
+                                      decorationColor: AppColors.textTertiary,
+                                    ),
+                                  ),
+                                ),
                             ],
                           ],
                         ),
@@ -256,6 +272,8 @@ class _RingingPageState extends ConsumerState<RingingPage>
     if (!mounted) return;
     if (alarm.missionType.isPhoto) {
       unawaited(context.push(Routes.photoMission(alarm.id)));
+    } else if (alarm.missionType.isPhoneTask) {
+      unawaited(context.push(Routes.phoneMission(alarm.id)));
     } else {
       unawaited(context.push(Routes.movementMission(alarm.id)));
     }
@@ -264,6 +282,21 @@ class _RingingPageState extends ConsumerState<RingingPage>
   Future<void> _dismissNoMission() async {
     await ref.read(ringingSessionProvider.notifier).complete();
     if (mounted) context.go(Routes.wakeSuccess);
+  }
+
+  Future<void> _emergencyEscape() async {
+    final notifier = ref.read(ringingSessionProvider.notifier);
+    final escaped = await showEmergencyEscapeSheet(
+      context,
+      usedThisMonth: notifier.emergencyEscapesThisMonth(),
+    );
+    if (!escaped || !mounted) return;
+    await notifier.escape();
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(context.l10n.emergencyDone)));
+    context.go(Routes.home);
   }
 
   Future<void> _snooze() async {

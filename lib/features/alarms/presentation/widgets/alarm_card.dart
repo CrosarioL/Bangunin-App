@@ -169,6 +169,8 @@ extension MissionTypeL10n on MissionType {
   String localizedName(AppLocalizations l10n) => switch (this) {
     MissionType.none => l10n.missionNone,
     MissionType.randomHunt => l10n.missionRandomHunt,
+    MissionType.math => l10n.missionMath,
+    MissionType.shake => l10n.missionShake,
     MissionType.objectHunt => l10n.missionObjectHunt,
     MissionType.skyPhoto => l10n.missionSkyPhoto,
     MissionType.grassPhoto => l10n.missionGrassPhoto,
@@ -180,11 +182,20 @@ extension MissionTypeL10n on MissionType {
   String localizedDescription(AppLocalizations l10n) => switch (this) {
     MissionType.none => l10n.missionNoneDescription,
     MissionType.randomHunt => l10n.missionRandomHuntDescription,
+    MissionType.math => l10n.missionMathDescription,
+    MissionType.shake => l10n.missionShakeDescription,
     MissionType.objectHunt => l10n.missionObjectHuntDescription,
     MissionType.skyPhoto => l10n.missionSkyPhotoDescription,
     MissionType.grassPhoto => l10n.missionGrassPhotoDescription,
     MissionType.makeBed => l10n.missionMakeBedDescription,
     MissionType.squats => l10n.missionSquatsDescription,
     MissionType.pushups => l10n.missionPushupsDescription,
+  };
+
+  /// What [Alarm.missionReps] counts for this mission.
+  String countLabel(AppLocalizations l10n) => switch (this) {
+    MissionType.math => l10n.countProblems,
+    MissionType.shake => l10n.countShakes,
+    _ => l10n.repsLabel,
   };
 }

@@ -49,6 +49,7 @@ void main() {
       MissionType.randomHunt,
     );
 
+    await tester.ensureVisible(find.text('Squats'));
     await tester.tap(find.text('Squats'));
     await tester.pump();
     expect(

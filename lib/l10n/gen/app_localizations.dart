@@ -1507,6 +1507,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sounds'**
   String get soundsSection;
+
+  /// No description provided for @missionMath.
+  ///
+  /// In en, this message translates to:
+  /// **'Math'**
+  String get missionMath;
+
+  /// No description provided for @missionMathDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Solve sums until your brain switches on.'**
+  String get missionMathDescription;
+
+  /// No description provided for @missionShake.
+  ///
+  /// In en, this message translates to:
+  /// **'Shake'**
+  String get missionShake;
+
+  /// No description provided for @missionShakeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Shake your phone hard until the counter fills.'**
+  String get missionShakeDescription;
+
+  /// No description provided for @mathProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Problem {current} of {total}'**
+  String mathProgress(int current, int total);
+
+  /// No description provided for @mathWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Not quite. Try this one.'**
+  String get mathWrong;
+
+  /// No description provided for @shakeInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Shake it! Hard!'**
+  String get shakeInstruction;
+
+  /// No description provided for @shakeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold on tight and shake with your whole arm.'**
+  String get shakeHint;
+
+  /// No description provided for @countProblems.
+  ///
+  /// In en, this message translates to:
+  /// **'Problems'**
+  String get countProblems;
+
+  /// No description provided for @countShakes.
+  ///
+  /// In en, this message translates to:
+  /// **'Shakes'**
+  String get countShakes;
+
+  /// No description provided for @emergencyLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency? Can\'t do the mission'**
+  String get emergencyLink;
+
+  /// No description provided for @emergencyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency exit'**
+  String get emergencyTitle;
+
+  /// No description provided for @emergencyTapBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Only for real emergencies. Tap {left} more times.'**
+  String emergencyTapBody(int left);
+
+  /// No description provided for @emergencyTapButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap'**
+  String get emergencyTapButton;
+
+  /// No description provided for @emergencyPledgeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Type this out:'**
+  String get emergencyPledgeBody;
+
+  /// No description provided for @emergencyConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off alarm'**
+  String get emergencyConfirm;
+
+  /// No description provided for @emergencyCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to the alarm'**
+  String get emergencyCancel;
+
+  /// No description provided for @emergencyDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Alarm off. This morning won\'t count toward your streak.'**
+  String get emergencyDone;
 }
 
 class _AppLocalizationsDelegate

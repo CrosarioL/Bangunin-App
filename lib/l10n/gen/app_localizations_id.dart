@@ -811,4 +811,65 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get soundsSection => 'Suara';
+
+  @override
+  String get missionMath => 'Matematika';
+
+  @override
+  String get missionMathDescription =>
+      'Kerjakan soal hitungan sampai otakmu nyala.';
+
+  @override
+  String get missionShake => 'Goyang HP';
+
+  @override
+  String get missionShakeDescription =>
+      'Goyang HP kencang sampai hitungannya penuh.';
+
+  @override
+  String mathProgress(int current, int total) {
+    return 'Soal $current dari $total';
+  }
+
+  @override
+  String get mathWrong => 'Belum tepat. Coba yang ini.';
+
+  @override
+  String get shakeInstruction => 'Goyang! Yang kencang!';
+
+  @override
+  String get shakeHint => 'Pegang erat, goyang pakai seluruh lengan.';
+
+  @override
+  String get countProblems => 'Jumlah soal';
+
+  @override
+  String get countShakes => 'Jumlah goyangan';
+
+  @override
+  String get emergencyLink => 'Darurat? Nggak bisa kerjakan misi';
+
+  @override
+  String get emergencyTitle => 'Jalan darurat';
+
+  @override
+  String emergencyTapBody(int left) {
+    return 'Hanya untuk darurat beneran. Ketuk $left kali lagi.';
+  }
+
+  @override
+  String get emergencyTapButton => 'Ketuk';
+
+  @override
+  String get emergencyPledgeBody => 'Ketik ulang ini:';
+
+  @override
+  String get emergencyConfirm => 'Matikan alarm';
+
+  @override
+  String get emergencyCancel => 'Kembali ke alarm';
+
+  @override
+  String get emergencyDone =>
+      'Alarm mati. Pagi ini nggak dihitung ke streak-mu.';
 }

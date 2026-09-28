@@ -369,5 +369,40 @@
     }
   },
   "videoAlarmsSection": "Video alarms",
-  "soundsSection": "Sounds"
+  "soundsSection": "Sounds",
+  "missionMath": "Math",
+  "missionMathDescription": "Solve sums until your brain switches on.",
+  "missionShake": "Shake",
+  "missionShakeDescription": "Shake your phone hard until the counter fills.",
+  "mathProgress": "Problem {current} of {total}",
+  "mathWrong": "Not quite. Try this one.",
+  "shakeInstruction": "Shake it! Hard!",
+  "shakeHint": "Hold on tight and shake with your whole arm.",
+  "countProblems": "Problems",
+  "countShakes": "Shakes",
+  "emergencyLink": "Emergency? Can't do the mission",
+  "emergencyTitle": "Emergency exit",
+  "emergencyTapBody": "Only for real emergencies. Tap {left} more times.",
+  "emergencyTapButton": "Tap",
+  "emergencyPledgeBody": "Type this out:",
+  "emergencyConfirm": "Turn off alarm",
+  "emergencyCancel": "Back to the alarm",
+  "emergencyDone": "Alarm off. This morning won't count toward your streak.",
+  "@mathProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "@emergencyTapBody": {
+    "placeholders": {
+      "left": {
+        "type": "int"
+      }
+    }
+  }
 }

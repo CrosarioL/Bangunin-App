@@ -48,4 +48,5 @@ abstract final class AnalyticsEvents {
   static const missionFailed = 'mission_failed';
   static const huntTargetAssigned = 'hunt_target_assigned';
   static const huntRerolled = 'hunt_rerolled';
+  static const emergencyEscape = 'emergency_escape';
 }

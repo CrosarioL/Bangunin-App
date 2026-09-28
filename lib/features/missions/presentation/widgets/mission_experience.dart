@@ -14,7 +14,8 @@ extension MissionExperience on MissionType {
     MissionType.grassPhoto => AppColors.grass,
     MissionType.makeBed => AppColors.sunsetViolet,
     MissionType.objectHunt || MissionType.randomHunt => AppColors.primary,
-    MissionType.pushups => AppColors.sunsetCoral,
+    MissionType.pushups || MissionType.shake => AppColors.sunsetCoral,
+    MissionType.math => AppColors.sunsetViolet,
     MissionType.none => AppColors.cyan,
   };
 
@@ -27,6 +28,8 @@ extension MissionExperience on MissionType {
         id ? 'Tunjukkan seluruh kasur!' : 'Show the whole bed!',
       MissionType.objectHunt => id ? 'Cocokkan bendanya!' : 'Match the object!',
       MissionType.randomHunt => id ? 'Ayo cari!' : 'Go find it!',
+      MissionType.math => id ? 'Fokus!' : 'Focus!',
+      MissionType.shake => id ? 'Goyang!' : 'Shake it!',
       MissionType.squats =>
         id ? 'Seluruh badan terlihat!' : 'Keep your full body visible!',
       MissionType.pushups =>

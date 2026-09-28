@@ -810,4 +810,65 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get soundsSection => 'Sounds';
+
+  @override
+  String get missionMath => 'Math';
+
+  @override
+  String get missionMathDescription =>
+      'Solve sums until your brain switches on.';
+
+  @override
+  String get missionShake => 'Shake';
+
+  @override
+  String get missionShakeDescription =>
+      'Shake your phone hard until the counter fills.';
+
+  @override
+  String mathProgress(int current, int total) {
+    return 'Problem $current of $total';
+  }
+
+  @override
+  String get mathWrong => 'Not quite. Try this one.';
+
+  @override
+  String get shakeInstruction => 'Shake it! Hard!';
+
+  @override
+  String get shakeHint => 'Hold on tight and shake with your whole arm.';
+
+  @override
+  String get countProblems => 'Problems';
+
+  @override
+  String get countShakes => 'Shakes';
+
+  @override
+  String get emergencyLink => 'Emergency? Can\'t do the mission';
+
+  @override
+  String get emergencyTitle => 'Emergency exit';
+
+  @override
+  String emergencyTapBody(int left) {
+    return 'Only for real emergencies. Tap $left more times.';
+  }
+
+  @override
+  String get emergencyTapButton => 'Tap';
+
+  @override
+  String get emergencyPledgeBody => 'Type this out:';
+
+  @override
+  String get emergencyConfirm => 'Turn off alarm';
+
+  @override
+  String get emergencyCancel => 'Back to the alarm';
+
+  @override
+  String get emergencyDone =>
+      'Alarm off. This morning won\'t count toward your streak.';
 }

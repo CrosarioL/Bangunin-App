@@ -144,6 +144,8 @@ class PhotoMissionVerifier {
       case MissionType.randomHunt:
       // Needs the assigned target; see [verifyHunt].
       case MissionType.none:
+      case MissionType.math:
+      case MissionType.shake:
       case MissionType.squats:
       case MissionType.pushups:
         return const PhotoVerification.fail(PhotoFailure.invalidImage);

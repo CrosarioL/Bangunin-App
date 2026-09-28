@@ -188,6 +188,8 @@ class MissionStep extends ConsumerWidget {
   /// both are left for the editor.
   static const missions = [
     MissionType.randomHunt,
+    MissionType.math,
+    MissionType.shake,
     MissionType.squats,
     MissionType.skyPhoto,
     MissionType.makeBed,

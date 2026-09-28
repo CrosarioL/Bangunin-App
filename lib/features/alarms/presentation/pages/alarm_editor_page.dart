@@ -181,10 +181,10 @@ class _AlarmEditorPageState extends ConsumerState<AlarmEditorPage> {
                           value: alarm.missionType.localizedName(l10n),
                           onTap: _pickMission,
                         ),
-                        if (alarm.missionType.isMovement)
+                        if (alarm.missionType.hasCount)
                           _SettingRow(
                             icon: Icons.repeat_rounded,
-                            title: l10n.repsLabel,
+                            title: alarm.missionType.countLabel(l10n),
                             value: '${alarm.missionReps}',
                             onTap: _pickReps,
                           ),
@@ -263,8 +263,13 @@ class _AlarmEditorPageState extends ConsumerState<AlarmEditorPage> {
     _update(
       (a) => a.copyWith(
         missionType: mission,
-        missionReps: mission.isMovement
-            ? (a.missionReps > 0 ? a.missionReps : mission.defaultReps)
+        // A count only carries over between missions that count the same
+        // thing; 10 squats must not become 10 maths problems.
+        missionReps: mission.hasCount
+            ? (a.missionType.countOptions == mission.countOptions &&
+                      a.missionReps > 0
+                  ? a.missionReps
+                  : mission.defaultReps)
             : 0,
         objectReferencePath: referencePath,
       ),
@@ -274,7 +279,7 @@ class _AlarmEditorPageState extends ConsumerState<AlarmEditorPage> {
   Future<void> _pickReps() async {
     final l10n = context.l10n;
     final alarm = _alarm!;
-    final options = [5, 10, 15, 20, 30];
+    final options = alarm.missionType.countOptions;
     final reps = await showModalBottomSheet<int>(
       context: context,
       builder: (context) => SafeArea(
@@ -284,7 +289,7 @@ class _AlarmEditorPageState extends ConsumerState<AlarmEditorPage> {
             Padding(
               padding: const EdgeInsets.all(AppSpacing.lg),
               child: Text(
-                l10n.repsLabel,
+                alarm.missionType.countLabel(l10n),
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
             ),

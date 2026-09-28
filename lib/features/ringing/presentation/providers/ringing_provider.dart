@@ -9,6 +9,7 @@ import '../../../../core/services/analytics/analytics_service.dart';
 import '../../../alarms/domain/entities/alarm.dart';
 import '../../../missions/domain/hunt_target.dart';
 import '../../../stats/domain/entities/wake_record.dart';
+import '../../domain/emergency_escape.dart';
 
 /// Watches the clock while the app is foregrounded and reports alarms that
 /// just became due, so ringing takes over even without a notification tap.
@@ -209,7 +210,40 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
 
   /// Mission passed (or no mission): stop audio, record the wake, clear the
   /// session, resync future occurrences.
-  Future<void> complete() async {
+  Future<void> complete() => _finish(success: true);
+
+  /// Emergency exit: the alarm stops like [complete], but the morning is
+  /// recorded as a failure so it never feeds a streak, and it counts against
+  /// this month's escapes (which lengthens the next pledge).
+  Future<void> escape() async {
+    final prefs = ref.read(sharedPreferencesProvider);
+    final used = emergencyEscapesThisMonth();
+    await prefs.setString(
+      _escapeMonthKey,
+      EmergencyEscape.monthKey(DateTime.now()),
+    );
+    await prefs.setInt(_escapeCountKey, used + 1);
+    unawaited(
+      ref.read(analyticsProvider).logEvent(AnalyticsEvents.emergencyEscape, {
+        'mission': state?.alarm.missionType.name,
+        'used_this_month': used + 1,
+      }),
+    );
+    await _finish(success: false);
+  }
+
+  static const _escapeMonthKey = 'emergency_escape_month';
+  static const _escapeCountKey = 'emergency_escape_count';
+
+  /// Escapes already used in the current calendar month.
+  int emergencyEscapesThisMonth() {
+    final prefs = ref.read(sharedPreferencesProvider);
+    final month = prefs.getString(_escapeMonthKey);
+    if (month != EmergencyEscape.monthKey(DateTime.now())) return 0;
+    return prefs.getInt(_escapeCountKey) ?? 0;
+  }
+
+  Future<void> _finish({required bool success}) async {
     final session = state;
     if (session == null) return;
     await ref.read(alarmAudioServiceProvider).stopRinging();
@@ -230,6 +264,7 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
             dismissedAt: DateTime.now(),
             missionType: alarm.missionType,
             snoozeCount: session.snoozeCount,
+            success: success,
           ),
         );
 
@@ -242,11 +277,13 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
     final alarms = await ref.read(alarmRepositoryProvider).getAll();
     await ref.read(alarmSchedulerProvider).reschedule(alarms);
 
-    unawaited(
-      ref.read(analyticsProvider).logEvent(AnalyticsEvents.missionCompleted, {
-        'mission': alarm.missionType.name,
-      }),
-    );
+    if (success) {
+      unawaited(
+        ref.read(analyticsProvider).logEvent(AnalyticsEvents.missionCompleted, {
+          'mission': alarm.missionType.name,
+        }),
+      );
+    }
     state = null;
   }
 }
