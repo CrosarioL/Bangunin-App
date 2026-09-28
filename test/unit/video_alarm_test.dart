@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -129,5 +131,19 @@ void main() {
         .map((c) => c.gradient.map((color) => color.toARGB32()).join(','))
         .toSet();
     expect(firsts.length, ClipCategory.values.length);
+  });
+
+  test('every catalog clip ships its files', () {
+    for (final clip in AlarmClips.all) {
+      expect(File(clip.audioAsset).existsSync(), isTrue, reason: clip.id);
+      if (clip.hasVideo) {
+        expect(File(clip.videoAsset).existsSync(), isTrue, reason: clip.id);
+        expect(File(clip.thumbnailAsset).existsSync(), isTrue, reason: clip.id);
+      }
+    }
+  });
+
+  test('onboarding offers a handful of clips, not the whole catalog', () {
+    expect(AlarmClips.onboarding.length, inInclusiveRange(3, 8));
   });
 }

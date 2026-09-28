@@ -51,18 +51,25 @@ mkdir -p "$out"
 trim=(-ss "$start")
 [[ -n $length ]] && trim+=(-t "$length")
 
-probe() { ffprobe -v error -show_entries "$1" -of csv=p=0 "$2"; }
+# Windows builds of ffprobe end lines with \r, which breaks exact matching
+# and arithmetic, so every probe strips it.
+probe() { ffprobe -v error -show_entries "$1" -of csv=p=0 "$2" | tr -d '\r'; }
+# Stream types one per line. Plain output, since csv adds a trailing comma
+# for streams with side data (ID3 tags), which broke exact matching.
+stream_types() {
+  ffprobe -v error -show_entries stream=codec_type -of default=nw=1:nk=1 "$1" | tr -d '\r'
+}
 
-if [[ -z $(probe stream=codec_type "$input" | grep -x audio || true) ]]; then
+if ! stream_types "$input" | grep -qx audio; then
   echo "error: $input has no audio track, and the audio is the alarm" >&2
   exit 65
 fi
 
-has_video=$(probe stream=codec_type "$input" | grep -qx video && echo 1 || echo 0)
+has_video=$(stream_types "$input" | grep -qx video && echo 1 || echo 0)
 # A cover-art image inside an MP3 shows up as a one-frame "video" stream.
 if [[ $has_video == 1 ]]; then
   frames=$(ffprobe -v error -select_streams v:0 -count_packets \
-    -show_entries stream=nb_read_packets -of csv=p=0 "$input" || echo 0)
+    -show_entries stream=nb_read_packets -of csv=p=0 "$input" | tr -d '\r,' || echo 0)
   (( frames > 1 )) || has_video=0
 fi
 

@@ -54,7 +54,166 @@ abstract final class AlarmClips {
   ///
   /// When the catalog moves to a server, this becomes the offline fallback:
   /// the next alarm must never depend on the network.
-  static const all = <AlarmClip>[];
+  ///
+  /// Order is picker order. Sources: Myinstants re-uploads of viral memes,
+  /// never commercial songs (see tool/add_alarm_clip.sh).
+  static const all = <AlarmClip>[
+    // Indonesia.
+    AlarmClip(
+      id: 'tung_sahur',
+      titleEn: 'Tung Tung Tung Sahur',
+      titleId: 'Tung Tung Tung Sahur',
+      category: ClipCategory.seasonal,
+      emoji: '🥁',
+      onboarding: true,
+    ),
+    AlarmClip(
+      id: 'om_telolet',
+      titleEn: 'Om Telolet Om',
+      titleId: 'Om Telolet Om',
+      category: ClipCategory.loud,
+      emoji: '🚌',
+      onboarding: true,
+    ),
+    AlarmClip(
+      id: 'tahu_bulat',
+      titleEn: 'Tahu Bulat',
+      titleId: 'Tahu Bulat',
+      category: ClipCategory.funny,
+      emoji: '📣',
+      onboarding: true,
+    ),
+    AlarmClip(
+      id: 'bangun_sahur',
+      titleEn: 'Bangun Sahur!',
+      titleId: 'Bangun Sahur!',
+      category: ClipCategory.seasonal,
+      emoji: '🌙',
+    ),
+    AlarmClip(
+      id: 'bangunin_subuh',
+      titleEn: 'Bangunin Gw Subuh',
+      titleId: 'Bangunin Gw Subuh',
+      category: ClipCategory.funny,
+      emoji: '🌅',
+    ),
+    AlarmClip(
+      id: 'bangun',
+      titleEn: 'BANGUN!',
+      titleId: 'BANGUN!',
+      category: ClipCategory.loud,
+      emoji: '📢',
+    ),
+    AlarmClip(
+      id: 'sayur',
+      titleEn: 'Sayuuur!',
+      titleId: 'Sayuuur!',
+      category: ClipCategory.funny,
+      emoji: '🥬',
+    ),
+    AlarmClip(
+      id: 'rem_truk',
+      titleEn: 'Truck Air Brake',
+      titleId: 'Rem Truk',
+      category: ClipCategory.loud,
+      emoji: '🚛',
+    ),
+    AlarmClip(
+      id: 'waduh',
+      titleEn: 'Waduh',
+      titleId: 'Waduh',
+      category: ClipCategory.funny,
+      emoji: '😰',
+    ),
+    AlarmClip(
+      id: 'ngakak',
+      titleEn: 'Annoying Laugh',
+      titleId: 'Ketawa Ngeselin',
+      category: ClipCategory.funny,
+      emoji: '🤣',
+    ),
+    // Global.
+    AlarmClip(
+      id: 'phone_ringing',
+      titleEn: 'Your Phone Ringing',
+      titleId: 'Your Phone Ringing',
+      category: ClipCategory.funny,
+      emoji: '📱',
+      onboarding: true,
+    ),
+    AlarmClip(
+      id: 'patapim_alarm',
+      titleEn: 'Brr Brr Patapim',
+      titleId: 'Brr Brr Patapim',
+      category: ClipCategory.funny,
+      emoji: '🌳',
+      onboarding: true,
+    ),
+    AlarmClip(
+      id: 'danger_alarm',
+      titleEn: 'Danger Alarm',
+      titleId: 'Alarm Bahaya',
+      category: ClipCategory.loud,
+      emoji: '🚨',
+      onboarding: true,
+    ),
+    AlarmClip(
+      id: 'bombardiro',
+      titleEn: 'Bombardiro Crocodilo',
+      titleId: 'Bombardiro Crocodilo',
+      category: ClipCategory.funny,
+      emoji: '🐊',
+    ),
+    AlarmClip(
+      id: 'fahh',
+      titleEn: 'FAHHH',
+      titleId: 'FAHHH',
+      category: ClipCategory.loud,
+      emoji: '😫',
+    ),
+    AlarmClip(
+      id: 'vine_boom',
+      titleEn: 'Vine Boom',
+      titleId: 'Vine Boom',
+      category: ClipCategory.loud,
+      emoji: '💥',
+    ),
+    AlarmClip(
+      id: 'metal_pipe',
+      titleEn: 'Metal Pipe',
+      titleId: 'Pipa Besi Jatuh',
+      category: ClipCategory.loud,
+      emoji: '🔩',
+    ),
+    AlarmClip(
+      id: 'metal_gear',
+      titleEn: 'Metal Gear Alert',
+      titleId: 'Metal Gear Alert',
+      category: ClipCategory.loud,
+      emoji: '❗',
+    ),
+    AlarmClip(
+      id: 'nuclear_siren',
+      titleEn: 'Nuclear Siren',
+      titleId: 'Sirine Nuklir',
+      category: ClipCategory.loud,
+      emoji: '☢️',
+    ),
+    AlarmClip(
+      id: 'emotional_damage',
+      titleEn: 'Emotional Damage',
+      titleId: 'Emotional Damage',
+      category: ClipCategory.funny,
+      emoji: '💔',
+    ),
+    AlarmClip(
+      id: 'wakey_school',
+      titleEn: 'Wakey Wakey, School Time',
+      titleId: 'Wakey Wakey, Waktunya Sekolah',
+      category: ClipCategory.motivation,
+      emoji: '🎒',
+    ),
+  ];
 
   static AlarmClip? byId(String? id) {
     if (id == null) return null;
