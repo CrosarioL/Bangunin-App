@@ -946,4 +946,13 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get missionSwipeHint => 'Geser untuk lihat semua misi';
+
+  @override
+  String get chooseSound => 'Pilih suara ini';
+
+  @override
+  String get soundSwipeHint => 'Geser untuk dengar satu per satu';
+
+  @override
+  String get importSoundShort => 'Impor';
 }

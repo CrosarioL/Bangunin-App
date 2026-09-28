@@ -945,4 +945,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get missionSwipeHint => 'Swipe to see every mission';
+
+  @override
+  String get chooseSound => 'Choose this sound';
+
+  @override
+  String get soundSwipeHint => 'Swipe to hear each one';
+
+  @override
+  String get importSoundShort => 'Import';
 }

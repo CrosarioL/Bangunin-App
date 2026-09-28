@@ -272,5 +272,8 @@
   "wakeCheckExplainer": "Beberapa menit setelah alarm dimatikan, kami cek kamu masih bangun. Kalau nggak dijawab dalam semenit, alarm bunyi lagi lengkap dengan misinya.",
   "chooseMission": "Pilih misi ini",
   "missionCurrent": "Dipakai",
-  "missionSwipeHint": "Geser untuk lihat semua misi"
+  "missionSwipeHint": "Geser untuk lihat semua misi",
+  "chooseSound": "Pilih suara ini",
+  "soundSwipeHint": "Geser untuk dengar satu per satu",
+  "importSoundShort": "Impor"
 }

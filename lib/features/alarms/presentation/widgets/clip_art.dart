@@ -67,51 +67,61 @@ class ClipArt extends StatelessWidget {
           ),
           Padding(
             padding: EdgeInsets.all(large ? 32 : 10),
-            child: Align(
-              alignment: contentAlignment,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Transform.translate(
-                    offset: Offset(0, -bounce * (large ? 28 : 6)),
-                    child: Transform.scale(
-                      scaleX: 1 + bounce * .08,
-                      scaleY: 1 - bounce * .06 + bounce * .14,
-                      child: Text(
-                        clip.emoji,
-                        style: TextStyle(
-                          fontSize: large ? 110 : 60,
-                          shadows: const [
-                            Shadow(color: Colors.black26, blurRadius: 16),
-                          ],
+            // Wrap at the card's width, then shrink as a whole if a long
+            // name (three lines) would overflow a short card.
+            child: LayoutBuilder(
+              builder: (context, box) => Align(
+                alignment: contentAlignment,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: box.maxWidth),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Transform.translate(
+                          offset: Offset(0, -bounce * (large ? 28 : 6)),
+                          child: Transform.scale(
+                            scaleX: 1 + bounce * .08,
+                            scaleY: 1 - bounce * .06 + bounce * .14,
+                            child: Text(
+                              clip.emoji,
+                              style: TextStyle(
+                                fontSize: large ? 110 : 60,
+                                shadows: const [
+                                  Shadow(color: Colors.black26, blurRadius: 16),
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
-                  // Small cards sit above their own caption, so the name would
-                  // only be shown twice (and truncated). Emoji alone reads better.
-                  if (large) ...[
-                    const SizedBox(height: 24),
-                    Text(
-                      clip.title(language).toUpperCase(),
-                      textAlign: TextAlign.center,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.displaySmall!.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w900,
-                        height: 1.05,
-                        shadows: const [
-                          Shadow(
-                            color: Colors.black38,
-                            offset: Offset(0, 2),
-                            blurRadius: 6,
+                        // Small cards sit above their own caption, so the name would
+                        // only be shown twice (and truncated). Emoji alone reads better.
+                        if (large) ...[
+                          const SizedBox(height: 24),
+                          Text(
+                            clip.title(language).toUpperCase(),
+                            textAlign: TextAlign.center,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.displaySmall!.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w900,
+                              height: 1.05,
+                              shadows: const [
+                                Shadow(
+                                  color: Colors.black38,
+                                  offset: Offset(0, 2),
+                                  blurRadius: 6,
+                                ),
+                              ],
+                            ),
                           ),
                         ],
-                      ),
+                      ],
                     ),
-                  ],
-                ],
+                  ),
+                ),
               ),
             ),
           ),

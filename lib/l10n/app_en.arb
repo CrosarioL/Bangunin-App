@@ -465,5 +465,8 @@
   },
   "chooseMission": "Choose this mission",
   "missionCurrent": "Current",
-  "missionSwipeHint": "Swipe to see every mission"
+  "missionSwipeHint": "Swipe to see every mission",
+  "chooseSound": "Choose this sound",
+  "soundSwipeHint": "Swipe to hear each one",
+  "importSoundShort": "Import"
 }

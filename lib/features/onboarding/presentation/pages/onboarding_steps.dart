@@ -9,6 +9,7 @@ import '../../../../app/di/providers.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/widgets/bangunin_mascot.dart';
+import '../../../../core/services/audio/alarm_audio_service.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/l10n_ext.dart';
 import '../../../../core/utils/time_format.dart';
@@ -105,8 +106,15 @@ class _SoundStepState extends ConsumerState<SoundStep> {
       .where((s) => s != AlarmSound.custom)
       .toList();
 
-  // Read eagerly: `ref` is unusable by the time dispose() runs.
-  late final _audio = ref.read(alarmAudioServiceProvider);
+  // Read in initState, not lazily: a lazy read first touched in dispose()
+  // (picker closed without playing anything) uses `ref` after unmount.
+  late final AlarmAudioService _audio;
+
+  @override
+  void initState() {
+    super.initState();
+    _audio = ref.read(alarmAudioServiceProvider);
+  }
 
   @override
   void dispose() {

@@ -1735,6 +1735,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Swipe to see every mission'**
   String get missionSwipeHint;
+
+  /// No description provided for @chooseSound.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose this sound'**
+  String get chooseSound;
+
+  /// No description provided for @soundSwipeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe to hear each one'**
+  String get soundSwipeHint;
+
+  /// No description provided for @importSoundShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get importSoundShort;
 }
 
 class _AppLocalizationsDelegate
