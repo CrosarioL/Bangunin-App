@@ -937,4 +937,13 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get wakeCheckExplainer =>
       'Beberapa menit setelah alarm dimatikan, kami cek kamu masih bangun. Kalau nggak dijawab dalam semenit, alarm bunyi lagi lengkap dengan misinya.';
+
+  @override
+  String get chooseMission => 'Pilih misi ini';
+
+  @override
+  String get missionCurrent => 'Dipakai';
+
+  @override
+  String get missionSwipeHint => 'Geser untuk lihat semua misi';
 }

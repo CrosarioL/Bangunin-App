@@ -269,5 +269,8 @@
   "wakeCheckSetting": "Cek Bangun",
   "wakeCheckOff": "Mati",
   "wakeCheckAfter": "{minutes} menit setelahnya",
-  "wakeCheckExplainer": "Beberapa menit setelah alarm dimatikan, kami cek kamu masih bangun. Kalau nggak dijawab dalam semenit, alarm bunyi lagi lengkap dengan misinya."
+  "wakeCheckExplainer": "Beberapa menit setelah alarm dimatikan, kami cek kamu masih bangun. Kalau nggak dijawab dalam semenit, alarm bunyi lagi lengkap dengan misinya.",
+  "chooseMission": "Pilih misi ini",
+  "missionCurrent": "Dipakai",
+  "missionSwipeHint": "Geser untuk lihat semua misi"
 }

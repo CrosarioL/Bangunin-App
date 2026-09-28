@@ -1717,6 +1717,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A few minutes after you turn the alarm off, we check you\'re still up. Don\'t answer within a minute and it rings again, missions and all.'**
   String get wakeCheckExplainer;
+
+  /// No description provided for @chooseMission.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose this mission'**
+  String get chooseMission;
+
+  /// No description provided for @missionCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Current'**
+  String get missionCurrent;
+
+  /// No description provided for @missionSwipeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe to see every mission'**
+  String get missionSwipeHint;
 }
 
 class _AppLocalizationsDelegate

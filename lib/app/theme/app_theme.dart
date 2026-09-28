@@ -113,7 +113,11 @@ abstract final class AppTheme {
         trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
       ),
       bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: isDark ? AppColors.glass : AppColors.glassLight,
+        // Solid, not glass: without a backdrop blur, a translucent sheet
+        // lets the editor's rows and labels show through its content.
+        backgroundColor: isDark
+            ? AppColors.glass.withValues(alpha: 1)
+            : AppColors.glassLight.withValues(alpha: 1),
         surfaceTintColor: Colors.transparent,
         showDragHandle: true,
         shape: const RoundedRectangleBorder(

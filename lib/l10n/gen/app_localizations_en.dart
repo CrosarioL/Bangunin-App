@@ -936,4 +936,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get wakeCheckExplainer =>
       'A few minutes after you turn the alarm off, we check you\'re still up. Don\'t answer within a minute and it rings again, missions and all.';
+
+  @override
+  String get chooseMission => 'Choose this mission';
+
+  @override
+  String get missionCurrent => 'Current';
+
+  @override
+  String get missionSwipeHint => 'Swipe to see every mission';
 }
