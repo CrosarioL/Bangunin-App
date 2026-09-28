@@ -2,8 +2,10 @@
 /// genre: people pick "the one that yells at me", not "comedy".
 enum ClipCategory { loud, funny, motivation, calm, seasonal }
 
-/// One video alarm: a looping muted clip on the ringing screen, with its own
-/// audio track as the alarm sound.
+/// One meme alarm: its audio is the alarm sound, and the ringing screen
+/// shows either a looping muted video ([hasVideo]) or the clip's generated
+/// art card (category gradient, [emoji], title), so audio-only memes need
+/// no artwork files at all.
 ///
 /// Audio and video ship as separate files on purpose. The video player plays
 /// through the media stream, so a phone with media volume at zero would ring
@@ -11,14 +13,16 @@ enum ClipCategory { loud, funny, motivation, calm, seasonal }
 /// (ignores the silent switch, takes alarm audio focus), exactly like every
 /// other alarm sound, and the video is kept in step with it.
 ///
-/// Files live flat in `assets/clips/` as `<id>.mp4`, `<id>.m4a` and
-/// `<id>.jpg`, produced by `tool/add_alarm_clip.sh`.
+/// Files live flat in `assets/clips/`: always `<id>.m4a`, plus `<id>.mp4`
+/// and `<id>.jpg` for video clips. `tool/add_alarm_clip.sh` makes them.
 class AlarmClip {
   const AlarmClip({
     required this.id,
     required this.titleEn,
     required this.titleId,
     required this.category,
+    required this.emoji,
+    this.hasVideo = false,
     this.onboarding = false,
   });
 
@@ -26,6 +30,12 @@ class AlarmClip {
   final String titleEn;
   final String titleId;
   final ClipCategory category;
+
+  /// The big symbol on the clip's art card.
+  final String emoji;
+
+  /// Ships `<id>.mp4` and `<id>.jpg`. Audio-only clips use the art card.
+  final bool hasVideo;
 
   /// Offered on the onboarding sound step. Keep that shortlist to the few
   /// clips most likely to be picked; the full catalog lives in the editor.

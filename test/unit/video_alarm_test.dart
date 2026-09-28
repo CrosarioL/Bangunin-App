@@ -5,6 +5,7 @@ import 'package:wakio/app/di/providers.dart';
 import 'package:wakio/core/services/audio/alarm_audio_service.dart';
 import 'package:wakio/features/alarms/domain/alarm_clip.dart';
 import 'package:wakio/features/alarms/domain/entities/alarm.dart';
+import 'package:wakio/features/alarms/presentation/widgets/clip_art.dart';
 import 'package:wakio/features/onboarding/presentation/providers/onboarding_provider.dart';
 import 'package:wakio/features/ringing/presentation/widgets/alarm_video_background.dart';
 
@@ -22,6 +23,8 @@ void main() {
     titleEn: 'Phone ringing',
     titleId: 'HP bunyi',
     category: ClipCategory.funny,
+    emoji: '📱',
+    hasVideo: true,
   );
 
   test('clip files follow the flat assets/clips/<id> layout', () {
@@ -95,5 +98,36 @@ void main() {
     expect(tester.takeException(), isNull);
     // The legibility gradient is always drawn, video or not.
     expect(find.byType(DecoratedBox), findsWidgets);
+  });
+
+  testWidgets('an audio-only clip gets a drawn art card, no asset needed', (
+    tester,
+  ) async {
+    const audioOnly = AlarmClip(
+      id: 'vine_boom',
+      titleEn: 'Vine boom',
+      titleId: 'Vine boom',
+      category: ClipCategory.loud,
+      emoji: '💥',
+    );
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: MediaQuery(
+          data: MediaQueryData(disableAnimations: true),
+          child: Scaffold(body: ClipArtBackground(clip: audioOnly)),
+        ),
+      ),
+    );
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+    expect(find.text('💥'), findsOneWidget);
+    expect(find.text('VINE BOOM'), findsOneWidget);
+  });
+
+  test('every category has its own gradient', () {
+    final firsts = ClipCategory.values
+        .map((c) => c.gradient.map((color) => color.toARGB32()).join(','))
+        .toSet();
+    expect(firsts.length, ClipCategory.values.length);
   });
 }

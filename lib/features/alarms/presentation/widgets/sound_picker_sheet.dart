@@ -17,6 +17,7 @@ import '../../../../core/utils/l10n_ext.dart';
 import '../../domain/alarm_clip.dart';
 import '../../domain/entities/alarm.dart';
 import 'alarm_sound_l10n.dart';
+import 'clip_art.dart';
 
 /// Result of the sound picker: a video alarm, the chosen bundled sound, or a
 /// custom file (imported audio/video or a fresh mic recording).
@@ -345,19 +346,27 @@ class ClipTile extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    Image.asset(
-                      clip.thumbnailAsset,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) =>
-                          const ColoredBox(color: AppColors.nightTop),
-                    ),
-                    Center(
-                      child: Icon(
-                        selected
-                            ? Icons.check_circle_rounded
-                            : Icons.play_circle_fill_rounded,
-                        color: Colors.white.withValues(alpha: .9),
-                        size: 34,
+                    if (clip.hasVideo)
+                      Image.asset(
+                        clip.thumbnailAsset,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, _, _) => ClipArt(clip: clip),
+                      )
+                    else
+                      ClipArt(clip: clip),
+                    Align(
+                      alignment: clip.hasVideo
+                          ? Alignment.center
+                          : Alignment.topRight,
+                      child: Padding(
+                        padding: const EdgeInsets.all(6),
+                        child: Icon(
+                          selected
+                              ? Icons.check_circle_rounded
+                              : Icons.play_circle_fill_rounded,
+                          color: Colors.white.withValues(alpha: .9),
+                          size: clip.hasVideo ? 34 : 24,
+                        ),
                       ),
                     ),
                   ],

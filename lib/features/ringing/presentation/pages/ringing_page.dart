@@ -15,6 +15,7 @@ import '../../../../core/utils/time_format.dart';
 import '../../../alarms/domain/alarm_clip.dart';
 import '../../../alarms/domain/entities/alarm.dart';
 import '../../../alarms/presentation/widgets/alarm_card.dart';
+import '../../../alarms/presentation/widgets/clip_art.dart';
 import '../../../missions/domain/mission_type.dart';
 import '../../../missions/presentation/widgets/mission_experience.dart';
 import '../mission_flow.dart';
@@ -112,7 +113,10 @@ class _RingingPageState extends ConsumerState<RingingPage>
         body: Stack(
           fit: StackFit.expand,
           children: [
-            if (clip != null) AlarmVideoBackground(clip: clip),
+            if (clip != null)
+              clip.hasVideo
+                  ? AlarmVideoBackground(clip: clip)
+                  : ClipArtBackground(clip: clip),
             SafeArea(
               // At the largest accessibility text sizes the clock, label, mission
               // name, button and snooze row cannot all fit. Scrolling is the only
