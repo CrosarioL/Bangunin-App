@@ -13,7 +13,7 @@ These are drafts. Confirm the final questions shown in the account before submit
 
 ## Exact alarm permission
 
-Bangunin is a dedicated alarm-clock app. Users explicitly create alarms for a chosen time. Exact timing is necessary for this core, user-facing alarm function. `USE_EXACT_ALARM` is used only to schedule alarms created by the user and their configured snoozes; it is not used for advertising, background engagement, analytics, or unrelated notifications.
+Bangunin is a dedicated alarm-clock app. Users explicitly create alarms for a chosen time. Exact timing is necessary for this core, user-facing alarm function. `USE_EXACT_ALARM` is used only to schedule alarms created by the user, their configured snoozes, and the optional Wake Up Check the user turns on per alarm (a prompt a few minutes after dismissal, and the alarm again if it goes unanswered); it is not used for advertising, background engagement, analytics, or unrelated notifications.
 
 ## Full-screen intent
 

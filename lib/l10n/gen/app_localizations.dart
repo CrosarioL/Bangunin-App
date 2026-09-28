@@ -1241,7 +1241,7 @@ abstract class AppLocalizations {
   /// No description provided for @trialDay2Body.
   ///
   /// In en, this message translates to:
-  /// **'We\'ll remind you before your trial ends.'**
+  /// **'Cancel in Google Play before the trial ends and you pay nothing.'**
   String get trialDay2Body;
 
   /// No description provided for @trialDayFinal.

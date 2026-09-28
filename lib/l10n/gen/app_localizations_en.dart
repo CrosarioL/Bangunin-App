@@ -654,7 +654,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trialDay2 => 'Day 2';
 
   @override
-  String get trialDay2Body => 'We\'ll remind you before your trial ends.';
+  String get trialDay2Body =>
+      'Cancel in Google Play before the trial ends and you pay nothing.';
 
   @override
   String trialDayFinal(int day) {

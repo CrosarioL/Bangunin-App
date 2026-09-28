@@ -653,7 +653,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get trialDay2 => 'Hari ke-2';
 
   @override
-  String get trialDay2Body => 'Kami ingatkan sebelum uji cobamu berakhir.';
+  String get trialDay2Body =>
+      'Batalkan di Google Play sebelum uji coba berakhir, kamu nggak bayar apa pun.';
 
   @override
   String trialDayFinal(int day) {

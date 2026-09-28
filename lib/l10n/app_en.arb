@@ -294,7 +294,7 @@
   "trialToday": "Today",
   "trialTodayBody": "Unlock every mission, sound and stat.",
   "trialDay2": "Day 2",
-  "trialDay2Body": "We'll remind you before your trial ends.",
+  "trialDay2Body": "Cancel in Google Play before the trial ends and you pay nothing.",
   "trialDayFinal": "Day {day}",
   "@trialDayFinal": {
     "placeholders": {
