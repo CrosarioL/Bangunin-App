@@ -67,6 +67,16 @@ abstract final class AlarmClips {
       emoji: '🥁',
       onboarding: true,
     ),
+    // The yell at the end of @hikaru_0772's "POV: Bapak bangunin sahur",
+    // looped with a breath between yells.
+    AlarmClip(
+      id: 'sahur_bapak',
+      titleEn: 'Dad Yelling SAHUR',
+      titleId: 'Bapak Bangunin Sahur',
+      category: ClipCategory.seasonal,
+      emoji: '👨',
+      onboarding: true,
+    ),
     AlarmClip(
       id: 'om_telolet',
       titleEn: 'Om Telolet Om',
