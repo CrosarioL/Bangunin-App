@@ -39,6 +39,10 @@ enum MissionType {
   /// time, so there is nothing to set up and no spot to pre-plan.
   bool get needsReferencePhoto => this == objectHunt;
 
+  /// Can follow another mission in a chain. Object Hunt can't: an alarm has
+  /// one registered reference photo, and it belongs to the first mission.
+  bool get canChain => this != none && this != objectHunt;
+
   IconData get icon => switch (this) {
     none => Icons.notifications_none_rounded,
     randomHunt => Icons.shuffle_rounded,

@@ -17,6 +17,7 @@ import '../../../alarms/domain/entities/alarm.dart';
 import '../../../alarms/presentation/widgets/alarm_card.dart';
 import '../../../missions/domain/mission_type.dart';
 import '../../../missions/presentation/widgets/mission_experience.dart';
+import '../mission_flow.dart';
 import '../providers/ringing_provider.dart';
 import '../widgets/alarm_video_background.dart';
 import '../widgets/emergency_escape_sheet.dart';
@@ -98,6 +99,11 @@ class _RingingPageState extends ConsumerState<RingingPage>
     final session = ref.watch(ringingSessionProvider);
     final alarm = _alarm;
     final clip = AlarmClips.byId(alarm?.clipId);
+    // The mission still to do: the first on a fresh ring, later ones once
+    // earlier missions in a chain have been passed.
+    final mission = session?.currentMission ?? alarm?.missionType;
+    final chainLength = alarm?.missionChain.length ?? 0;
+    final missionName = mission?.localizedName(l10n) ?? '';
 
     return PopScope(
       canPop: false,
@@ -192,18 +198,26 @@ class _RingingPageState extends ConsumerState<RingingPage>
                                     vertical: AppSpacing.sm,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: alarm.missionType.experienceColor
-                                        .withValues(alpha: .14),
+                                    color: mission!.experienceColor.withValues(
+                                      alpha: .14,
+                                    ),
                                     borderRadius: BorderRadius.circular(99),
                                     border: Border.all(
-                                      color: alarm.missionType.experienceColor
-                                          .withValues(alpha: .34),
+                                      color: mission.experienceColor.withValues(
+                                        alpha: .34,
+                                      ),
                                     ),
                                   ),
                                   child: Text(
-                                    alarm.missionType.localizedName(l10n),
+                                    chainLength > 1
+                                        ? l10n.missionStepOf(
+                                            (session?.missionStep ?? 0) + 1,
+                                            chainLength,
+                                            missionName,
+                                          )
+                                        : missionName,
                                     style: theme.textTheme.bodyMedium!.copyWith(
-                                      color: alarm.missionType.experienceColor,
+                                      color: mission.experienceColor,
                                       fontWeight: FontWeight.w700,
                                     ),
                                     textAlign: TextAlign.center,
@@ -270,13 +284,9 @@ class _RingingPageState extends ConsumerState<RingingPage>
   Future<void> _startMission(Alarm alarm) async {
     await ref.read(ringingSessionProvider.notifier).pauseForMission();
     if (!mounted) return;
-    if (alarm.missionType.isPhoto) {
-      unawaited(context.push(Routes.photoMission(alarm.id)));
-    } else if (alarm.missionType.isPhoneTask) {
-      unawaited(context.push(Routes.phoneMission(alarm.id)));
-    } else {
-      unawaited(context.push(Routes.movementMission(alarm.id)));
-    }
+    final mission =
+        ref.read(ringingSessionProvider)?.currentMission ?? alarm.missionType;
+    unawaited(context.push(missionRoute(mission, alarm.id)));
   }
 
   Future<void> _dismissNoMission() async {

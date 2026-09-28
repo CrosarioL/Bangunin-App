@@ -11,9 +11,11 @@ import 'package:wakio/core/services/audio/alarm_audio_service.dart';
 import 'package:wakio/core/storage/local_store.dart';
 import 'package:wakio/features/alarms/data/alarm_repository_impl.dart';
 import 'package:wakio/features/alarms/data/alarm_scheduler.dart';
+import 'package:wakio/features/alarms/data/wake_check_store.dart';
 import 'package:wakio/features/alarms/domain/alarm_clip.dart';
 import 'package:wakio/features/alarms/domain/entities/alarm.dart';
 import 'package:wakio/features/alarms/domain/repositories/alarm_repository.dart';
+import 'package:wakio/features/missions/domain/mission_type.dart';
 import 'package:wakio/features/ringing/presentation/providers/ringing_provider.dart';
 import 'package:wakio/features/stats/data/wake_stats_repository_impl.dart';
 
@@ -78,6 +80,27 @@ class _FakeAlarmScheduler implements AlarmScheduler {
 
   @override
   Future<AlarmEngine> activeEngine() async => AlarmEngine.notifications;
+
+  @override
+  PendingWakeCheck? pendingWakeCheck;
+
+  @override
+  Future<PendingWakeCheck> scheduleWakeCheck(
+    Alarm alarm, {
+    DateTime? now,
+  }) async {
+    final at = (now ?? DateTime.now()).add(
+      Duration(minutes: alarm.wakeCheckMinutes),
+    );
+    return pendingWakeCheck = PendingWakeCheck(
+      alarmId: alarm.id,
+      checkAt: at,
+      ringAt: at.add(PendingWakeCheck.answerWindow),
+    );
+  }
+
+  @override
+  Future<void> cancelWakeCheck() async => pendingWakeCheck = null;
 }
 
 void main() {
@@ -220,6 +243,78 @@ void main() {
       expect(notifier.emergencyEscapesThisMonth(), 2);
     },
   );
+
+  test(
+    'a chain walks mission by mission, and backing out keeps progress',
+    () async {
+      await alarmRepository.upsert(
+        testAlarm().copyWith(
+          missionType: MissionType.randomHunt,
+          extraMissions: [MissionType.math, MissionType.shake],
+        ),
+      );
+      final notifier = container.read(ringingSessionProvider.notifier);
+      await notifier.begin('ring-test');
+      expect(
+        container.read(ringingSessionProvider)!.currentMission,
+        MissionType.randomHunt,
+      );
+
+      expect(notifier.advanceMission(), MissionType.math);
+      // Abandoning a mission resumes ringing; begin() again is a no-op for
+      // the same alarm, so the passed step stays passed.
+      await notifier.resumeRinging();
+      await notifier.begin('ring-test');
+      expect(
+        container.read(ringingSessionProvider)!.currentMission,
+        MissionType.math,
+      );
+
+      expect(notifier.advanceMission(), MissionType.shake);
+      expect(notifier.advanceMission(), isNull, reason: 'chain finished');
+    },
+  );
+
+  test('completing arms a Wake Up Check when the alarm has one', () async {
+    await alarmRepository.upsert(
+      testAlarm().copyWith(missionType: MissionType.math, wakeCheckMinutes: 5),
+    );
+    final notifier = container.read(ringingSessionProvider.notifier);
+    await notifier.begin('ring-test');
+    await notifier.complete();
+
+    final check = scheduler.pendingWakeCheck;
+    expect(check?.alarmId, 'ring-test');
+    expect(
+      scheduler.rescheduleCallCount,
+      greaterThan(0),
+      reason: 'the check is armed after the reschedule that would cancel it',
+    );
+  });
+
+  test('no Wake Up Check after an emergency escape', () async {
+    await alarmRepository.upsert(
+      testAlarm().copyWith(missionType: MissionType.math, wakeCheckMinutes: 5),
+    );
+    final notifier = container.read(ringingSessionProvider.notifier);
+    await notifier.begin('ring-test');
+    await notifier.escape();
+    expect(scheduler.pendingWakeCheck, isNull);
+  });
+
+  test('the alarm ringing again clears its pending check', () async {
+    await alarmRepository.upsert(
+      testAlarm().copyWith(missionType: MissionType.math, wakeCheckMinutes: 5),
+    );
+    final notifier = container.read(ringingSessionProvider.notifier);
+    await notifier.begin('ring-test');
+    await notifier.complete();
+    expect(scheduler.pendingWakeCheck, isNotNull);
+
+    // The check lapsed: its re-ring fires.
+    await notifier.begin('ring-test');
+    expect(scheduler.pendingWakeCheck, isNull);
+  });
 
   test(
     'begin() for a deleted alarm returns null without starting audio',

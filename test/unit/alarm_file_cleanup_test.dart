@@ -25,6 +25,7 @@ class _FakeNotificationService implements NotificationService {
     required String body,
     required DateTime at,
     required String payload,
+    bool urgent = true,
   }) async {}
   @override
   Future<void> cancel(int id) async {}

@@ -16,6 +16,7 @@ import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/l10n_ext.dart';
 import '../../../alarms/domain/entities/alarm.dart';
 import '../../../alarms/presentation/widgets/alarm_card.dart';
+import '../../../ringing/presentation/mission_flow.dart';
 import '../../../ringing/presentation/providers/ringing_provider.dart';
 import '../../data/pose_rep_counter.dart';
 import '../../domain/mission_type.dart';
@@ -72,7 +73,8 @@ class _MovementMissionPageState extends ConsumerState<MovementMissionPage>
             missionReps: widget.previewMission!.defaultReps,
             createdAt: DateTime.now(),
           )
-        : await ref.read(alarmRepositoryProvider).getById(widget.alarmId!);
+        : (await ref.read(alarmRepositoryProvider).getById(widget.alarmId!))
+              ?.forStep(currentMissionStep(ref));
     if (!mounted || alarm == null) return;
     final target = alarm.missionReps > 0
         ? alarm.missionReps
@@ -230,8 +232,7 @@ class _MovementMissionPageState extends ConsumerState<MovementMissionPage>
       Navigator.of(context).pop(true);
       return;
     }
-    await ref.read(ringingSessionProvider.notifier).complete();
-    if (mounted) context.go(Routes.wakeSuccess);
+    await finishMissionStep(context, ref, widget.alarmId!);
   }
 
   Future<void> _abandon() async {

@@ -1615,6 +1615,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Alarm off. This morning won\'t count toward your streak.'**
   String get emergencyDone;
+
+  /// No description provided for @wakeCheckNotificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Still awake?'**
+  String get wakeCheckNotificationTitle;
+
+  /// No description provided for @wakeCheckNotificationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap within a minute, or your alarm rings again.'**
+  String get wakeCheckNotificationBody;
+
+  /// No description provided for @wakeCheckRingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You didn\'t confirm you\'re up. Back to the mission.'**
+  String get wakeCheckRingBody;
+
+  /// No description provided for @missionStepOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Mission {step} of {total}: {mission}'**
+  String missionStepOf(int step, int total, String mission);
+
+  /// No description provided for @wakeCheckTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Still awake?'**
+  String get wakeCheckTitle;
+
+  /// No description provided for @wakeCheckBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Prove it, or your alarm comes back with its missions.'**
+  String get wakeCheckBody;
+
+  /// No description provided for @wakeCheckCountdown.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds}s'**
+  String wakeCheckCountdown(int seconds);
+
+  /// No description provided for @wakeCheckConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m awake'**
+  String get wakeCheckConfirm;
+
+  /// No description provided for @wakeCheckPassed.
+  ///
+  /// In en, this message translates to:
+  /// **'Nice. Good morning!'**
+  String get wakeCheckPassed;
+
+  /// No description provided for @missionNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Mission {number}'**
+  String missionNumber(int number);
+
+  /// No description provided for @addMission.
+  ///
+  /// In en, this message translates to:
+  /// **'Add another mission'**
+  String get addMission;
+
+  /// No description provided for @addMissionLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'up to {max}'**
+  String addMissionLimit(int max);
+
+  /// No description provided for @removeMission.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this mission'**
+  String get removeMission;
+
+  /// No description provided for @wakeCheckSetting.
+  ///
+  /// In en, this message translates to:
+  /// **'Wake Up Check'**
+  String get wakeCheckSetting;
+
+  /// No description provided for @wakeCheckOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get wakeCheckOff;
+
+  /// No description provided for @wakeCheckAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min after'**
+  String wakeCheckAfter(int minutes);
+
+  /// No description provided for @wakeCheckExplainer.
+  ///
+  /// In en, this message translates to:
+  /// **'A few minutes after you turn the alarm off, we check you\'re still up. Don\'t answer within a minute and it rings again, missions and all.'**
+  String get wakeCheckExplainer;
 }
 
 class _AppLocalizationsDelegate

@@ -252,5 +252,22 @@
   "emergencyPledgeBody": "Ketik ulang ini:",
   "emergencyConfirm": "Matikan alarm",
   "emergencyCancel": "Kembali ke alarm",
-  "emergencyDone": "Alarm mati. Pagi ini nggak dihitung ke streak-mu."
+  "emergencyDone": "Alarm mati. Pagi ini nggak dihitung ke streak-mu.",
+  "wakeCheckNotificationTitle": "Masih bangun?",
+  "wakeCheckNotificationBody": "Ketuk dalam satu menit, atau alarmmu bunyi lagi.",
+  "wakeCheckRingBody": "Kamu belum konfirmasi sudah bangun. Kerjakan misinya lagi.",
+  "missionStepOf": "Misi {step} dari {total}: {mission}",
+  "wakeCheckTitle": "Masih bangun?",
+  "wakeCheckBody": "Buktikan, atau alarmmu bunyi lagi lengkap dengan misinya.",
+  "wakeCheckCountdown": "{seconds} dtk",
+  "wakeCheckConfirm": "Aku sudah bangun",
+  "wakeCheckPassed": "Mantap. Selamat pagi!",
+  "missionNumber": "Misi {number}",
+  "addMission": "Tambah misi",
+  "addMissionLimit": "maks. {max}",
+  "removeMission": "Hapus misi ini",
+  "wakeCheckSetting": "Cek Bangun",
+  "wakeCheckOff": "Mati",
+  "wakeCheckAfter": "{minutes} menit setelahnya",
+  "wakeCheckExplainer": "Beberapa menit setelah alarm dimatikan, kami cek kamu masih bangun. Kalau nggak dijawab dalam semenit, alarm bunyi lagi lengkap dengan misinya."
 }

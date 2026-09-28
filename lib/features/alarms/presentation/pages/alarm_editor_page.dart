@@ -13,6 +13,7 @@ import '../../../../app/widgets/primary_button.dart';
 import '../../../../app/widgets/sunset_page_header.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/l10n_ext.dart';
+import '../../../missions/domain/mission_type.dart';
 import '../../domain/alarm_clip.dart';
 import '../../domain/entities/alarm.dart';
 import '../providers/alarms_provider.dart';
@@ -188,6 +189,29 @@ class _AlarmEditorPageState extends ConsumerState<AlarmEditorPage> {
                             value: '${alarm.missionReps}',
                             onTap: _pickReps,
                           ),
+                        for (var i = 0; i < alarm.extraMissions.length; i++)
+                          _SettingRow(
+                            icon: alarm.extraMissions[i].icon,
+                            title: l10n.missionNumber(i + 2),
+                            value: alarm.extraMissions[i].localizedName(l10n),
+                            onTap: () => _editExtraMission(i),
+                          ),
+                        if (alarm.missionType != MissionType.none &&
+                            alarm.missionChain.length < Alarm.maxMissions)
+                          _SettingRow(
+                            icon: Icons.add_circle_outline_rounded,
+                            title: l10n.addMission,
+                            value: l10n.addMissionLimit(Alarm.maxMissions),
+                            onTap: _addExtraMission,
+                          ),
+                        _SettingRow(
+                          icon: Icons.verified_user_rounded,
+                          title: l10n.wakeCheckSetting,
+                          value: alarm.wakeCheckMinutes == 0
+                              ? l10n.wakeCheckOff
+                              : l10n.wakeCheckAfter(alarm.wakeCheckMinutes),
+                          onTap: _pickWakeCheck,
+                        ),
                         _SettingRow(
                           icon: Icons.volume_up_rounded,
                           title: l10n.soundSection,
@@ -263,6 +287,11 @@ class _AlarmEditorPageState extends ConsumerState<AlarmEditorPage> {
     _update(
       (a) => a.copyWith(
         missionType: mission,
+        // A plain alarm has no chain; and the new first mission can't also
+        // appear later in it.
+        extraMissions: mission == MissionType.none
+            ? const []
+            : a.extraMissions.where((m) => m != mission).toList(),
         // A count only carries over between missions that count the same
         // thing; 10 squats must not become 10 maths problems.
         missionReps: mission.hasCount
@@ -274,6 +303,98 @@ class _AlarmEditorPageState extends ConsumerState<AlarmEditorPage> {
         objectReferencePath: referencePath,
       ),
     );
+  }
+
+  /// Missions that can't go in a chained slot right now: anything already
+  /// in the chain (except [keep], the slot being edited) plus those that
+  /// can never chain.
+  Set<MissionType> _chainExclusions({MissionType? keep}) => {
+    for (final m in MissionType.values)
+      if (!m.canChain) m,
+    for (final m in _alarm!.missionChain)
+      if (m != keep) m,
+  };
+
+  Future<void> _addExtraMission() async {
+    final mission = await showMissionPickerSheet(
+      context,
+      current: MissionType.none,
+      exclude: {..._chainExclusions(), MissionType.none},
+    );
+    if (mission == null || mission == MissionType.none || !mounted) return;
+    _update((a) => a.copyWith(extraMissions: [...a.extraMissions, mission]));
+  }
+
+  Future<void> _editExtraMission(int index) async {
+    final l10n = context.l10n;
+    final current = _alarm!.extraMissions[index];
+    final exclude = _chainExclusions(keep: current)..remove(MissionType.none);
+    final mission = await showMissionPickerSheet(
+      context,
+      current: current,
+      exclude: exclude,
+      removeLabel: l10n.removeMission,
+    );
+    if (mission == null || !mounted) return;
+    _update((a) {
+      final extras = [...a.extraMissions];
+      if (mission == MissionType.none) {
+        extras.removeAt(index);
+      } else {
+        extras[index] = mission;
+      }
+      return a.copyWith(extraMissions: extras);
+    });
+  }
+
+  Future<void> _pickWakeCheck() async {
+    final l10n = context.l10n;
+    final alarm = _alarm!;
+    const options = [0, 3, 5, 10, 15];
+    final minutes = await showModalBottomSheet<int>(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.lg,
+                AppSpacing.lg,
+                AppSpacing.sm,
+              ),
+              child: Text(
+                l10n.wakeCheckSetting,
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              child: Text(l10n.wakeCheckExplainer),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            for (final option in options)
+              ListTile(
+                title: Text(
+                  option == 0 ? l10n.wakeCheckOff : l10n.wakeCheckAfter(option),
+                ),
+                trailing: option == alarm.wakeCheckMinutes
+                    ? const Icon(
+                        Icons.check_circle_rounded,
+                        color: AppColors.primary,
+                      )
+                    : null,
+                onTap: () => Navigator.of(context).pop(option),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (minutes != null) {
+      _update((a) => a.copyWith(wakeCheckMinutes: minutes));
+    }
   }
 
   Future<void> _pickReps() async {

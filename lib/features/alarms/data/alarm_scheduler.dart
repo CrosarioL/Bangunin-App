@@ -5,7 +5,9 @@ import '../../../core/services/alarms/alarm_kit_service.dart';
 import '../../../core/services/notifications/notification_service.dart';
 import '../../../core/utils/current_locale.dart';
 import '../../missions/domain/mission_type.dart';
+import '../domain/alarm_payload.dart';
 import '../domain/entities/alarm.dart';
+import 'wake_check_store.dart';
 
 /// Schedules alarms with the strongest mechanism the device allows.
 ///
@@ -32,11 +34,17 @@ class AlarmScheduler {
     this._notifications, {
     AlarmKitService? alarmKit,
     this.localeOverride,
+    this._wakeChecks,
   }) : _alarmKit = alarmKit ?? AlarmKitService();
 
   final NotificationService _notifications;
   final AlarmKitService _alarmKit;
   final Locale? localeOverride;
+
+  /// Where the pending Wake Up Check survives app restarts. Null (tests)
+  /// keeps it in memory only.
+  final WakeCheckStore? _wakeChecks;
+  PendingWakeCheck? _memoryWakeCheck;
 
   /// Which mechanism will ring the user's alarms right now.
   Future<AlarmEngine> activeEngine() async {
@@ -85,9 +93,10 @@ class AlarmScheduler {
       for (final alarm in enabled) {
         await _scheduleWithAlarmKit(alarm);
       }
-      // Snooze still rides on notifications until the countdown presentation
-      // (and the widget extension it requires) lands.
+      // Snooze and Wake Up Check still ride on notifications until the
+      // countdown presentation (and the widget extension it requires) lands.
       await _restorePendingSnooze();
+      await _restoreWakeCheck(alarms);
       return;
     }
 
@@ -95,6 +104,7 @@ class AlarmScheduler {
       await _scheduleAlarm(alarm);
     }
     await _restorePendingSnooze();
+    await _restoreWakeCheck(alarms);
   }
 
   /// Hands one alarm to AlarmKit. A rejected alarm is surfaced, not swallowed:
@@ -176,7 +186,99 @@ class AlarmScheduler {
     );
   }
 
+  /// The Wake Up Check waiting to happen, if any.
+  PendingWakeCheck? get pendingWakeCheck =>
+      _wakeChecks != null ? _wakeChecks.read() : _memoryWakeCheck;
+
+  /// Arms a Wake Up Check for [alarm], starting its clock at [now]: a gentle
+  /// prompt after [Alarm.wakeCheckMinutes], and the alarm itself again
+  /// [PendingWakeCheck.answerWindow] later unless [cancelWakeCheck] runs
+  /// first. Replaces any check already pending; there is only ever one.
+  Future<PendingWakeCheck> scheduleWakeCheck(
+    Alarm alarm, {
+    DateTime? now,
+  }) async {
+    final checkAt = (now ?? DateTime.now()).add(
+      Duration(minutes: alarm.wakeCheckMinutes),
+    );
+    final check = PendingWakeCheck(
+      alarmId: alarm.id,
+      checkAt: checkAt,
+      ringAt: checkAt.add(PendingWakeCheck.answerWindow),
+    );
+    await _savePendingWakeCheck(check);
+    await _writeWakeCheck(alarm, check);
+    return check;
+  }
+
+  /// The user answered the check (or the alarm is ringing again anyway):
+  /// pull both notifications and forget the check.
+  Future<void> cancelWakeCheck() async {
+    final check = pendingWakeCheck;
+    if (check != null) {
+      final base = notificationBaseId(check.alarmId);
+      await _notifications.cancel(base + _wakeCheckPromptSlot);
+      await _notifications.cancel(base + _wakeCheckRingSlot);
+    }
+    await _savePendingWakeCheck(null);
+  }
+
+  Future<void> _savePendingWakeCheck(PendingWakeCheck? check) async {
+    final store = _wakeChecks;
+    if (store == null) {
+      _memoryWakeCheck = check;
+    } else if (check == null) {
+      await store.clear();
+    } else {
+      await store.write(check);
+    }
+  }
+
+  /// Re-arms a Wake Up Check that [reschedule] just cancelled. Dropped once
+  /// its re-ring is in the past, or once its alarm no longer exists.
+  Future<void> _restoreWakeCheck(List<Alarm> alarms) async {
+    final check = pendingWakeCheck;
+    if (check == null) return;
+    Alarm? alarm;
+    for (final candidate in alarms) {
+      if (candidate.id == check.alarmId) alarm = candidate;
+    }
+    if (alarm == null || !check.ringAt.isAfter(DateTime.now())) {
+      await _savePendingWakeCheck(null);
+      return;
+    }
+    await _writeWakeCheck(alarm, check);
+  }
+
+  Future<void> _writeWakeCheck(Alarm alarm, PendingWakeCheck check) async {
+    final l10n = currentLocalizations(override: localeOverride);
+    final base = notificationBaseId(alarm.id);
+    if (check.checkAt.isAfter(DateTime.now())) {
+      await _notifications.schedule(
+        id: base + _wakeCheckPromptSlot,
+        title: l10n.wakeCheckNotificationTitle,
+        body: l10n.wakeCheckNotificationBody,
+        at: check.checkAt,
+        payload: AlarmPayload.wakeCheck(alarm.id),
+        urgent: false,
+      );
+    }
+    await _notifications.schedule(
+      id: base + _wakeCheckRingSlot,
+      title: alarm.label.isEmpty ? l10n.notificationDefaultTitle : alarm.label,
+      body: l10n.wakeCheckRingBody,
+      at: check.ringAt,
+      payload: alarm.id,
+    );
+  }
+
+  // Each alarm owns a block of ids: its occurrences, then one snooze, then
+  // the two Wake Up Check notifications.
+  static const _wakeCheckPromptSlot = occurrencesPerAlarm + 1;
+  static const _wakeCheckRingSlot = occurrencesPerAlarm + 2;
+  static const _idsPerAlarm = occurrencesPerAlarm + 3;
+
   /// Stable notification id block derived from the alarm's uuid.
   static int notificationBaseId(String alarmId) =>
-      (alarmId.hashCode & 0x7fffffff) % 1000000 * (occurrencesPerAlarm + 1);
+      (alarmId.hashCode & 0x7fffffff) % 1000000 * _idsPerAlarm;
 }

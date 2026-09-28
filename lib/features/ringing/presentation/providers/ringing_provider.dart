@@ -8,6 +8,7 @@ import '../../../../app/di/providers.dart';
 import '../../../../core/services/analytics/analytics_service.dart';
 import '../../../alarms/domain/entities/alarm.dart';
 import '../../../missions/domain/hunt_target.dart';
+import '../../../missions/domain/mission_type.dart';
 import '../../../stats/domain/entities/wake_record.dart';
 import '../../domain/emergency_escape.dart';
 
@@ -26,6 +27,11 @@ class DueAlarmWatcher {
 
   void Function(String alarmId)? onDue;
 
+  /// A Wake Up Check's prompt time has come while the app is open, where
+  /// the OS notification may never be tapped.
+  void Function(String alarmId)? onWakeCheckDue;
+  DateTime? _promptedCheckAt;
+
   void start() {
     _timer ??= Timer.periodic(const Duration(seconds: 5), (_) => _check());
   }
@@ -34,6 +40,20 @@ class DueAlarmWatcher {
     final now = DateTime.now();
     final from = _lastCheck;
     _lastCheck = now;
+
+    final wakeCheck = _ref.read(alarmSchedulerProvider).pendingWakeCheck;
+    if (wakeCheck != null) {
+      if (!now.isBefore(wakeCheck.ringAt)) {
+        onDue?.call(wakeCheck.alarmId);
+        return;
+      }
+      if (!now.isBefore(wakeCheck.checkAt) &&
+          _promptedCheckAt != wakeCheck.checkAt) {
+        _promptedCheckAt = wakeCheck.checkAt;
+        onWakeCheckDue?.call(wakeCheck.alarmId);
+      }
+    }
+
     final alarms = await _ref.read(alarmRepositoryProvider).getAll();
     for (final alarm in alarms.where((a) => a.enabled)) {
       final next = alarm.nextTrigger(from);
@@ -56,19 +76,32 @@ class RingingSession {
     required this.alarm,
     required this.startedAt,
     this.snoozeCount = 0,
+    this.missionStep = 0,
   });
 
   final Alarm alarm;
   final DateTime startedAt;
   final int snoozeCount;
 
+  /// Index into [Alarm.missionChain] of the mission still to be passed.
+  /// Survives backing out of a mission, so a passed step stays passed.
+  final int missionStep;
+
   bool get canSnooze => alarm.snoozeEnabled && snoozeCount < alarm.maxSnoozes;
 
-  RingingSession copyWith({int? snoozeCount}) => RingingSession(
-    alarm: alarm,
-    startedAt: startedAt,
-    snoozeCount: snoozeCount ?? this.snoozeCount,
-  );
+  /// The mission to do now, or none once the chain is done.
+  MissionType get currentMission {
+    final chain = alarm.missionChain;
+    return missionStep < chain.length ? chain[missionStep] : MissionType.none;
+  }
+
+  RingingSession copyWith({int? snoozeCount, int? missionStep}) =>
+      RingingSession(
+        alarm: alarm,
+        startedAt: startedAt,
+        snoozeCount: snoozeCount ?? this.snoozeCount,
+        missionStep: missionStep ?? this.missionStep,
+      );
 }
 
 /// The object a Random Hunt ring is asking for.
@@ -154,6 +187,17 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
     final alarm = await ref.read(alarmRepositoryProvider).getById(alarmId);
     if (alarm == null) return null;
 
+    // Ringing again makes any pending Wake Up Check for this alarm moot: it
+    // either lapsed (this is its re-ring) or the next occurrence beat it.
+    final scheduler = ref.read(alarmSchedulerProvider);
+    final check = scheduler.pendingWakeCheck;
+    if (check != null && check.alarmId == alarmId) {
+      await scheduler.cancelWakeCheck();
+      unawaited(
+        ref.read(analyticsProvider).logEvent(AnalyticsEvents.wakeCheckMissed),
+      );
+    }
+
     state = RingingSession(
       alarm: alarm,
       startedAt: DateTime.now(),
@@ -208,8 +252,20 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
     return true;
   }
 
+  /// The current mission in the chain was passed. Returns the next one to
+  /// do, or null when the chain is finished and [complete] should follow.
+  MissionType? advanceMission() {
+    final session = state;
+    if (session == null) return null;
+    final next = session.copyWith(missionStep: session.missionStep + 1);
+    state = next;
+    final mission = next.currentMission;
+    return mission == MissionType.none ? null : mission;
+  }
+
   /// Mission passed (or no mission): stop audio, record the wake, clear the
-  /// session, resync future occurrences.
+  /// session, resync future occurrences, and arm the Wake Up Check if the
+  /// alarm has one.
   Future<void> complete() => _finish(success: true);
 
   /// Emergency exit: the alarm stops like [complete], but the morning is
@@ -275,7 +331,21 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
           .upsert(alarm.copyWith(enabled: false));
     }
     final alarms = await ref.read(alarmRepositoryProvider).getAll();
-    await ref.read(alarmSchedulerProvider).reschedule(alarms);
+    final scheduler = ref.read(alarmSchedulerProvider);
+    await scheduler.reschedule(alarms);
+
+    // After the reschedule, which would otherwise cancel it straight away.
+    // Never after an emergency escape: that is an admission of not doing
+    // the mission, and checking on it would only punish honesty.
+    if (success && alarm.wakeCheckMinutes > 0) {
+      await scheduler.scheduleWakeCheck(alarm);
+      unawaited(
+        ref.read(analyticsProvider).logEvent(
+          AnalyticsEvents.wakeCheckScheduled,
+          {'minutes': alarm.wakeCheckMinutes},
+        ),
+      );
+    }
 
     if (success) {
       unawaited(

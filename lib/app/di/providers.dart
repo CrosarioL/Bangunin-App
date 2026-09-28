@@ -14,6 +14,7 @@ import '../../core/services/subscriptions/subscription_service.dart';
 import '../../core/storage/local_store.dart';
 import '../../features/alarms/data/alarm_repository_impl.dart';
 import '../../features/alarms/data/alarm_scheduler.dart';
+import '../../features/alarms/data/wake_check_store.dart';
 import '../../features/alarms/domain/repositories/alarm_repository.dart';
 import '../../features/missions/data/photo_mission_verifier.dart';
 import '../../features/missions/data/scene_classifier.dart';
@@ -87,6 +88,7 @@ final alarmSchedulerProvider = Provider<AlarmScheduler>(
     ref.watch(notificationServiceProvider),
     alarmKit: ref.watch(alarmKitServiceProvider),
     localeOverride: ref.watch(localeOverrideProvider),
+    wakeChecks: WakeCheckStore(ref.watch(sharedPreferencesProvider)),
   ),
 );
 

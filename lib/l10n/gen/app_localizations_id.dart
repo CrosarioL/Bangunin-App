@@ -872,4 +872,69 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get emergencyDone =>
       'Alarm mati. Pagi ini nggak dihitung ke streak-mu.';
+
+  @override
+  String get wakeCheckNotificationTitle => 'Masih bangun?';
+
+  @override
+  String get wakeCheckNotificationBody =>
+      'Ketuk dalam satu menit, atau alarmmu bunyi lagi.';
+
+  @override
+  String get wakeCheckRingBody =>
+      'Kamu belum konfirmasi sudah bangun. Kerjakan misinya lagi.';
+
+  @override
+  String missionStepOf(int step, int total, String mission) {
+    return 'Misi $step dari $total: $mission';
+  }
+
+  @override
+  String get wakeCheckTitle => 'Masih bangun?';
+
+  @override
+  String get wakeCheckBody =>
+      'Buktikan, atau alarmmu bunyi lagi lengkap dengan misinya.';
+
+  @override
+  String wakeCheckCountdown(int seconds) {
+    return '$seconds dtk';
+  }
+
+  @override
+  String get wakeCheckConfirm => 'Aku sudah bangun';
+
+  @override
+  String get wakeCheckPassed => 'Mantap. Selamat pagi!';
+
+  @override
+  String missionNumber(int number) {
+    return 'Misi $number';
+  }
+
+  @override
+  String get addMission => 'Tambah misi';
+
+  @override
+  String addMissionLimit(int max) {
+    return 'maks. $max';
+  }
+
+  @override
+  String get removeMission => 'Hapus misi ini';
+
+  @override
+  String get wakeCheckSetting => 'Cek Bangun';
+
+  @override
+  String get wakeCheckOff => 'Mati';
+
+  @override
+  String wakeCheckAfter(int minutes) {
+    return '$minutes menit setelahnya';
+  }
+
+  @override
+  String get wakeCheckExplainer =>
+      'Beberapa menit setelah alarm dimatikan, kami cek kamu masih bangun. Kalau nggak dijawab dalam semenit, alarm bunyi lagi lengkap dengan misinya.';
 }

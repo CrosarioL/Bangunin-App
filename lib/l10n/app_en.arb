@@ -404,5 +404,63 @@
         "type": "int"
       }
     }
+  },
+  "wakeCheckNotificationTitle": "Still awake?",
+  "wakeCheckNotificationBody": "Tap within a minute, or your alarm rings again.",
+  "wakeCheckRingBody": "You didn't confirm you're up. Back to the mission.",
+  "missionStepOf": "Mission {step} of {total}: {mission}",
+  "@missionStepOf": {
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "mission": {
+        "type": "String"
+      }
+    }
+  },
+  "wakeCheckTitle": "Still awake?",
+  "wakeCheckBody": "Prove it, or your alarm comes back with its missions.",
+  "wakeCheckCountdown": "{seconds}s",
+  "wakeCheckConfirm": "I'm awake",
+  "wakeCheckPassed": "Nice. Good morning!",
+  "@wakeCheckCountdown": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "missionNumber": "Mission {number}",
+  "addMission": "Add another mission",
+  "addMissionLimit": "up to {max}",
+  "removeMission": "Remove this mission",
+  "wakeCheckSetting": "Wake Up Check",
+  "wakeCheckOff": "Off",
+  "wakeCheckAfter": "{minutes} min after",
+  "wakeCheckExplainer": "A few minutes after you turn the alarm off, we check you're still up. Don't answer within a minute and it rings again, missions and all.",
+  "@missionNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "@addMissionLimit": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "@wakeCheckAfter": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
   }
 }

@@ -15,7 +15,10 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Alarm {
 
- String get id; int get hour; int get minute; String get label; Set<int> get repeatDays; bool get enabled; MissionType get missionType; int get missionReps; AlarmSound get sound; String? get customSoundPath;/// A video alarm from [AlarmClips]. When set and still in the catalog it
+ String get id; int get hour; int get minute; String get label; Set<int> get repeatDays; bool get enabled; MissionType get missionType; int get missionReps;/// Missions chained after [missionType], each at its default count.
+/// Ignored when [missionType] is none. See [missionChain].
+ List<MissionType> get extraMissions;/// Minutes after dismissal to check the user is still up; 0 is off.
+ int get wakeCheckMinutes; AlarmSound get sound; String? get customSoundPath;/// A video alarm from [AlarmClips]. When set and still in the catalog it
 /// overrides [sound]; if the clip has been removed, [sound] plays.
  String? get clipId; String? get objectReferencePath; double get volume; bool get vibrate; bool get snoozeEnabled; int get snoozeMinutes; int get maxSnoozes; DateTime get createdAt;
 /// Create a copy of Alarm
@@ -30,16 +33,16 @@ $AlarmCopyWith<Alarm> get copyWith => _$AlarmCopyWithImpl<Alarm>(this as Alarm, 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Alarm&&(identical(other.id, id) || other.id == id)&&(identical(other.hour, hour) || other.hour == hour)&&(identical(other.minute, minute) || other.minute == minute)&&(identical(other.label, label) || other.label == label)&&const DeepCollectionEquality().equals(other.repeatDays, repeatDays)&&(identical(other.enabled, enabled) || other.enabled == enabled)&&(identical(other.missionType, missionType) || other.missionType == missionType)&&(identical(other.missionReps, missionReps) || other.missionReps == missionReps)&&(identical(other.sound, sound) || other.sound == sound)&&(identical(other.customSoundPath, customSoundPath) || other.customSoundPath == customSoundPath)&&(identical(other.clipId, clipId) || other.clipId == clipId)&&(identical(other.objectReferencePath, objectReferencePath) || other.objectReferencePath == objectReferencePath)&&(identical(other.volume, volume) || other.volume == volume)&&(identical(other.vibrate, vibrate) || other.vibrate == vibrate)&&(identical(other.snoozeEnabled, snoozeEnabled) || other.snoozeEnabled == snoozeEnabled)&&(identical(other.snoozeMinutes, snoozeMinutes) || other.snoozeMinutes == snoozeMinutes)&&(identical(other.maxSnoozes, maxSnoozes) || other.maxSnoozes == maxSnoozes)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Alarm&&(identical(other.id, id) || other.id == id)&&(identical(other.hour, hour) || other.hour == hour)&&(identical(other.minute, minute) || other.minute == minute)&&(identical(other.label, label) || other.label == label)&&const DeepCollectionEquality().equals(other.repeatDays, repeatDays)&&(identical(other.enabled, enabled) || other.enabled == enabled)&&(identical(other.missionType, missionType) || other.missionType == missionType)&&(identical(other.missionReps, missionReps) || other.missionReps == missionReps)&&const DeepCollectionEquality().equals(other.extraMissions, extraMissions)&&(identical(other.wakeCheckMinutes, wakeCheckMinutes) || other.wakeCheckMinutes == wakeCheckMinutes)&&(identical(other.sound, sound) || other.sound == sound)&&(identical(other.customSoundPath, customSoundPath) || other.customSoundPath == customSoundPath)&&(identical(other.clipId, clipId) || other.clipId == clipId)&&(identical(other.objectReferencePath, objectReferencePath) || other.objectReferencePath == objectReferencePath)&&(identical(other.volume, volume) || other.volume == volume)&&(identical(other.vibrate, vibrate) || other.vibrate == vibrate)&&(identical(other.snoozeEnabled, snoozeEnabled) || other.snoozeEnabled == snoozeEnabled)&&(identical(other.snoozeMinutes, snoozeMinutes) || other.snoozeMinutes == snoozeMinutes)&&(identical(other.maxSnoozes, maxSnoozes) || other.maxSnoozes == maxSnoozes)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,hour,minute,label,const DeepCollectionEquality().hash(repeatDays),enabled,missionType,missionReps,sound,customSoundPath,clipId,objectReferencePath,volume,vibrate,snoozeEnabled,snoozeMinutes,maxSnoozes,createdAt);
+int get hashCode => Object.hashAll([runtimeType,id,hour,minute,label,const DeepCollectionEquality().hash(repeatDays),enabled,missionType,missionReps,const DeepCollectionEquality().hash(extraMissions),wakeCheckMinutes,sound,customSoundPath,clipId,objectReferencePath,volume,vibrate,snoozeEnabled,snoozeMinutes,maxSnoozes,createdAt]);
 
 @override
 String toString() {
-  return 'Alarm(id: $id, hour: $hour, minute: $minute, label: $label, repeatDays: $repeatDays, enabled: $enabled, missionType: $missionType, missionReps: $missionReps, sound: $sound, customSoundPath: $customSoundPath, clipId: $clipId, objectReferencePath: $objectReferencePath, volume: $volume, vibrate: $vibrate, snoozeEnabled: $snoozeEnabled, snoozeMinutes: $snoozeMinutes, maxSnoozes: $maxSnoozes, createdAt: $createdAt)';
+  return 'Alarm(id: $id, hour: $hour, minute: $minute, label: $label, repeatDays: $repeatDays, enabled: $enabled, missionType: $missionType, missionReps: $missionReps, extraMissions: $extraMissions, wakeCheckMinutes: $wakeCheckMinutes, sound: $sound, customSoundPath: $customSoundPath, clipId: $clipId, objectReferencePath: $objectReferencePath, volume: $volume, vibrate: $vibrate, snoozeEnabled: $snoozeEnabled, snoozeMinutes: $snoozeMinutes, maxSnoozes: $maxSnoozes, createdAt: $createdAt)';
 }
 
 
@@ -50,7 +53,7 @@ abstract mixin class $AlarmCopyWith<$Res>  {
   factory $AlarmCopyWith(Alarm value, $Res Function(Alarm) _then) = _$AlarmCopyWithImpl;
 @useResult
 $Res call({
- String id, int hour, int minute, String label, Set<int> repeatDays, bool enabled, MissionType missionType, int missionReps, AlarmSound sound, String? customSoundPath, String? clipId, String? objectReferencePath, double volume, bool vibrate, bool snoozeEnabled, int snoozeMinutes, int maxSnoozes, DateTime createdAt
+ String id, int hour, int minute, String label, Set<int> repeatDays, bool enabled, MissionType missionType, int missionReps, List<MissionType> extraMissions, int wakeCheckMinutes, AlarmSound sound, String? customSoundPath, String? clipId, String? objectReferencePath, double volume, bool vibrate, bool snoozeEnabled, int snoozeMinutes, int maxSnoozes, DateTime createdAt
 });
 
 
@@ -67,7 +70,7 @@ class _$AlarmCopyWithImpl<$Res>
 
 /// Create a copy of Alarm
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? hour = null,Object? minute = null,Object? label = null,Object? repeatDays = null,Object? enabled = null,Object? missionType = null,Object? missionReps = null,Object? sound = null,Object? customSoundPath = freezed,Object? clipId = freezed,Object? objectReferencePath = freezed,Object? volume = null,Object? vibrate = null,Object? snoozeEnabled = null,Object? snoozeMinutes = null,Object? maxSnoozes = null,Object? createdAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? hour = null,Object? minute = null,Object? label = null,Object? repeatDays = null,Object? enabled = null,Object? missionType = null,Object? missionReps = null,Object? extraMissions = null,Object? wakeCheckMinutes = null,Object? sound = null,Object? customSoundPath = freezed,Object? clipId = freezed,Object? objectReferencePath = freezed,Object? volume = null,Object? vibrate = null,Object? snoozeEnabled = null,Object? snoozeMinutes = null,Object? maxSnoozes = null,Object? createdAt = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,hour: null == hour ? _self.hour : hour // ignore: cast_nullable_to_non_nullable
@@ -77,6 +80,8 @@ as String,repeatDays: null == repeatDays ? _self.repeatDays : repeatDays // igno
 as Set<int>,enabled: null == enabled ? _self.enabled : enabled // ignore: cast_nullable_to_non_nullable
 as bool,missionType: null == missionType ? _self.missionType : missionType // ignore: cast_nullable_to_non_nullable
 as MissionType,missionReps: null == missionReps ? _self.missionReps : missionReps // ignore: cast_nullable_to_non_nullable
+as int,extraMissions: null == extraMissions ? _self.extraMissions : extraMissions // ignore: cast_nullable_to_non_nullable
+as List<MissionType>,wakeCheckMinutes: null == wakeCheckMinutes ? _self.wakeCheckMinutes : wakeCheckMinutes // ignore: cast_nullable_to_non_nullable
 as int,sound: null == sound ? _self.sound : sound // ignore: cast_nullable_to_non_nullable
 as AlarmSound,customSoundPath: freezed == customSoundPath ? _self.customSoundPath : customSoundPath // ignore: cast_nullable_to_non_nullable
 as String?,clipId: freezed == clipId ? _self.clipId : clipId // ignore: cast_nullable_to_non_nullable
@@ -172,10 +177,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  int hour,  int minute,  String label,  Set<int> repeatDays,  bool enabled,  MissionType missionType,  int missionReps,  AlarmSound sound,  String? customSoundPath,  String? clipId,  String? objectReferencePath,  double volume,  bool vibrate,  bool snoozeEnabled,  int snoozeMinutes,  int maxSnoozes,  DateTime createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  int hour,  int minute,  String label,  Set<int> repeatDays,  bool enabled,  MissionType missionType,  int missionReps,  List<MissionType> extraMissions,  int wakeCheckMinutes,  AlarmSound sound,  String? customSoundPath,  String? clipId,  String? objectReferencePath,  double volume,  bool vibrate,  bool snoozeEnabled,  int snoozeMinutes,  int maxSnoozes,  DateTime createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Alarm() when $default != null:
-return $default(_that.id,_that.hour,_that.minute,_that.label,_that.repeatDays,_that.enabled,_that.missionType,_that.missionReps,_that.sound,_that.customSoundPath,_that.clipId,_that.objectReferencePath,_that.volume,_that.vibrate,_that.snoozeEnabled,_that.snoozeMinutes,_that.maxSnoozes,_that.createdAt);case _:
+return $default(_that.id,_that.hour,_that.minute,_that.label,_that.repeatDays,_that.enabled,_that.missionType,_that.missionReps,_that.extraMissions,_that.wakeCheckMinutes,_that.sound,_that.customSoundPath,_that.clipId,_that.objectReferencePath,_that.volume,_that.vibrate,_that.snoozeEnabled,_that.snoozeMinutes,_that.maxSnoozes,_that.createdAt);case _:
   return orElse();
 
 }
@@ -193,10 +198,10 @@ return $default(_that.id,_that.hour,_that.minute,_that.label,_that.repeatDays,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  int hour,  int minute,  String label,  Set<int> repeatDays,  bool enabled,  MissionType missionType,  int missionReps,  AlarmSound sound,  String? customSoundPath,  String? clipId,  String? objectReferencePath,  double volume,  bool vibrate,  bool snoozeEnabled,  int snoozeMinutes,  int maxSnoozes,  DateTime createdAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  int hour,  int minute,  String label,  Set<int> repeatDays,  bool enabled,  MissionType missionType,  int missionReps,  List<MissionType> extraMissions,  int wakeCheckMinutes,  AlarmSound sound,  String? customSoundPath,  String? clipId,  String? objectReferencePath,  double volume,  bool vibrate,  bool snoozeEnabled,  int snoozeMinutes,  int maxSnoozes,  DateTime createdAt)  $default,) {final _that = this;
 switch (_that) {
 case _Alarm():
-return $default(_that.id,_that.hour,_that.minute,_that.label,_that.repeatDays,_that.enabled,_that.missionType,_that.missionReps,_that.sound,_that.customSoundPath,_that.clipId,_that.objectReferencePath,_that.volume,_that.vibrate,_that.snoozeEnabled,_that.snoozeMinutes,_that.maxSnoozes,_that.createdAt);case _:
+return $default(_that.id,_that.hour,_that.minute,_that.label,_that.repeatDays,_that.enabled,_that.missionType,_that.missionReps,_that.extraMissions,_that.wakeCheckMinutes,_that.sound,_that.customSoundPath,_that.clipId,_that.objectReferencePath,_that.volume,_that.vibrate,_that.snoozeEnabled,_that.snoozeMinutes,_that.maxSnoozes,_that.createdAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -213,10 +218,10 @@ return $default(_that.id,_that.hour,_that.minute,_that.label,_that.repeatDays,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  int hour,  int minute,  String label,  Set<int> repeatDays,  bool enabled,  MissionType missionType,  int missionReps,  AlarmSound sound,  String? customSoundPath,  String? clipId,  String? objectReferencePath,  double volume,  bool vibrate,  bool snoozeEnabled,  int snoozeMinutes,  int maxSnoozes,  DateTime createdAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  int hour,  int minute,  String label,  Set<int> repeatDays,  bool enabled,  MissionType missionType,  int missionReps,  List<MissionType> extraMissions,  int wakeCheckMinutes,  AlarmSound sound,  String? customSoundPath,  String? clipId,  String? objectReferencePath,  double volume,  bool vibrate,  bool snoozeEnabled,  int snoozeMinutes,  int maxSnoozes,  DateTime createdAt)?  $default,) {final _that = this;
 switch (_that) {
 case _Alarm() when $default != null:
-return $default(_that.id,_that.hour,_that.minute,_that.label,_that.repeatDays,_that.enabled,_that.missionType,_that.missionReps,_that.sound,_that.customSoundPath,_that.clipId,_that.objectReferencePath,_that.volume,_that.vibrate,_that.snoozeEnabled,_that.snoozeMinutes,_that.maxSnoozes,_that.createdAt);case _:
+return $default(_that.id,_that.hour,_that.minute,_that.label,_that.repeatDays,_that.enabled,_that.missionType,_that.missionReps,_that.extraMissions,_that.wakeCheckMinutes,_that.sound,_that.customSoundPath,_that.clipId,_that.objectReferencePath,_that.volume,_that.vibrate,_that.snoozeEnabled,_that.snoozeMinutes,_that.maxSnoozes,_that.createdAt);case _:
   return null;
 
 }
@@ -228,7 +233,7 @@ return $default(_that.id,_that.hour,_that.minute,_that.label,_that.repeatDays,_t
 @JsonSerializable()
 
 class _Alarm extends Alarm {
-  const _Alarm({required this.id, required this.hour, required this.minute, this.label = '', final  Set<int> repeatDays = const <int>{}, this.enabled = true, this.missionType = MissionType.none, this.missionReps = 0, this.sound = AlarmSound.classic, this.customSoundPath, this.clipId, this.objectReferencePath, this.volume = 1.0, this.vibrate = true, this.snoozeEnabled = true, this.snoozeMinutes = 5, this.maxSnoozes = 3, required this.createdAt}): _repeatDays = repeatDays,super._();
+  const _Alarm({required this.id, required this.hour, required this.minute, this.label = '', final  Set<int> repeatDays = const <int>{}, this.enabled = true, this.missionType = MissionType.none, this.missionReps = 0, final  List<MissionType> extraMissions = const <MissionType>[], this.wakeCheckMinutes = 0, this.sound = AlarmSound.classic, this.customSoundPath, this.clipId, this.objectReferencePath, this.volume = 1.0, this.vibrate = true, this.snoozeEnabled = true, this.snoozeMinutes = 5, this.maxSnoozes = 3, required this.createdAt}): _repeatDays = repeatDays,_extraMissions = extraMissions,super._();
   factory _Alarm.fromJson(Map<String, dynamic> json) => _$AlarmFromJson(json);
 
 @override final  String id;
@@ -245,6 +250,19 @@ class _Alarm extends Alarm {
 @override@JsonKey() final  bool enabled;
 @override@JsonKey() final  MissionType missionType;
 @override@JsonKey() final  int missionReps;
+/// Missions chained after [missionType], each at its default count.
+/// Ignored when [missionType] is none. See [missionChain].
+ final  List<MissionType> _extraMissions;
+/// Missions chained after [missionType], each at its default count.
+/// Ignored when [missionType] is none. See [missionChain].
+@override@JsonKey() List<MissionType> get extraMissions {
+  if (_extraMissions is EqualUnmodifiableListView) return _extraMissions;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_extraMissions);
+}
+
+/// Minutes after dismissal to check the user is still up; 0 is off.
+@override@JsonKey() final  int wakeCheckMinutes;
 @override@JsonKey() final  AlarmSound sound;
 @override final  String? customSoundPath;
 /// A video alarm from [AlarmClips]. When set and still in the catalog it
@@ -271,16 +289,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Alarm&&(identical(other.id, id) || other.id == id)&&(identical(other.hour, hour) || other.hour == hour)&&(identical(other.minute, minute) || other.minute == minute)&&(identical(other.label, label) || other.label == label)&&const DeepCollectionEquality().equals(other._repeatDays, _repeatDays)&&(identical(other.enabled, enabled) || other.enabled == enabled)&&(identical(other.missionType, missionType) || other.missionType == missionType)&&(identical(other.missionReps, missionReps) || other.missionReps == missionReps)&&(identical(other.sound, sound) || other.sound == sound)&&(identical(other.customSoundPath, customSoundPath) || other.customSoundPath == customSoundPath)&&(identical(other.clipId, clipId) || other.clipId == clipId)&&(identical(other.objectReferencePath, objectReferencePath) || other.objectReferencePath == objectReferencePath)&&(identical(other.volume, volume) || other.volume == volume)&&(identical(other.vibrate, vibrate) || other.vibrate == vibrate)&&(identical(other.snoozeEnabled, snoozeEnabled) || other.snoozeEnabled == snoozeEnabled)&&(identical(other.snoozeMinutes, snoozeMinutes) || other.snoozeMinutes == snoozeMinutes)&&(identical(other.maxSnoozes, maxSnoozes) || other.maxSnoozes == maxSnoozes)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Alarm&&(identical(other.id, id) || other.id == id)&&(identical(other.hour, hour) || other.hour == hour)&&(identical(other.minute, minute) || other.minute == minute)&&(identical(other.label, label) || other.label == label)&&const DeepCollectionEquality().equals(other._repeatDays, _repeatDays)&&(identical(other.enabled, enabled) || other.enabled == enabled)&&(identical(other.missionType, missionType) || other.missionType == missionType)&&(identical(other.missionReps, missionReps) || other.missionReps == missionReps)&&const DeepCollectionEquality().equals(other._extraMissions, _extraMissions)&&(identical(other.wakeCheckMinutes, wakeCheckMinutes) || other.wakeCheckMinutes == wakeCheckMinutes)&&(identical(other.sound, sound) || other.sound == sound)&&(identical(other.customSoundPath, customSoundPath) || other.customSoundPath == customSoundPath)&&(identical(other.clipId, clipId) || other.clipId == clipId)&&(identical(other.objectReferencePath, objectReferencePath) || other.objectReferencePath == objectReferencePath)&&(identical(other.volume, volume) || other.volume == volume)&&(identical(other.vibrate, vibrate) || other.vibrate == vibrate)&&(identical(other.snoozeEnabled, snoozeEnabled) || other.snoozeEnabled == snoozeEnabled)&&(identical(other.snoozeMinutes, snoozeMinutes) || other.snoozeMinutes == snoozeMinutes)&&(identical(other.maxSnoozes, maxSnoozes) || other.maxSnoozes == maxSnoozes)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,hour,minute,label,const DeepCollectionEquality().hash(_repeatDays),enabled,missionType,missionReps,sound,customSoundPath,clipId,objectReferencePath,volume,vibrate,snoozeEnabled,snoozeMinutes,maxSnoozes,createdAt);
+int get hashCode => Object.hashAll([runtimeType,id,hour,minute,label,const DeepCollectionEquality().hash(_repeatDays),enabled,missionType,missionReps,const DeepCollectionEquality().hash(_extraMissions),wakeCheckMinutes,sound,customSoundPath,clipId,objectReferencePath,volume,vibrate,snoozeEnabled,snoozeMinutes,maxSnoozes,createdAt]);
 
 @override
 String toString() {
-  return 'Alarm(id: $id, hour: $hour, minute: $minute, label: $label, repeatDays: $repeatDays, enabled: $enabled, missionType: $missionType, missionReps: $missionReps, sound: $sound, customSoundPath: $customSoundPath, clipId: $clipId, objectReferencePath: $objectReferencePath, volume: $volume, vibrate: $vibrate, snoozeEnabled: $snoozeEnabled, snoozeMinutes: $snoozeMinutes, maxSnoozes: $maxSnoozes, createdAt: $createdAt)';
+  return 'Alarm(id: $id, hour: $hour, minute: $minute, label: $label, repeatDays: $repeatDays, enabled: $enabled, missionType: $missionType, missionReps: $missionReps, extraMissions: $extraMissions, wakeCheckMinutes: $wakeCheckMinutes, sound: $sound, customSoundPath: $customSoundPath, clipId: $clipId, objectReferencePath: $objectReferencePath, volume: $volume, vibrate: $vibrate, snoozeEnabled: $snoozeEnabled, snoozeMinutes: $snoozeMinutes, maxSnoozes: $maxSnoozes, createdAt: $createdAt)';
 }
 
 
@@ -291,7 +309,7 @@ abstract mixin class _$AlarmCopyWith<$Res> implements $AlarmCopyWith<$Res> {
   factory _$AlarmCopyWith(_Alarm value, $Res Function(_Alarm) _then) = __$AlarmCopyWithImpl;
 @override @useResult
 $Res call({
- String id, int hour, int minute, String label, Set<int> repeatDays, bool enabled, MissionType missionType, int missionReps, AlarmSound sound, String? customSoundPath, String? clipId, String? objectReferencePath, double volume, bool vibrate, bool snoozeEnabled, int snoozeMinutes, int maxSnoozes, DateTime createdAt
+ String id, int hour, int minute, String label, Set<int> repeatDays, bool enabled, MissionType missionType, int missionReps, List<MissionType> extraMissions, int wakeCheckMinutes, AlarmSound sound, String? customSoundPath, String? clipId, String? objectReferencePath, double volume, bool vibrate, bool snoozeEnabled, int snoozeMinutes, int maxSnoozes, DateTime createdAt
 });
 
 
@@ -308,7 +326,7 @@ class __$AlarmCopyWithImpl<$Res>
 
 /// Create a copy of Alarm
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? hour = null,Object? minute = null,Object? label = null,Object? repeatDays = null,Object? enabled = null,Object? missionType = null,Object? missionReps = null,Object? sound = null,Object? customSoundPath = freezed,Object? clipId = freezed,Object? objectReferencePath = freezed,Object? volume = null,Object? vibrate = null,Object? snoozeEnabled = null,Object? snoozeMinutes = null,Object? maxSnoozes = null,Object? createdAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? hour = null,Object? minute = null,Object? label = null,Object? repeatDays = null,Object? enabled = null,Object? missionType = null,Object? missionReps = null,Object? extraMissions = null,Object? wakeCheckMinutes = null,Object? sound = null,Object? customSoundPath = freezed,Object? clipId = freezed,Object? objectReferencePath = freezed,Object? volume = null,Object? vibrate = null,Object? snoozeEnabled = null,Object? snoozeMinutes = null,Object? maxSnoozes = null,Object? createdAt = null,}) {
   return _then(_Alarm(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,hour: null == hour ? _self.hour : hour // ignore: cast_nullable_to_non_nullable
@@ -318,6 +336,8 @@ as String,repeatDays: null == repeatDays ? _self._repeatDays : repeatDays // ign
 as Set<int>,enabled: null == enabled ? _self.enabled : enabled // ignore: cast_nullable_to_non_nullable
 as bool,missionType: null == missionType ? _self.missionType : missionType // ignore: cast_nullable_to_non_nullable
 as MissionType,missionReps: null == missionReps ? _self.missionReps : missionReps // ignore: cast_nullable_to_non_nullable
+as int,extraMissions: null == extraMissions ? _self._extraMissions : extraMissions // ignore: cast_nullable_to_non_nullable
+as List<MissionType>,wakeCheckMinutes: null == wakeCheckMinutes ? _self.wakeCheckMinutes : wakeCheckMinutes // ignore: cast_nullable_to_non_nullable
 as int,sound: null == sound ? _self.sound : sound // ignore: cast_nullable_to_non_nullable
 as AlarmSound,customSoundPath: freezed == customSoundPath ? _self.customSoundPath : customSoundPath // ignore: cast_nullable_to_non_nullable
 as String?,clipId: freezed == clipId ? _self.clipId : clipId // ignore: cast_nullable_to_non_nullable

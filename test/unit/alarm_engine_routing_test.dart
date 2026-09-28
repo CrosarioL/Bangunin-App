@@ -17,6 +17,7 @@ class _RecordingNotificationService implements NotificationService {
     required String body,
     required DateTime at,
     required String payload,
+    bool urgent = true,
   }) async {
     scheduled[id] = at;
   }

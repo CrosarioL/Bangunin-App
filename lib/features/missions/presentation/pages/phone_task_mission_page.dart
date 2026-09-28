@@ -15,6 +15,7 @@ import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/l10n_ext.dart';
 import '../../../alarms/domain/entities/alarm.dart';
 import '../../../alarms/presentation/widgets/alarm_card.dart';
+import '../../../ringing/presentation/mission_flow.dart';
 import '../../../ringing/presentation/providers/ringing_provider.dart';
 import '../../data/shake_counter.dart';
 import '../../domain/math_problem.dart';
@@ -59,7 +60,8 @@ class _PhoneTaskMissionPageState extends ConsumerState<PhoneTaskMissionPage> {
             missionReps: widget.previewMission!.defaultReps,
             createdAt: DateTime.now(),
           )
-        : await ref.read(alarmRepositoryProvider).getById(widget.alarmId!);
+        : (await ref.read(alarmRepositoryProvider).getById(widget.alarmId!))
+              ?.forStep(currentMissionStep(ref));
     if (mounted) setState(() => _alarm = alarm);
   }
 
@@ -80,8 +82,7 @@ class _PhoneTaskMissionPageState extends ConsumerState<PhoneTaskMissionPage> {
       Navigator.of(context).pop(true);
       return;
     }
-    await ref.read(ringingSessionProvider.notifier).complete();
-    if (mounted) context.go(Routes.wakeSuccess);
+    await finishMissionStep(context, ref, widget.alarmId!);
   }
 
   Future<void> _abandon() async {

@@ -49,4 +49,7 @@ abstract final class AnalyticsEvents {
   static const huntTargetAssigned = 'hunt_target_assigned';
   static const huntRerolled = 'hunt_rerolled';
   static const emergencyEscape = 'emergency_escape';
+  static const wakeCheckScheduled = 'wake_check_scheduled';
+  static const wakeCheckPassed = 'wake_check_passed';
+  static const wakeCheckMissed = 'wake_check_missed';
 }

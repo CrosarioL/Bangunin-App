@@ -16,6 +16,7 @@ import '../../../../core/utils/l10n_ext.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../../alarms/domain/entities/alarm.dart';
 import '../../../alarms/presentation/widgets/alarm_card.dart';
+import '../../../ringing/presentation/mission_flow.dart';
 import '../../../ringing/presentation/providers/ringing_provider.dart';
 import '../../data/photo_mission_verifier.dart';
 import '../../domain/hunt_target.dart';
@@ -71,7 +72,8 @@ class _PhotoMissionPageState extends ConsumerState<PhotoMissionPage> {
             objectReferencePath: widget.previewReferencePath,
             createdAt: DateTime.now(),
           )
-        : await ref.read(alarmRepositoryProvider).getById(widget.alarmId!);
+        : (await ref.read(alarmRepositoryProvider).getById(widget.alarmId!))
+              ?.forStep(currentMissionStep(ref));
     HuntAssignment? hunt;
     if (alarm?.missionType == MissionType.randomHunt) {
       // A preview has no ringing session to hold the target, so it rolls its
@@ -145,8 +147,7 @@ class _PhotoMissionPageState extends ConsumerState<PhotoMissionPage> {
         Navigator.of(context).pop(true);
         return;
       }
-      await ref.read(ringingSessionProvider.notifier).complete();
-      if (mounted) context.go(Routes.wakeSuccess);
+      await finishMissionStep(context, ref, widget.alarmId!);
     } else {
       Haptics.warning();
       unawaited(

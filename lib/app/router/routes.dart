@@ -22,6 +22,9 @@ abstract final class Routes {
   static String phoneMission(String alarmId) => '/mission/phone/$alarmId';
   static const phoneMissionPattern = '/mission/phone/:id';
 
+  static String wakeCheck(String alarmId) => '/wake-check/$alarmId';
+  static const wakeCheckPattern = '/wake-check/:id';
+
   static const objectRegistration = '/object-registration';
   static const wakeSuccess = '/wake-success';
   static const ourStory = '/our-story';

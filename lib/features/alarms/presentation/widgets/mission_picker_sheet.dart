@@ -14,25 +14,44 @@ import '../../../missions/presentation/widgets/mission_experience.dart';
 import 'alarm_card.dart';
 
 /// Bottom sheet listing every wake-up mission with a one-line description.
+///
+/// [exclude] hides missions that can't be picked here (already in the chain,
+/// or Object Hunt in a chained slot). With [removeLabel], the "No mission"
+/// row reads as removing the slot instead, for chained missions.
 Future<MissionType?> showMissionPickerSheet(
   BuildContext context, {
   required MissionType current,
+  Set<MissionType> exclude = const {},
+  String? removeLabel,
 }) {
   return showModalBottomSheet<MissionType>(
     context: context,
     isScrollControlled: true,
-    builder: (context) => _MissionPickerSheet(current: current),
+    builder: (context) => _MissionPickerSheet(
+      current: current,
+      exclude: exclude,
+      removeLabel: removeLabel,
+    ),
   );
 }
 
 class _MissionPickerSheet extends StatelessWidget {
-  const _MissionPickerSheet({required this.current});
+  const _MissionPickerSheet({
+    required this.current,
+    required this.exclude,
+    required this.removeLabel,
+  });
 
   final MissionType current;
+  final Set<MissionType> exclude;
+  final String? removeLabel;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final missions = MissionType.values
+        .where((m) => !exclude.contains(m))
+        .toList();
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(
@@ -73,15 +92,20 @@ class _MissionPickerSheet extends StatelessWidget {
             Flexible(
               child: ListView.separated(
                 shrinkWrap: true,
-                itemCount: MissionType.values.length,
+                itemCount: missions.length,
                 separatorBuilder: (_, _) =>
                     const SizedBox(height: AppSpacing.sm),
                 itemBuilder: (context, index) {
-                  final mission = MissionType.values[index];
+                  final mission = missions[index];
+                  final removes =
+                      removeLabel != null && mission == MissionType.none;
                   return _MissionTile(
                     mission: mission,
+                    name: removes ? removeLabel! : mission.localizedName(l10n),
                     selected: mission == current,
-                    description: mission.localizedDescription(l10n),
+                    description: removes
+                        ? ''
+                        : mission.localizedDescription(l10n),
                     onTap: () {
                       Haptics.selection();
                       Navigator.of(context).pop(mission);
@@ -136,6 +160,7 @@ class _MissionPickerSheet extends StatelessWidget {
 class _MissionTile extends StatelessWidget {
   const _MissionTile({
     required this.mission,
+    required this.name,
     required this.selected,
     required this.description,
     required this.onTap,
@@ -143,6 +168,7 @@ class _MissionTile extends StatelessWidget {
   });
 
   final MissionType mission;
+  final String name;
   final bool selected;
   final String description;
   final VoidCallback onTap;
@@ -184,10 +210,7 @@ class _MissionTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    mission.localizedName(l10n),
-                    style: theme.textTheme.titleSmall,
-                  ),
+                  Text(name, style: theme.textTheme.titleSmall),
                   const SizedBox(height: 2),
                   Text(
                     description,

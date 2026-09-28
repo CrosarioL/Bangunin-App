@@ -21,6 +21,12 @@ _Alarm _$AlarmFromJson(Map<String, dynamic> json) => _Alarm(
       $enumDecodeNullable(_$MissionTypeEnumMap, json['missionType']) ??
       MissionType.none,
   missionReps: (json['missionReps'] as num?)?.toInt() ?? 0,
+  extraMissions:
+      (json['extraMissions'] as List<dynamic>?)
+          ?.map((e) => $enumDecode(_$MissionTypeEnumMap, e))
+          .toList() ??
+      const <MissionType>[],
+  wakeCheckMinutes: (json['wakeCheckMinutes'] as num?)?.toInt() ?? 0,
   sound:
       $enumDecodeNullable(_$AlarmSoundEnumMap, json['sound']) ??
       AlarmSound.classic,
@@ -44,6 +50,10 @@ Map<String, dynamic> _$AlarmToJson(_Alarm instance) => <String, dynamic>{
   'enabled': instance.enabled,
   'missionType': _$MissionTypeEnumMap[instance.missionType]!,
   'missionReps': instance.missionReps,
+  'extraMissions': instance.extraMissions
+      .map((e) => _$MissionTypeEnumMap[e]!)
+      .toList(),
+  'wakeCheckMinutes': instance.wakeCheckMinutes,
   'sound': _$AlarmSoundEnumMap[instance.sound]!,
   'customSoundPath': instance.customSoundPath,
   'clipId': instance.clipId,

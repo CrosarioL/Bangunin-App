@@ -77,47 +77,73 @@ class NotificationService {
     return false;
   }
 
+  /// Schedules a notification at [at].
+  ///
+  /// [urgent] (the default) is an alarm: full screen, insistent, alarm audio,
+  /// can't be swiped away. Non-urgent is a normal high-priority notification,
+  /// for prompts like the Wake Up Check that must reach an awake user without
+  /// being an alarm in their own right.
   Future<void> schedule({
     required int id,
     required String title,
     required String body,
     required DateTime at,
     required String payload,
+    bool urgent = true,
   }) async {
     await _plugin.zonedSchedule(
       id: id,
       title: title,
       body: body,
       scheduledDate: tz.TZDateTime.from(at, tz.local),
-      notificationDetails: NotificationDetails(
-        android: AndroidNotificationDetails(
-          _channelId,
-          'Bangunin alarms',
-          channelDescription: 'User-scheduled wake-up alarms',
-          importance: Importance.max,
-          priority: Priority.max,
-          category: AndroidNotificationCategory.alarm,
-          fullScreenIntent: true,
-          ongoing: true,
-          autoCancel: false,
-          additionalFlags: Int32List.fromList(<int>[
-            4, // Notification.FLAG_INSISTENT: repeat sound until handled.
-            32, // Notification.FLAG_NO_CLEAR: cannot be swipe-dismissed.
-          ]),
-          audioAttributesUsage: AudioAttributesUsage.alarm,
-        ),
-        iOS: const DarwinNotificationDetails(
-          presentAlert: true,
-          presentSound: true,
-          presentBanner: true,
-          sound: 'default',
-          interruptionLevel: InterruptionLevel.timeSensitive,
-        ),
-      ),
+      notificationDetails: urgent ? _alarmDetails : _promptDetails,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       payload: payload,
     );
   }
+
+  static const _promptDetails = NotificationDetails(
+    android: AndroidNotificationDetails(
+      'bangunin_prompts_v1',
+      'Bangunin check-ins',
+      channelDescription: 'Wake Up Check prompts after an alarm',
+      importance: Importance.high,
+      priority: Priority.high,
+      category: AndroidNotificationCategory.reminder,
+    ),
+    iOS: DarwinNotificationDetails(
+      presentAlert: true,
+      presentSound: true,
+      presentBanner: true,
+      interruptionLevel: InterruptionLevel.timeSensitive,
+    ),
+  );
+
+  static final _alarmDetails = NotificationDetails(
+    android: AndroidNotificationDetails(
+      _channelId,
+      'Bangunin alarms',
+      channelDescription: 'User-scheduled wake-up alarms',
+      importance: Importance.max,
+      priority: Priority.max,
+      category: AndroidNotificationCategory.alarm,
+      fullScreenIntent: true,
+      ongoing: true,
+      autoCancel: false,
+      additionalFlags: Int32List.fromList(<int>[
+        4, // Notification.FLAG_INSISTENT: repeat sound until handled.
+        32, // Notification.FLAG_NO_CLEAR: cannot be swipe-dismissed.
+      ]),
+      audioAttributesUsage: AudioAttributesUsage.alarm,
+    ),
+    iOS: const DarwinNotificationDetails(
+      presentAlert: true,
+      presentSound: true,
+      presentBanner: true,
+      sound: 'default',
+      interruptionLevel: InterruptionLevel.timeSensitive,
+    ),
+  );
 
   Future<void> cancel(int id) => _plugin.cancel(id: id);
 

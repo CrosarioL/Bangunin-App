@@ -871,4 +871,69 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get emergencyDone =>
       'Alarm off. This morning won\'t count toward your streak.';
+
+  @override
+  String get wakeCheckNotificationTitle => 'Still awake?';
+
+  @override
+  String get wakeCheckNotificationBody =>
+      'Tap within a minute, or your alarm rings again.';
+
+  @override
+  String get wakeCheckRingBody =>
+      'You didn\'t confirm you\'re up. Back to the mission.';
+
+  @override
+  String missionStepOf(int step, int total, String mission) {
+    return 'Mission $step of $total: $mission';
+  }
+
+  @override
+  String get wakeCheckTitle => 'Still awake?';
+
+  @override
+  String get wakeCheckBody =>
+      'Prove it, or your alarm comes back with its missions.';
+
+  @override
+  String wakeCheckCountdown(int seconds) {
+    return '${seconds}s';
+  }
+
+  @override
+  String get wakeCheckConfirm => 'I\'m awake';
+
+  @override
+  String get wakeCheckPassed => 'Nice. Good morning!';
+
+  @override
+  String missionNumber(int number) {
+    return 'Mission $number';
+  }
+
+  @override
+  String get addMission => 'Add another mission';
+
+  @override
+  String addMissionLimit(int max) {
+    return 'up to $max';
+  }
+
+  @override
+  String get removeMission => 'Remove this mission';
+
+  @override
+  String get wakeCheckSetting => 'Wake Up Check';
+
+  @override
+  String get wakeCheckOff => 'Off';
+
+  @override
+  String wakeCheckAfter(int minutes) {
+    return '$minutes min after';
+  }
+
+  @override
+  String get wakeCheckExplainer =>
+      'A few minutes after you turn the alarm off, we check you\'re still up. Don\'t answer within a minute and it rings again, missions and all.';
 }

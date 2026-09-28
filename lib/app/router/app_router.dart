@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/alarms/domain/alarm_payload.dart';
 import '../../features/alarms/presentation/pages/alarm_editor_page.dart';
 import '../../features/alarms/presentation/pages/home_page.dart';
 import '../../features/missions/presentation/pages/movement_mission_page.dart';
@@ -15,6 +16,7 @@ import '../../features/onboarding/presentation/providers/onboarding_provider.dar
 import '../../features/paywall/presentation/pages/paywall_page.dart';
 import '../../features/paywall/presentation/providers/premium_provider.dart';
 import '../../features/ringing/presentation/pages/ringing_page.dart';
+import '../../features/ringing/presentation/pages/wake_check_page.dart';
 import '../../features/ringing/presentation/pages/wake_success_page.dart';
 import '../../features/ringing/presentation/providers/ringing_provider.dart';
 import '../../features/settings/presentation/pages/founder_story_page.dart';
@@ -40,11 +42,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
   final refresh = Listenable.merge([onboardingDone, premium]);
 
-  final launchAlarmId = ref.read(notificationServiceProvider).launchPayload;
+  final launchPayload = ref.read(notificationServiceProvider).launchPayload;
 
   final router = GoRouter(
-    initialLocation: launchAlarmId != null
-        ? Routes.ringing(launchAlarmId)
+    initialLocation: launchPayload != null
+        ? _routeFor(AlarmPayload.parse(launchPayload))
         : Routes.home,
     refreshListenable: refresh,
     redirect: (context, state) {
@@ -52,6 +54,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final inRingingFlow =
           path.startsWith('/ringing') ||
           path.startsWith('/mission') ||
+          path.startsWith('/wake-check') ||
           path == Routes.wakeSuccess;
       // Never gate an actively ringing alarm behind onboarding/paywall.
       if (inRingingFlow) return null;
@@ -145,6 +148,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const ObjectRegistrationPage(),
       ),
       GoRoute(
+        path: Routes.wakeCheckPattern,
+        builder: (context, state) =>
+            WakeCheckPage(alarmId: state.pathParameters['id']!),
+      ),
+      GoRoute(
         path: Routes.wakeSuccess,
         builder: (context, state) => const WakeSuccessPage(),
       ),
@@ -159,7 +167,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   final sub = ref
       .read(notificationServiceProvider)
       .selectedPayloads
-      .listen((alarmId) => router.go(Routes.ringing(alarmId)));
+      .listen((payload) => router.go(_routeFor(AlarmPayload.parse(payload))));
   // Foreground watcher: when an alarm becomes due while the app is open,
   // notifications may not fire a tap event, so we navigate ourselves.
   final ticker = ref.read(dueAlarmWatcherProvider)
@@ -167,6 +175,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final current = router.routerDelegate.currentConfiguration.uri.path;
       if (!current.startsWith('/ringing')) {
         router.go(Routes.ringing(alarmId));
+      }
+    }
+    ..onWakeCheckDue = (alarmId) {
+      final current = router.routerDelegate.currentConfiguration.uri.path;
+      // Never interrupt a ring or a mission in progress with a check.
+      if (!current.startsWith('/ringing') &&
+          !current.startsWith('/mission') &&
+          !current.startsWith('/wake-check')) {
+        router.go(Routes.wakeCheck(alarmId));
       }
     }
     ..start();
@@ -178,3 +195,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
   return router;
 });
+
+String _routeFor(AlarmPayload payload) => switch (payload) {
+  RingPayload(:final alarmId) => Routes.ringing(alarmId),
+  WakeCheckPayload(:final alarmId) => Routes.wakeCheck(alarmId),
+};
