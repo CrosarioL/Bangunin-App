@@ -19,6 +19,7 @@ class PremiumPlan {
     required this.price,
     required this.period,
     this.monthlyEquivalentPrice,
+    this.rawPrice,
     this.trialDays = 0,
     this.productDetails,
   });
@@ -34,6 +35,10 @@ class PremiumPlan {
   /// For yearly plans: the per-month framing shown under the price
   /// (e.g. "$4.99"). Null for monthly plans.
   final String? monthlyEquivalentPrice;
+
+  /// The renewal price as a number, in the store's currency. Used to work out
+  /// the yearly saving; null when the store did not report it.
+  final double? rawPrice;
 
   /// Days of free trial attached to this plan (0 = none).
   final int trialDays;
@@ -113,6 +118,7 @@ class StoreSubscriptionService implements SubscriptionService {
             PremiumPlan(
               productId: details.id,
               price: renewal.formattedPrice,
+              rawPrice: renewal.priceAmountMicros / 1000000,
               period: details.id == AppConfig.monthlyProductId
                   ? 'month'
                   : 'year',
@@ -128,6 +134,7 @@ class StoreSubscriptionService implements SubscriptionService {
         PremiumPlan(
           productId: details.id,
           price: details.price,
+          rawPrice: details.rawPrice,
           period: details.id == AppConfig.monthlyProductId ? 'month' : 'year',
           trialDays: appleTrialDays,
           productDetails: details,
@@ -231,6 +238,7 @@ class FakeSubscriptionService implements SubscriptionService {
         PremiumPlan(
           productId: AppConfig.yearlyProductId,
           price: 'Rp 199.000',
+          rawPrice: 199000,
           period: 'year',
           monthlyEquivalentPrice: 'Rp 16.600',
           trialDays: AppConfig.trialDays,
@@ -238,6 +246,7 @@ class FakeSubscriptionService implements SubscriptionService {
         PremiumPlan(
           productId: AppConfig.monthlyProductId,
           price: 'Rp 49.000',
+          rawPrice: 49000,
           period: 'month',
           trialDays: AppConfig.trialDays,
         ),
@@ -247,6 +256,7 @@ class FakeSubscriptionService implements SubscriptionService {
       PremiumPlan(
         productId: AppConfig.yearlyProductId,
         price: r'$29.99',
+        rawPrice: 29.99,
         period: 'year',
         monthlyEquivalentPrice: r'$2.49',
         trialDays: AppConfig.trialDays,
@@ -254,6 +264,7 @@ class FakeSubscriptionService implements SubscriptionService {
       PremiumPlan(
         productId: AppConfig.monthlyProductId,
         price: r'$4.99',
+        rawPrice: 4.99,
         period: 'month',
         trialDays: AppConfig.trialDays,
       ),

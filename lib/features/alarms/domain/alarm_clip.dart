@@ -67,8 +67,8 @@ abstract final class AlarmClips {
       emoji: '🥁',
       onboarding: true,
     ),
-    // The yell at the end of @hikaru_0772's "POV: Bapak bangunin sahur",
-    // looped with a breath between yells.
+    // The first half (0-20.8s) of @hikaru_0772's "POV: Bapak bangunin
+    // sahur", cut at a natural pause so it loops cleanly.
     AlarmClip(
       id: 'sahur_bapak',
       titleEn: 'Dad Yelling SAHUR',

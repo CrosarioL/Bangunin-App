@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 import '../../../core/services/alarms/alarm_kit_service.dart';
+import '../../../core/services/alarms/alarm_sound_installer.dart';
 import '../../../core/services/notifications/notification_service.dart';
 import '../../../core/utils/current_locale.dart';
 import '../../missions/domain/mission_type.dart';
@@ -33,12 +34,15 @@ class AlarmScheduler {
   AlarmScheduler(
     this._notifications, {
     AlarmKitService? alarmKit,
+    AlarmSoundInstaller? sounds,
     this.localeOverride,
     this._wakeChecks,
-  }) : _alarmKit = alarmKit ?? AlarmKitService();
+  }) : _alarmKit = alarmKit ?? AlarmKitService(),
+       _sounds = sounds ?? AlarmSoundInstaller();
 
   final NotificationService _notifications;
   final AlarmKitService _alarmKit;
+  final AlarmSoundInstaller _sounds;
   final Locale? localeOverride;
 
   /// Where the pending Wake Up Check survives app restarts. Null (tests)
@@ -125,6 +129,7 @@ class AlarmScheduler {
           ? l10n.dismissAlarm
           : l10n.startMission,
       stopButtonTitle: l10n.dismissAlarm,
+      soundName: await _sounds.soundNameFor(alarm),
     );
   }
 
@@ -149,6 +154,7 @@ class AlarmScheduler {
     final l10n = currentLocalizations(override: localeOverride);
     var from = DateTime.now();
     final baseId = notificationBaseId(alarm.id);
+    final sound = await _sounds.soundNameFor(alarm);
     for (var slot = 0; slot < occurrencesPerAlarm; slot++) {
       final at = alarm.nextTrigger(from);
       await _notifications.schedule(
@@ -161,6 +167,7 @@ class AlarmScheduler {
             : l10n.notificationBodyMission,
         at: at,
         payload: alarm.id,
+        sound: sound,
       );
       if (!alarm.repeats) break;
       from = at;
@@ -183,6 +190,7 @@ class AlarmScheduler {
       body: l10n.notificationBodySnoozeOver,
       at: at,
       payload: alarm.id,
+      sound: await _sounds.soundNameFor(alarm),
     );
   }
 
@@ -269,6 +277,7 @@ class AlarmScheduler {
       body: l10n.wakeCheckRingBody,
       at: check.ringAt,
       payload: alarm.id,
+      sound: await _sounds.soundNameFor(alarm),
     );
   }
 

@@ -31,6 +31,7 @@ class _FakeNotificationService implements NotificationService {
     required DateTime at,
     required String payload,
     bool urgent = true,
+    String? sound,
   }) async {}
 
   @override

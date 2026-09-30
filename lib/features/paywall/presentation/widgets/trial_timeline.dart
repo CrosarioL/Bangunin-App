@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
@@ -29,7 +30,11 @@ class TrialTimeline extends StatelessWidget {
           _TimelineRow(
             icon: Icons.notifications_active_rounded,
             title: l10n.trialDay2,
-            body: l10n.trialDay2Body,
+            body: l10n.trialDay2Body(
+              defaultTargetPlatform == TargetPlatform.iOS
+                  ? 'App Store'
+                  : 'Google Play',
+            ),
             isLast: false,
           ),
           _TimelineRow(

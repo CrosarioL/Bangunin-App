@@ -83,6 +83,9 @@ class NotificationService {
   /// can't be swiped away. Non-urgent is a normal high-priority notification,
   /// for prompts like the Wake Up Check that must reach an awake user without
   /// being an alarm in their own right.
+  ///
+  /// [sound] is an iOS sound file name in `Library/Sounds` (see
+  /// `AlarmSoundInstaller`); null keeps the system default.
   Future<void> schedule({
     required int id,
     required String title,
@@ -90,13 +93,27 @@ class NotificationService {
     required DateTime at,
     required String payload,
     bool urgent = true,
+    String? sound,
   }) async {
     await _plugin.zonedSchedule(
       id: id,
       title: title,
       body: body,
       scheduledDate: tz.TZDateTime.from(at, tz.local),
-      notificationDetails: urgent ? _alarmDetails : _promptDetails,
+      notificationDetails: !urgent
+          ? _promptDetails
+          : sound == null
+          ? _alarmDetails
+          : NotificationDetails(
+              android: _alarmDetails.android,
+              iOS: DarwinNotificationDetails(
+                presentAlert: true,
+                presentSound: true,
+                presentBanner: true,
+                sound: sound,
+                interruptionLevel: InterruptionLevel.timeSensitive,
+              ),
+            ),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       payload: payload,
     );

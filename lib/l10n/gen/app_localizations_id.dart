@@ -638,7 +638,9 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
-  String get saveBadge => 'HEMAT 66%';
+  String saveBadge(int percent) {
+    return 'HEMAT $percent%';
+  }
 
   @override
   String get freeTrialToggle => 'Uji coba gratis aktif';
@@ -653,8 +655,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get trialDay2 => 'Hari ke-2';
 
   @override
-  String get trialDay2Body =>
-      'Batalkan di Google Play sebelum uji coba berakhir, kamu nggak bayar apa pun.';
+  String trialDay2Body(String store) {
+    return 'Batalkan di $store sebelum uji coba berakhir, kamu nggak bayar apa pun.';
+  }
 
   @override
   String trialDayFinal(int day) {
@@ -965,4 +968,19 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get notifyPointNoSpam => 'Cuma alarmmu. Nggak ada spam.';
+
+  @override
+  String planTrialBadge(int days) {
+    return 'GRATIS $days HARI';
+  }
+
+  @override
+  String thenPricePerYear(String price) {
+    return 'lalu $price per tahun';
+  }
+
+  @override
+  String thenPricePerMonth(String price) {
+    return 'lalu $price per bulan';
+  }
 }

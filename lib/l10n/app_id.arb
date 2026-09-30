@@ -185,12 +185,12 @@
   "planMonthly": "Bulanan",
   "pricePerMonth": "{price} per bulan",
   "monthlyEquivalent": "≈ {price}/bulan",
-  "saveBadge": "HEMAT 66%",
+  "saveBadge": "HEMAT {percent}%",
   "freeTrialToggle": "Uji coba gratis aktif",
   "trialToday": "Hari ini",
   "trialTodayBody": "Buka semua misi, suara, dan statistik.",
   "trialDay2": "Hari ke-2",
-  "trialDay2Body": "Batalkan di Google Play sebelum uji coba berakhir, kamu nggak bayar apa pun.",
+  "trialDay2Body": "Batalkan di {store} sebelum uji coba berakhir, kamu nggak bayar apa pun.",
   "trialDayFinal": "Hari ke-{day}",
   "trialDayFinalBody": "Langgananmu dimulai. Batalkan kapan saja sebelumnya.",
   "paywallCtaTrial": "Mulai uji coba gratis {days} hari",
@@ -278,5 +278,8 @@
   "importSoundShort": "Impor",
   "notifyPointOnTime": "Bunyi tepat waktu, walau aplikasi ditutup",
   "notifyPointLockScreen": "Muncul di layar kunci",
-  "notifyPointNoSpam": "Cuma alarmmu. Nggak ada spam."
+  "notifyPointNoSpam": "Cuma alarmmu. Nggak ada spam.",
+  "planTrialBadge": "GRATIS {days} HARI",
+  "thenPricePerYear": "lalu {price} per tahun",
+  "thenPricePerMonth": "lalu {price} per bulan"
 }

@@ -23,12 +23,14 @@ class _NoTrialSubscriptionService extends FakeSubscriptionService {
     PremiumPlan(
       productId: 'bangunin.premium.yearly',
       price: r'$29.99',
+      rawPrice: 29.99,
       period: 'year',
       monthlyEquivalentPrice: r'$2.49',
     ),
     PremiumPlan(
       productId: 'bangunin.premium.monthly',
       price: r'$4.99',
+      rawPrice: 4.99,
       period: 'month',
     ),
   ];
@@ -68,7 +70,7 @@ void main() {
 
     expect(find.text('Never oversleep again'), findsOneWidget);
     expect(find.text('Yearly'), findsOneWidget);
-    expect(find.text('SAVE 50%'), findsOneWidget);
+    expect(find.text('SAVE 49%'), findsOneWidget);
     expect(find.text('≈ \$2.49/month'), findsOneWidget);
 
     // The taller branded header pushes the second plan outside ListView's
@@ -93,6 +95,11 @@ void main() {
       scrollable: find.byType(Scrollable),
     );
     expect(find.text('Start my 3-day free trial'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.byType(TrialTimeline),
+      100,
+      scrollable: find.byType(Scrollable),
+    );
     expect(find.byType(TrialTimeline), findsOneWidget);
 
     await tester.scrollUntilVisible(
@@ -126,10 +133,7 @@ void main() {
       100,
       scrollable: find.byType(Scrollable),
     );
-    // scrollUntilVisible may leave the final line just inside the build
-    // extent but underneath the bottom safe area. Move the complete button
-    // into the tappable viewport before exercising it.
-    await tester.drag(find.byType(Scrollable), const Offset(0, -100));
+    await tester.ensureVisible(ctaFinder);
     await tester.pumpAndSettle();
     await tester.tap(ctaFinder);
     await tester.pumpAndSettle();

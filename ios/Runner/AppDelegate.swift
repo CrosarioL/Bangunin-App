@@ -18,5 +18,8 @@ import UIKit
     VisionBridge.register(
       with: engineBridge.pluginRegistry.registrar(forPlugin: "VisionBridge")!
     )
+    AlarmSoundBridge.register(
+      with: engineBridge.pluginRegistry.registrar(forPlugin: "AlarmSoundBridge")!
+    )
   }
 }

@@ -289,12 +289,19 @@
       }
     }
   },
-  "saveBadge": "SAVE 50%",
+  "saveBadge": "SAVE {percent}%",
+  "@saveBadge": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
   "freeTrialToggle": "Free trial enabled",
   "trialToday": "Today",
   "trialTodayBody": "Unlock every mission, sound and stat.",
   "trialDay2": "Day 2",
-  "trialDay2Body": "Cancel in Google Play before the trial ends and you pay nothing.",
+  "trialDay2Body": "Cancel in {store} before the trial ends and you pay nothing.",
   "trialDayFinal": "Day {day}",
   "@trialDayFinal": {
     "placeholders": {
@@ -471,5 +478,36 @@
   "importSoundShort": "Import",
   "notifyPointOnTime": "Rings on time, even with the app closed",
   "notifyPointLockScreen": "Shows up on your lock screen",
-  "notifyPointNoSpam": "Only your alarms. Never spam."
+  "notifyPointNoSpam": "Only your alarms. Never spam.",
+  "@trialDay2Body": {
+    "placeholders": {
+      "store": {
+        "type": "String"
+      }
+    }
+  },
+  "planTrialBadge": "{days} DAYS FREE",
+  "@planTrialBadge": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "thenPricePerYear": "then {price} per year",
+  "@thenPricePerYear": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "thenPricePerMonth": "then {price} per month",
+  "@thenPricePerMonth": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  }
 }

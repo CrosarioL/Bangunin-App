@@ -1211,8 +1211,8 @@ abstract class AppLocalizations {
   /// No description provided for @saveBadge.
   ///
   /// In en, this message translates to:
-  /// **'SAVE 50%'**
-  String get saveBadge;
+  /// **'SAVE {percent}%'**
+  String saveBadge(int percent);
 
   /// No description provided for @freeTrialToggle.
   ///
@@ -1241,8 +1241,8 @@ abstract class AppLocalizations {
   /// No description provided for @trialDay2Body.
   ///
   /// In en, this message translates to:
-  /// **'Cancel in Google Play before the trial ends and you pay nothing.'**
-  String get trialDay2Body;
+  /// **'Cancel in {store} before the trial ends and you pay nothing.'**
+  String trialDay2Body(String store);
 
   /// No description provided for @trialDayFinal.
   ///
@@ -1771,6 +1771,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Only your alarms. Never spam.'**
   String get notifyPointNoSpam;
+
+  /// No description provided for @planTrialBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} DAYS FREE'**
+  String planTrialBadge(int days);
+
+  /// No description provided for @thenPricePerYear.
+  ///
+  /// In en, this message translates to:
+  /// **'then {price} per year'**
+  String thenPricePerYear(String price);
+
+  /// No description provided for @thenPricePerMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'then {price} per month'**
+  String thenPricePerMonth(String price);
 }
 
 class _AppLocalizationsDelegate

@@ -105,22 +105,13 @@ class _PaywallPageState extends ConsumerState<PaywallPage> {
                       icon: Icons.workspace_premium_rounded,
                       mascotPose: MascotPose.crowing,
                     ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      l10n.paywallSubtitle,
-                      style: theme.textTheme.bodyMedium!.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.xl),
-                    _Feature(text: l10n.paywallFeatureMissions),
-                    _Feature(text: l10n.paywallFeatureSounds),
-                    _Feature(text: l10n.paywallFeatureStreaks),
-                    _Feature(text: l10n.paywallFeatureNoLimit),
-                    const SizedBox(height: AppSpacing.xl),
+                    // Plans and the button come first so the free trial is
+                    // visible without scrolling; the detail follows below.
+                    const SizedBox(height: AppSpacing.lg),
                     for (final plan in plans) ...[
                       _PlanCard(
                         plan: plan,
+                        savePercent: _yearlySavingPercent(plans),
                         selected: plan.productId == selected.productId,
                         onTap: () {
                           Haptics.selection();
@@ -161,27 +152,7 @@ class _PaywallPageState extends ConsumerState<PaywallPage> {
                       const SizedBox(height: AppSpacing.lg),
                     ] else
                       const SizedBox(height: AppSpacing.sm),
-                    // The timeline reflects whichever plan is selected,
-                    // independent of whether a toggle is even shown above —
-                    // every plan can carry a trial.
-                    AnimatedSize(
-                      duration: const Duration(milliseconds: 220),
-                      curve: Curves.easeOutCubic,
-                      alignment: Alignment.topCenter,
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 220),
-                        child: selected.hasTrial
-                            ? TrialTimeline(
-                                key: const ValueKey('trial-timeline'),
-                                trialDays: selected.trialDays,
-                              )
-                            : const SizedBox(
-                                key: ValueKey('no-trial-timeline'),
-                                width: double.infinity,
-                              ),
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
+                    const SizedBox(height: AppSpacing.sm),
                     PrimaryButton(
                       label: selected.hasTrial
                           ? l10n.paywallCtaTrial(selected.trialDays)
@@ -223,6 +194,39 @@ class _PaywallPageState extends ConsumerState<PaywallPage> {
                         ],
                       ),
                     ],
+                    const SizedBox(height: AppSpacing.xl),
+                    Text(
+                      l10n.paywallSubtitle,
+                      style: theme.textTheme.bodyMedium!.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    _Feature(text: l10n.paywallFeatureMissions),
+                    _Feature(text: l10n.paywallFeatureSounds),
+                    _Feature(text: l10n.paywallFeatureStreaks),
+                    _Feature(text: l10n.paywallFeatureNoLimit),
+                    const SizedBox(height: AppSpacing.md),
+                    // The timeline reflects whichever plan is selected,
+                    // independent of whether a toggle is even shown above —
+                    // every plan can carry a trial.
+                    AnimatedSize(
+                      duration: const Duration(milliseconds: 220),
+                      curve: Curves.easeOutCubic,
+                      alignment: Alignment.topCenter,
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 220),
+                        child: selected.hasTrial
+                            ? TrialTimeline(
+                                key: const ValueKey('trial-timeline'),
+                                trialDays: selected.trialDays,
+                              )
+                            : const SizedBox(
+                                key: ValueKey('no-trial-timeline'),
+                                width: double.infinity,
+                              ),
+                      ),
+                    ),
                     const SizedBox(height: AppSpacing.sm),
                     Center(
                       child: TextButton(
@@ -355,6 +359,23 @@ class _PaywallPageState extends ConsumerState<PaywallPage> {
   }
 }
 
+/// How much the yearly plan saves over paying monthly for a year, from the
+/// store's own prices so it is right in every currency.
+int? _yearlySavingPercent(List<PremiumPlan> plans) {
+  double? priceFor(String period) {
+    for (final plan in plans) {
+      if (plan.period == period) return plan.rawPrice;
+    }
+    return null;
+  }
+
+  final yearly = priceFor('year');
+  final monthly = priceFor('month');
+  if (yearly == null || monthly == null || monthly <= 0) return null;
+  final percent = ((1 - yearly / (monthly * 12)) * 100).floor();
+  return percent > 0 ? percent : null;
+}
+
 String _storeName() =>
     defaultTargetPlatform == TargetPlatform.iOS ? 'App Store' : 'Google Play';
 
@@ -384,14 +405,46 @@ class _Feature extends StatelessWidget {
   }
 }
 
+class _Badge extends StatelessWidget {
+  const _Badge({required this.text, required this.color});
+
+  final String text;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: 2,
+      ),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusCapsule),
+      ),
+      child: Text(
+        text,
+        style: Theme.of(context).textTheme.labelSmall!.copyWith(
+          color: Colors.white,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+    );
+  }
+}
+
 class _PlanCard extends StatelessWidget {
   const _PlanCard({
     required this.plan,
+    required this.savePercent,
     required this.selected,
     required this.onTap,
   });
 
   final PremiumPlan plan;
+
+  /// Yearly vs. twelve months of monthly, or null when it can't be computed.
+  final int? savePercent;
   final bool selected;
   final VoidCallback onTap;
 
@@ -444,14 +497,22 @@ class _PlanCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
+                    Wrap(
+                      spacing: AppSpacing.sm,
+                      runSpacing: AppSpacing.xs,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         Text(
                           isYearly ? l10n.planYearly : l10n.planMonthly,
                           style: theme.textTheme.titleSmall,
                         ),
-                        if (isYearly) ...[
-                          const SizedBox(width: AppSpacing.sm),
+                        if (plan.hasTrial) ...[
+                          _Badge(
+                            text: l10n.planTrialBadge(plan.trialDays),
+                            color: AppColors.success,
+                          ),
+                        ],
+                        if (isYearly && savePercent != null) ...[
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: AppSpacing.sm,
@@ -464,7 +525,7 @@ class _PlanCard extends StatelessWidget {
                               ),
                             ),
                             child: Text(
-                              l10n.saveBadge,
+                              l10n.saveBadge(savePercent!),
                               style: theme.textTheme.labelSmall!.copyWith(
                                 color: AppColors.onPrimary,
                                 fontWeight: FontWeight.w800,
@@ -475,14 +536,14 @@ class _PlanCard extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 2),
-                    Text(
-                      isYearly
-                          ? l10n.pricePerYear(plan.price)
-                          : l10n.pricePerMonth(plan.price),
-                      style: theme.textTheme.bodySmall!.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
+                    // Apple 3.1.2: the amount billed stays the clearest price
+                    // on the card, so it is not shrunk next to the badge.
+                    Text(switch ((plan.hasTrial, isYearly)) {
+                      (true, true) => l10n.thenPricePerYear(plan.price),
+                      (true, false) => l10n.thenPricePerMonth(plan.price),
+                      (false, true) => l10n.pricePerYear(plan.price),
+                      (false, false) => l10n.pricePerMonth(plan.price),
+                    }, style: theme.textTheme.bodyMedium),
                     if (plan.monthlyEquivalentPrice != null) ...[
                       const SizedBox(height: 2),
                       Text(
