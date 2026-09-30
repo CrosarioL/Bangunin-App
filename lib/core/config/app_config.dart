@@ -30,12 +30,12 @@ abstract final class AppConfig {
   static const allProductIds = {monthlyProductId, yearlyProductId};
 
   /// RevenueCat entitlement that unlocks premium (RevenueCat > Entitlements).
-  static const premiumEntitlementId = 'premium';
+  static const premiumEntitlementId = 'bangunin_pro';
 
   /// RevenueCat public SDK keys (Project settings > API keys). Public by
   /// design, so they live in the app. Never put the secret `sk_` key here.
-  static const revenueCatAppleKey = '';
-  static const revenueCatGoogleKey = '';
+  static const revenueCatAppleKey = 'appl_yvEMLICodGrRKkDTTrycultHjIE';
+  static const revenueCatGoogleKey = 'goog_VafVvETvemUYlaGiNVcCEUNciAm';
 
   /// RevenueCat Test Store: fake purchases, no store products needed. Debug
   /// builds only — RevenueCat rejects it in release, and it must never ship.
