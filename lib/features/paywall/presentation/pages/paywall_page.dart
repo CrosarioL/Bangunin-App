@@ -453,6 +453,9 @@ class _PlanCard extends StatelessWidget {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final isYearly = plan.period == 'year';
+    // Unselected cards sit on dark glass; theme text is dark, so it would
+    // disappear (and the price must stay readable, Apple 3.1.2).
+    final textColor = selected ? null : Colors.white;
     // A merged Semantics node (not an overriding label) so "selected" is
     // announced alongside the plan's own text instead of replacing it.
     return Semantics(
@@ -504,7 +507,9 @@ class _PlanCard extends StatelessWidget {
                       children: [
                         Text(
                           isYearly ? l10n.planYearly : l10n.planMonthly,
-                          style: theme.textTheme.titleSmall,
+                          style: theme.textTheme.titleSmall!.copyWith(
+                            color: textColor,
+                          ),
                         ),
                         if (plan.hasTrial) ...[
                           _Badge(
@@ -538,12 +543,17 @@ class _PlanCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     // Apple 3.1.2: the amount billed stays the clearest price
                     // on the card, so it is not shrunk next to the badge.
-                    Text(switch ((plan.hasTrial, isYearly)) {
-                      (true, true) => l10n.thenPricePerYear(plan.price),
-                      (true, false) => l10n.thenPricePerMonth(plan.price),
-                      (false, true) => l10n.pricePerYear(plan.price),
-                      (false, false) => l10n.pricePerMonth(plan.price),
-                    }, style: theme.textTheme.bodyMedium),
+                    Text(
+                      switch ((plan.hasTrial, isYearly)) {
+                        (true, true) => l10n.thenPricePerYear(plan.price),
+                        (true, false) => l10n.thenPricePerMonth(plan.price),
+                        (false, true) => l10n.pricePerYear(plan.price),
+                        (false, false) => l10n.pricePerMonth(plan.price),
+                      },
+                      style: theme.textTheme.bodyMedium!.copyWith(
+                        color: textColor,
+                      ),
+                    ),
                     if (plan.monthlyEquivalentPrice != null) ...[
                       const SizedBox(height: 2),
                       Text(
