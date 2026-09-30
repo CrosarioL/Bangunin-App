@@ -29,6 +29,25 @@ abstract final class AppConfig {
 
   static const allProductIds = {monthlyProductId, yearlyProductId};
 
+  /// RevenueCat entitlement that unlocks premium (RevenueCat > Entitlements).
+  static const premiumEntitlementId = 'premium';
+
+  /// RevenueCat public SDK keys (Project settings > API keys). Public by
+  /// design, so they live in the app. Never put the secret `sk_` key here.
+  static const revenueCatAppleKey = '';
+  static const revenueCatGoogleKey = '';
+
+  /// RevenueCat Test Store: fake purchases, no store products needed. Debug
+  /// builds only — RevenueCat rejects it in release, and it must never ship.
+  static const revenueCatTestStoreKey = 'test_rwsZiRQawjWnzHlMDqQKGyYhUdA';
+
+  static String get revenueCatApiKey {
+    if (!kReleaseMode) return revenueCatTestStoreKey;
+    return defaultTargetPlatform == TargetPlatform.iOS
+        ? revenueCatAppleKey
+        : revenueCatGoogleKey;
+  }
+
   /// Trial length recognized when an active store offer returns a 3-day phase.
   /// The app does not create a trial; Play Console/App Store Connect control
   /// whether one is currently available.

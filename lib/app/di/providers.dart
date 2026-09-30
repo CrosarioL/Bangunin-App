@@ -59,7 +59,7 @@ final subscriptionServiceProvider = Provider<SubscriptionService>((ref) {
   final prefs = ref.watch(sharedPreferencesProvider);
   final service = AppConfig.fakePaywall
       ? FakeSubscriptionService(prefs) as SubscriptionService
-      : StoreSubscriptionService(prefs);
+      : RevenueCatSubscriptionService(prefs);
   ref.onDispose(service.dispose);
   return service;
 });

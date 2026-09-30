@@ -3,11 +3,8 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
-import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:in_app_purchase_android/in_app_purchase_android.dart';
-import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
-import 'package:in_app_purchase_storekit/store_kit_2_wrappers.dart';
-import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
+import 'package:flutter/services.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../config/app_config.dart';
@@ -21,7 +18,7 @@ class PremiumPlan {
     this.monthlyEquivalentPrice,
     this.rawPrice,
     this.trialDays = 0,
-    this.productDetails,
+    this.package,
   });
 
   final String productId;
@@ -43,14 +40,16 @@ class PremiumPlan {
   /// Days of free trial attached to this plan (0 = none).
   final int trialDays;
 
-  final ProductDetails? productDetails;
+  /// The RevenueCat package to buy. Null for the simulated store.
+  final Package? package;
 
   bool get hasTrial => trialDays > 0;
 }
 
 /// Entitlement state + purchase flow. Mirrors how the shipped product works:
-/// StoreKit/Play Billing purchases, a single "premium" entitlement, no user
-/// accounts (the entitlement is cached locally and restorable via the store).
+/// App Store / Play purchases through RevenueCat, a single "premium"
+/// entitlement, no user accounts (RevenueCat's anonymous ID; restorable via
+/// the store).
 abstract interface class SubscriptionService {
   ValueListenable<bool> get isPremium;
 
@@ -70,146 +69,161 @@ abstract interface class SubscriptionService {
   Future<void> dispose();
 }
 
-class StoreSubscriptionService implements SubscriptionService {
-  StoreSubscriptionService(this._prefs) {
-    _premium = ValueNotifier<bool>(_prefs.getBool(_premiumKey) ?? false);
-    _purchaseSub = InAppPurchase.instance.purchaseStream.listen(
-      _onPurchaseUpdates,
+/// Real billing through RevenueCat, on both App Store and Google Play.
+///
+/// Premium follows RevenueCat's `premium` entitlement, re-read on every launch
+/// and whenever RevenueCat pushes a change, so a cancelled trial, an expired
+/// subscription or a refund takes premium away again. The last known state is
+/// cached so the app opens straight into premium while offline.
+///
+/// Early-access codes are a separate, device-local grant and survive the
+/// entitlement lapsing.
+class RevenueCatSubscriptionService implements SubscriptionService {
+  RevenueCatSubscriptionService(this._prefs) {
+    _premium = ValueNotifier<bool>(
+      (_prefs.getBool(_entitlementCacheKey) ?? false) ||
+          (_prefs.getBool(_accessCodeKey) ?? false),
     );
+    _ready = _configure();
   }
 
-  static const _premiumKey = 'premium_entitlement';
+  static const _entitlementCacheKey = 'rc_premium_entitlement';
+  static const _accessCodeKey = 'access_code_premium';
 
   final SharedPreferences _prefs;
   late final ValueNotifier<bool> _premium;
-  late final StreamSubscription<List<PurchaseDetails>> _purchaseSub;
-  Completer<bool>? _pendingPurchase;
+  late final Future<bool> _ready;
 
   @override
   ValueListenable<bool> get isPremium => _premium;
 
+  Future<bool> _configure() async {
+    final apiKey = AppConfig.revenueCatApiKey;
+    if (apiKey.isEmpty) {
+      debugPrint('RevenueCat: no API key for this platform/build.');
+      return false;
+    }
+    try {
+      await Purchases.configure(PurchasesConfiguration(apiKey));
+      Purchases.addCustomerInfoUpdateListener(_apply);
+      _apply(await Purchases.getCustomerInfo());
+      return true;
+    } on PlatformException catch (error) {
+      debugPrint('RevenueCat configure failed: ${error.message}');
+      return false;
+    }
+  }
+
+  void _apply(CustomerInfo info) {
+    final active = info.entitlements.active.containsKey(
+      AppConfig.premiumEntitlementId,
+    );
+    unawaited(_prefs.setBool(_entitlementCacheKey, active));
+    _premium.value = active || (_prefs.getBool(_accessCodeKey) ?? false);
+  }
+
   @override
   Future<List<PremiumPlan>> loadPlans() async {
-    if (!await InAppPurchase.instance.isAvailable()) return const [];
-    final response = await InAppPurchase.instance.queryProductDetails(
-      AppConfig.allProductIds,
-    );
-    final plans = <PremiumPlan>[];
-    for (final details in response.productDetails) {
-      if (details is GooglePlayProductDetails) {
-        final offerIndex = details.subscriptionIndex;
-        final offers = details.productDetails.subscriptionOfferDetails;
-        if (offerIndex != null &&
-            offers != null &&
-            offerIndex < offers.length) {
-          final phases = offers[offerIndex].pricingPhases;
-          final recurring = phases.where(
-            (phase) =>
-                phase.recurrenceMode.name == 'infiniteRecurring' &&
-                phase.priceAmountMicros > 0,
-          );
-          if (recurring.isEmpty) continue;
-          final renewal = recurring.last;
-          final freeTrial = phases.any(
-            (phase) =>
-                phase.priceAmountMicros == 0 && phase.billingPeriod == 'P3D',
-          );
-          plans.add(
-            PremiumPlan(
-              productId: details.id,
-              price: renewal.formattedPrice,
-              rawPrice: renewal.priceAmountMicros / 1000000,
-              period: details.id == AppConfig.monthlyProductId
-                  ? 'month'
-                  : 'year',
-              trialDays: freeTrial ? AppConfig.trialDays : 0,
-              productDetails: details,
-            ),
-          );
-          continue;
-        }
-      }
-      final appleTrialDays = _appleFreeTrialDays(details);
-      plans.add(
-        PremiumPlan(
-          productId: details.id,
-          price: details.price,
-          rawPrice: details.rawPrice,
-          period: details.id == AppConfig.monthlyProductId ? 'month' : 'year',
-          trialDays: appleTrialDays,
-          productDetails: details,
+    if (!await _ready) return const [];
+    final offering = (await Purchases.getOfferings()).current;
+    if (offering == null) return const [];
+
+    final packages = [?offering.annual, ?offering.monthly];
+    final eligibility = await _introEligibility(packages);
+
+    return [
+      for (final package in packages)
+        _planFor(
+          package,
+          eligible: eligibility[package.storeProduct.identifier] ?? true,
         ),
-      );
+    ];
+  }
+
+  PremiumPlan _planFor(Package package, {required bool eligible}) {
+    final product = package.storeProduct;
+    final isYearly = package.packageType == PackageType.annual;
+    return PremiumPlan(
+      productId: product.identifier,
+      price: product.priceString,
+      rawPrice: product.price,
+      period: isYearly ? 'year' : 'month',
+      monthlyEquivalentPrice: isYearly ? product.pricePerMonthString : null,
+      trialDays: eligible ? _freeTrialDays(product.introductoryPrice) : 0,
+      package: package,
+    );
+  }
+
+  /// Apple offers the trial only once per subscription group, so ask before
+  /// advertising it. Google already hides offers the user can't take.
+  Future<Map<String, bool>> _introEligibility(List<Package> packages) async {
+    if (defaultTargetPlatform != TargetPlatform.iOS) return const {};
+    try {
+      final result = await Purchases.checkTrialOrIntroductoryPriceEligibility([
+        for (final p in packages) p.storeProduct.identifier,
+      ]);
+      return {
+        for (final entry in result.entries)
+          entry.key:
+              entry.value.status !=
+              IntroEligibilityStatus.introEligibilityStatusIneligible,
+      };
+    } on PlatformException {
+      return const {};
     }
-    // Play can return multiple offers for one product. Prefer the configured
-    // three-day-trial offer, then keep one purchasable plan per product.
-    plans.sort((a, b) => b.trialDays.compareTo(a.trialDays));
-    final byProduct = <String, PremiumPlan>{};
-    for (final plan in plans) {
-      byProduct.putIfAbsent(plan.productId, () => plan);
-    }
-    return byProduct.values.toList();
   }
 
   @override
   Future<bool> purchase(PremiumPlan plan) async {
-    final details = plan.productDetails;
-    if (details == null) return false;
-    _pendingPurchase = Completer<bool>();
-    final started = await InAppPurchase.instance.buyNonConsumable(
-      purchaseParam: PurchaseParam(productDetails: details),
-    );
-    if (!started) {
-      _pendingPurchase = null;
+    final package = plan.package;
+    if (package == null || !await _ready) return false;
+    try {
+      final result = await Purchases.purchase(PurchaseParams.package(package));
+      _apply(result.customerInfo);
+      return _premium.value;
+    } on PlatformException catch (error) {
+      if (PurchasesErrorHelper.getErrorCode(error) !=
+          PurchasesErrorCode.purchaseCancelledError) {
+        debugPrint('RevenueCat purchase failed: ${error.message}');
+      }
       return false;
     }
-    return _pendingPurchase!.future.timeout(
-      const Duration(minutes: 5),
-      onTimeout: () => false,
-    );
   }
 
   @override
-  Future<void> restore() => InAppPurchase.instance.restorePurchases();
+  Future<void> restore() async {
+    if (!await _ready) return;
+    try {
+      _apply(await Purchases.restorePurchases());
+    } on PlatformException catch (error) {
+      debugPrint('RevenueCat restore failed: ${error.message}');
+    }
+  }
 
   @override
   Future<bool> redeemAccessCode(String code) async {
     if (!_isValidEarlyAccessCode(code)) return false;
-    await _grantPremium();
-    return true;
-  }
-
-  Future<void> _onPurchaseUpdates(List<PurchaseDetails> purchases) async {
-    for (final purchase in purchases) {
-      switch (purchase.status) {
-        case PurchaseStatus.purchased:
-        case PurchaseStatus.restored:
-          await _grantPremium();
-          _pendingPurchase?.complete(true);
-          _pendingPurchase = null;
-        case PurchaseStatus.error:
-        case PurchaseStatus.canceled:
-          _pendingPurchase?.complete(false);
-          _pendingPurchase = null;
-        case PurchaseStatus.pending:
-          break;
-      }
-      if (purchase.pendingCompletePurchase) {
-        await InAppPurchase.instance.completePurchase(purchase);
-      }
-    }
-  }
-
-  Future<void> _grantPremium() async {
+    await _prefs.setBool(_accessCodeKey, true);
     _premium.value = true;
-    await _prefs.setBool(_premiumKey, true);
+    return true;
   }
 
   @override
   Future<void> dispose() async {
-    await _purchaseSub.cancel();
+    Purchases.removeCustomerInfoUpdateListener(_apply);
     _premium.dispose();
   }
+}
+
+/// Length of a free (zero-price) introductory phase, in days; 0 if none.
+int _freeTrialDays(IntroductoryPrice? intro) {
+  if (intro == null || intro.price != 0) return 0;
+  final units = intro.periodNumberOfUnits * intro.cycles;
+  return switch (intro.periodUnit) {
+    PeriodUnit.day => units,
+    PeriodUnit.week => units * 7,
+    _ => 0,
+  };
 }
 
 /// Simulated store (see [AppConfig.fakePaywall]): serves fixed display
@@ -296,44 +310,6 @@ class FakeSubscriptionService implements SubscriptionService {
 
   @override
   Future<void> dispose() async => _premium.dispose();
-}
-
-int _appleFreeTrialDays(ProductDetails details) {
-  if (details is AppStoreProductDetails) {
-    final offer = details.skProduct.introductoryPrice;
-    if (offer == null ||
-        offer.paymentMode != SKProductDiscountPaymentMode.freeTrail ||
-        offer.price != '0') {
-      return 0;
-    }
-    return _trialDays(
-      units: offer.subscriptionPeriod.numberOfUnits * offer.numberOfPeriods,
-      unit: offer.subscriptionPeriod.unit.name,
-    );
-  }
-  if (details is AppStoreProduct2Details) {
-    final offers =
-        details.sk2Product.subscription?.promotionalOffers ?? const [];
-    for (final offer in offers) {
-      if (offer.type == SK2SubscriptionOfferType.introductory &&
-          offer.paymentMode == SK2SubscriptionOfferPaymentMode.freeTrial &&
-          offer.price == 0) {
-        return _trialDays(
-          units: offer.period.value * offer.periodCount,
-          unit: offer.period.unit.name,
-        );
-      }
-    }
-  }
-  return 0;
-}
-
-int _trialDays({required int units, required String unit}) {
-  return switch (unit) {
-    'day' => units,
-    'week' => units * 7,
-    _ => 0,
-  };
 }
 
 // Hashes keep the plain codes out of casual string extraction. This does not
