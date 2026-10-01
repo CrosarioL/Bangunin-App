@@ -37,12 +37,18 @@ abstract final class AppConfig {
   static const revenueCatAppleKey = 'appl_yvEMLICodGrRKkDTTrycultHjIE';
   static const revenueCatGoogleKey = 'goog_VafVvETvemUYlaGiNVcCEUNciAm';
 
-  /// RevenueCat Test Store: fake purchases, no store products needed. Debug
-  /// builds only — RevenueCat rejects it in release, and it must never ship.
+  /// RevenueCat Test Store: fake purchases, no store products needed. Only
+  /// when built with `--dart-define=BANGUNIN_RC_TEST_STORE=true`, and never
+  /// in release (RevenueCat rejects it there). Every other build, debug
+  /// included, uses the real store keys, so purchases go through Apple's /
+  /// Google's sandbox sheet exactly as they will in production.
   static const revenueCatTestStoreKey = 'test_rwsZiRQawjWnzHlMDqQKGyYhUdA';
+  static const _useRevenueCatTestStore = bool.fromEnvironment(
+    'BANGUNIN_RC_TEST_STORE',
+  );
 
   static String get revenueCatApiKey {
-    if (!kReleaseMode) return revenueCatTestStoreKey;
+    if (_useRevenueCatTestStore && !kReleaseMode) return revenueCatTestStoreKey;
     return defaultTargetPlatform == TargetPlatform.iOS
         ? revenueCatAppleKey
         : revenueCatGoogleKey;
@@ -53,14 +59,9 @@ abstract final class AppConfig {
   /// whether one is currently available.
   static const trialDays = 3;
 
-  /// Simulated paywall: the paywall renders and behaves exactly like the
-  /// real one (plans and "purchase" flow), but tapping the CTA
-  /// grants premium locally without ever contacting StoreKit/Play Billing —
-  /// nobody is charged and no store products need to exist. Flip to false
-  /// (and create the products in App Store Connect / Play Console) to go
-  /// live with real billing.
-  static const fakePaywall = bool.fromEnvironment(
-    'BANGUNIN_FAKE_PAYWALL',
-    defaultValue: kDebugMode,
-  );
+  /// Simulated paywall: tapping the CTA grants premium locally without
+  /// contacting any store. Off by default in every build now that real
+  /// products exist; opt in with `--dart-define=BANGUNIN_FAKE_PAYWALL=true`
+  /// (e.g. on a simulator with no sandbox account).
+  static const fakePaywall = bool.fromEnvironment('BANGUNIN_FAKE_PAYWALL');
 }
