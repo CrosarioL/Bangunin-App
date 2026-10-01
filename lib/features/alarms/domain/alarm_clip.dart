@@ -67,7 +67,7 @@ abstract final class AlarmClips {
       emoji: '🥁',
       onboarding: true,
     ),
-    // The first half (0-20.8s) of @hikaru_0772's "POV: Bapak bangunin
+    // The first half (0-21.4s) of @hikaru_0772's "POV: Bapak bangunin
     // sahur", cut at a natural pause so it loops cleanly.
     AlarmClip(
       id: 'sahur_bapak',
