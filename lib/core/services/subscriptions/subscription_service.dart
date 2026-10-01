@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:convert';
 
-import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
@@ -60,12 +58,6 @@ abstract interface class SubscriptionService {
 
   Future<void> restore();
 
-  /// Grants a temporary, device-local promotional entitlement when [code]
-  /// matches one of the early-review access codes.
-  ///
-  /// This is intentionally not a secure or globally single-use mechanism.
-  Future<bool> redeemAccessCode(String code);
-
   Future<void> dispose();
 }
 
@@ -74,21 +66,17 @@ abstract interface class SubscriptionService {
 /// Premium follows RevenueCat's `premium` entitlement, re-read on every launch
 /// and whenever RevenueCat pushes a change, so a cancelled trial, an expired
 /// subscription or a refund takes premium away again. The last known state is
-/// cached so the app opens straight into premium while offline.
-///
-/// Early-access codes are a separate, device-local grant and survive the
-/// entitlement lapsing.
+/// cached so the app opens straight into premium while offline. Store
+/// purchases are the only way in (App Store 3.1.1).
 class RevenueCatSubscriptionService implements SubscriptionService {
   RevenueCatSubscriptionService(this._prefs) {
     _premium = ValueNotifier<bool>(
-      (_prefs.getBool(_entitlementCacheKey) ?? false) ||
-          (_prefs.getBool(_accessCodeKey) ?? false),
+      _prefs.getBool(_entitlementCacheKey) ?? false,
     );
     _ready = _configure();
   }
 
   static const _entitlementCacheKey = 'rc_premium_entitlement';
-  static const _accessCodeKey = 'access_code_premium';
 
   final SharedPreferences _prefs;
   late final ValueNotifier<bool> _premium;
@@ -119,7 +107,7 @@ class RevenueCatSubscriptionService implements SubscriptionService {
       AppConfig.premiumEntitlementId,
     );
     unawaited(_prefs.setBool(_entitlementCacheKey, active));
-    _premium.value = active || (_prefs.getBool(_accessCodeKey) ?? false);
+    _premium.value = active;
   }
 
   @override
@@ -198,14 +186,6 @@ class RevenueCatSubscriptionService implements SubscriptionService {
     } on PlatformException catch (error) {
       debugPrint('RevenueCat restore failed: ${error.message}');
     }
-  }
-
-  @override
-  Future<bool> redeemAccessCode(String code) async {
-    if (!_isValidEarlyAccessCode(code)) return false;
-    await _prefs.setBool(_accessCodeKey, true);
-    _premium.value = true;
-    return true;
   }
 
   @override
@@ -301,30 +281,5 @@ class FakeSubscriptionService implements SubscriptionService {
   }
 
   @override
-  Future<bool> redeemAccessCode(String code) async {
-    if (!_isValidEarlyAccessCode(code)) return false;
-    _premium.value = true;
-    await _prefs.setBool(_key, true);
-    return true;
-  }
-
-  @override
   Future<void> dispose() async => _premium.dispose();
-}
-
-// Hashes keep the plain codes out of casual string extraction. This does not
-// make local redemption secure: a determined user can still patch or replay
-// the client, and the codes remain reusable across installations.
-const _earlyAccessCodeHashes = <String>{
-  'ea29427d61091dc2ca6670eb95131088ce78aec45789f2261478e190ef74cb2e',
-  '66cc37e1af68311d01921a6e824cabfaf4b661de50104491487fceffed18845e',
-  '59b5e9469ccf7f2577a7843dec938d5d3709b15b7696b46ea2d7e22ca67c8a92',
-  '917efd2833a835bb0965345a0273e574e7b65b5481c7f2f6c82fa6cd006b42a1',
-  '380a23256dd81e913a6435f832fc0dbd9dd6ec81700758c03735e5243ed1db5e',
-};
-
-bool _isValidEarlyAccessCode(String code) {
-  final normalized = code.trim().toLowerCase();
-  final digest = sha256.convert(utf8.encode(normalized)).toString();
-  return _earlyAccessCodeHashes.contains(digest);
 }

@@ -1370,30 +1370,6 @@ abstract class AppLocalizations {
   /// **'Done — nice work'**
   String get poseGuidanceComplete;
 
-  /// No description provided for @accessCodeTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter access code'**
-  String get accessCodeTitle;
-
-  /// No description provided for @accessCodeHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Access code'**
-  String get accessCodeHint;
-
-  /// No description provided for @accessCodeRedeem.
-  ///
-  /// In en, this message translates to:
-  /// **'Redeem'**
-  String get accessCodeRedeem;
-
-  /// No description provided for @accessCodeInvalid.
-  ///
-  /// In en, this message translates to:
-  /// **'That access code is not valid.'**
-  String get accessCodeInvalid;
-
   /// No description provided for @settingsOurStory.
   ///
   /// In en, this message translates to:

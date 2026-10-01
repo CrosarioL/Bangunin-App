@@ -190,72 +190,6 @@ void main() {
     expect(service.isPremium.value, isTrue);
   });
 
-  testWidgets('early access code grants a local premium entitlement', (
-    tester,
-  ) async {
-    await useRealisticPhoneSurface(tester);
-    SharedPreferences.setMockInitialValues({});
-    final prefs = await SharedPreferences.getInstance();
-    final service = FakeSubscriptionService(prefs);
-
-    await tester.pumpWidget(
-      testApp(
-        overrides: [
-          sharedPreferencesProvider.overrideWithValue(prefs),
-          subscriptionServiceProvider.overrideWithValue(service),
-        ],
-        child: const PaywallPage(),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    final accessCodeButton = find.text('Have an access code?');
-    await tester.scrollUntilVisible(
-      accessCodeButton,
-      100,
-      scrollable: find.byType(Scrollable),
-    );
-    await tester.drag(find.byType(Scrollable), const Offset(0, -100));
-    await tester.pumpAndSettle();
-    await tester.tap(accessCodeButton);
-    await tester.pumpAndSettle();
-
-    await tester.enterText(find.byType(TextField), 'IAMTHEOWNERFREE1');
-    await tester.tap(find.text('Redeem'));
-    await tester.pumpAndSettle();
-
-    expect(service.isPremium.value, isTrue);
-  });
-
-  testWidgets('access code remains available when store plans cannot load', (
-    tester,
-  ) async {
-    await useRealisticPhoneSurface(tester);
-    SharedPreferences.setMockInitialValues({});
-    final prefs = await SharedPreferences.getInstance();
-    final service = _EmptyPlansSubscriptionService(prefs);
-
-    await tester.pumpWidget(
-      testApp(
-        overrides: [
-          sharedPreferencesProvider.overrideWithValue(prefs),
-          subscriptionServiceProvider.overrideWithValue(service),
-        ],
-        child: const PaywallPage(),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.text('Have an access code?'), findsOneWidget);
-    await tester.tap(find.text('Have an access code?'));
-    await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField), 'iamtheownerfree2');
-    await tester.tap(find.text('Redeem'));
-    await tester.pumpAndSettle();
-
-    expect(service.isPremium.value, isTrue);
-  });
-
   testWidgets(
     'plans have no trial toggle or timeline when no store offer exists',
     (tester) async {
@@ -305,6 +239,28 @@ void main() {
       expect(find.byType(TrialTimeline), findsNothing);
     },
   );
+
+  testWidgets('when plans cannot load, only a retry is offered', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    await tester.pumpWidget(
+      testApp(
+        overrides: [
+          sharedPreferencesProvider.overrideWithValue(prefs),
+          subscriptionServiceProvider.overrideWithValue(
+            _EmptyPlansSubscriptionService(prefs),
+          ),
+        ],
+        child: const PaywallPage(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Try again'), findsOneWidget);
+    // Premium is unlocked only through the store (App Store 3.1.1).
+    expect(find.textContaining('access code'), findsNothing);
+  });
 
   testWidgets('personalized headline shows the saved first name', (
     tester,

@@ -102,10 +102,7 @@ void main() {
     });
 
     test('is localised', () {
-      expect(
-        EmergencyEscape.pledge('id', usedThisMonth: 0),
-        contains('misi'),
-      );
+      expect(EmergencyEscape.pledge('id', usedThisMonth: 0), contains('misi'));
     });
 
     test('matching ignores case, spacing and punctuation but not words', () {

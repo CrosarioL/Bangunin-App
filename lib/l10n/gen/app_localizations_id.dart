@@ -739,18 +739,6 @@ class AppLocalizationsId extends AppLocalizations {
   String get poseGuidanceComplete => 'Selesai — mantap';
 
   @override
-  String get accessCodeTitle => 'Masukkan kode akses';
-
-  @override
-  String get accessCodeHint => 'Kode akses';
-
-  @override
-  String get accessCodeRedeem => 'Gunakan';
-
-  @override
-  String get accessCodeInvalid => 'Kode akses tidak valid.';
-
-  @override
   String get settingsOurStory => 'Cerita kami';
 
   @override

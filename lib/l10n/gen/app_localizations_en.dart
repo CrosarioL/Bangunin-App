@@ -738,18 +738,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get poseGuidanceComplete => 'Done — nice work';
 
   @override
-  String get accessCodeTitle => 'Enter access code';
-
-  @override
-  String get accessCodeHint => 'Access code';
-
-  @override
-  String get accessCodeRedeem => 'Redeem';
-
-  @override
-  String get accessCodeInvalid => 'That access code is not valid.';
-
-  @override
   String get settingsOurStory => 'Our story';
 
   @override

@@ -5,7 +5,7 @@ These are drafts. Confirm the final questions shown in the account before submit
 ## Core declarations
 
 - Ads: No.
-- App access: Some functionality is restricted by the subscription paywall. No account or username is required. On the Bangunin paywall, tap **Have an access code?**, enter `iamtheownerfree1`, then tap **Redeem**. This grants device-local Premium access so the reviewer can test every alarm and mission without a purchase. The code is reusable during early review and does not transmit data.
+- App access: All functionality is available without special access. No account or login is required. Premium is sold only through Google Play Billing; reviewers can start the free trial with a test account. (The old access code was removed in 1.0.2 — update this declaration in Play Console → App content → App access with the next release.)
 - Target audience: 13+; not designed for children.
 - News, government, financial features, COVID/health: No.
 - Advertising ID: No; the merged manifest does not request AD_ID.

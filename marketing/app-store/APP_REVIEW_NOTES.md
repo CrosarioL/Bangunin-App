@@ -8,7 +8,7 @@ Bangunin is a user-scheduled alarm clock: an alarm stops only after the user com
 
 Quick test (about 3 minutes):
 1. Complete onboarding. On the permissions step, allow notifications and Alarms (iOS 26 AlarmKit prompt).
-2. On the paywall, tap "Punya kode akses?" / "Have an access code?", enter iamtheownerfree1 and tap Redeem. This unlocks Premium locally without a purchase.
+2. On the paywall, start the 3-day free trial with your sandbox account (Premium is sold only through In-App Purchase; there is no code or other unlock).
 3. Create an alarm two minutes ahead with the Math or Shake mission (no camera needed), then lock the iPhone.
 4. The system alarm appears. Tap "Mulai misi" / "Start mission" (or slide to stop; both open the mission) and complete it.
 
