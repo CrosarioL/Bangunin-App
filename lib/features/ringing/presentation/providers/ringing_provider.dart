@@ -137,8 +137,32 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
 
   final _random = math.Random();
 
+  /// Keeps the AlarmKit re-ring pushed back while the app is open on a
+  /// mission alarm. If the app is closed it stops, and the alarm returns.
+  Timer? _reRingKeepAlive;
+  static const _reRingKeepAliveEvery = Duration(seconds: 40);
+  static const _reRingDeferSeconds = 120;
+
+  void _startReRingKeepAlive(Alarm alarm) {
+    _stopReRingKeepAlive();
+    if (alarm.missionType == MissionType.none) return;
+    final alarmKit = ref.read(alarmKitServiceProvider);
+    void defer() =>
+        unawaited(alarmKit.deferReRing(alarm.id, seconds: _reRingDeferSeconds));
+    defer();
+    _reRingKeepAlive = Timer.periodic(_reRingKeepAliveEvery, (_) => defer());
+  }
+
+  void _stopReRingKeepAlive() {
+    _reRingKeepAlive?.cancel();
+    _reRingKeepAlive = null;
+  }
+
   @override
-  RingingSession? build() => null;
+  RingingSession? build() {
+    ref.onDispose(_stopReRingKeepAlive);
+    return null;
+  }
 
   /// The object this ring asks for, assigned on first request.
   HuntAssignment huntAssignment(String alarmId) {
@@ -204,6 +228,7 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
       snoozeCount: _snoozeCounts[alarmId] ?? 0,
     );
     await ref.read(alarmAudioServiceProvider).startRinging(alarm);
+    _startReRingKeepAlive(alarm);
     unawaited(
       ref.read(analyticsProvider).logEvent(AnalyticsEvents.alarmRinging, {
         'mission': alarm.missionType.name,
@@ -238,6 +263,9 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
     final session = state;
     if (session == null || !session.canSnooze) return false;
     await ref.read(alarmAudioServiceProvider).stopRinging();
+    // A snooze is the sanctioned, capped delay; it replaces the re-ring.
+    _stopReRingKeepAlive();
+    await ref.read(alarmKitServiceProvider).cancelReRing(session.alarm.id);
     await ref
         .read(alarmSchedulerProvider)
         .scheduleSnooze(session.alarm, session.alarm.snoozeMinutes);
@@ -305,6 +333,8 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
     await ref.read(alarmAudioServiceProvider).stopRinging();
 
     final alarm = session.alarm;
+    _stopReRingKeepAlive();
+    await ref.read(alarmKitServiceProvider).cancelReRing(alarm.id);
     _snoozeCounts.remove(alarm.id);
     _hunt = null;
     // The wake is done, so any snooze the scheduler is holding for re-arming

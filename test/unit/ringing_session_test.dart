@@ -103,9 +103,20 @@ class _FakeAlarmScheduler implements AlarmScheduler {
   Future<void> cancelWakeCheck() async => pendingWakeCheck = null;
 }
 
+class _FakeAlarmKit extends AlarmKitService {
+  final deferred = <String>[];
+  final cancelled = <String>[];
+  @override
+  Future<void> deferReRing(String alarmId, {required int seconds}) async =>
+      deferred.add(alarmId);
+  @override
+  Future<void> cancelReRing(String alarmId) async => cancelled.add(alarmId);
+}
+
 void main() {
   late Directory tempDir;
   late ProviderContainer container;
+  late _FakeAlarmKit alarmKit;
   late AlarmRepository alarmRepository;
   late _FakeAudioService audioService;
   late _FakeAlarmScheduler scheduler;
@@ -129,8 +140,10 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
 
+    alarmKit = _FakeAlarmKit();
     container = ProviderContainer(
       overrides: [
+        alarmKitServiceProvider.overrideWithValue(alarmKit),
         sharedPreferencesProvider.overrideWithValue(prefs),
         alarmRepositoryProvider.overrideWithValue(alarmRepository),
         wakeStatsRepositoryProvider.overrideWithValue(
@@ -338,5 +351,42 @@ void main() {
 
     await notifier.resumeRinging();
     expect(audioService.ringing, isTrue);
+  });
+
+  test(
+    'a mission alarm cannot be outlasted: re-ring held off, then cancelled',
+    () async {
+      final alarm = Alarm(
+        id: 'm1',
+        hour: 6,
+        minute: 0,
+        missionType: MissionType.squats,
+        createdAt: DateTime(2026),
+      );
+      await alarmRepository.upsert(alarm);
+      final notifier = container.read(ringingSessionProvider.notifier);
+
+      await notifier.begin('m1');
+      expect(alarmKit.deferred, ['m1']);
+
+      await notifier.complete();
+      expect(alarmKit.cancelled, ['m1']);
+    },
+  );
+
+  test('snoozing replaces the re-ring', () async {
+    final alarm = Alarm(
+      id: 'm2',
+      hour: 6,
+      minute: 0,
+      missionType: MissionType.squats,
+      createdAt: DateTime(2026),
+    );
+    await alarmRepository.upsert(alarm);
+    final notifier = container.read(ringingSessionProvider.notifier);
+
+    await notifier.begin('m2');
+    await notifier.snooze();
+    expect(alarmKit.cancelled, ['m2']);
   });
 }

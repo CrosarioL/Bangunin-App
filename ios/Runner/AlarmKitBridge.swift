@@ -104,6 +104,33 @@ enum AlarmKitBridge {
       }
       result(scheduledIds())
 
+    case "deferReRing":
+      guard #available(iOS 26.0, *), isSupported,
+        let args = call.arguments as? [String: Any],
+        let alarmId = args["id"] as? String,
+        let seconds = args["seconds"] as? Int
+      else {
+        result(false)
+        return
+      }
+      Task {
+        await scheduleReRing(alarmId: alarmId, after: TimeInterval(seconds))
+        await MainActor.run { result(true) }
+      }
+
+    case "cancelReRing":
+      guard #available(iOS 26.0, *), isSupported,
+        let args = call.arguments as? [String: Any],
+        let alarmId = args["id"] as? String
+      else {
+        result(false)
+        return
+      }
+      Task {
+        await cancelReRing(alarmId: alarmId)
+        await MainActor.run { result(true) }
+      }
+
     case "consumePendingMissionAlarmId":
       let defaults = UserDefaults.standard
       let pending = defaults.string(forKey: pendingMissionKey)
@@ -169,6 +196,13 @@ enum AlarmKitBridge {
 
     func perform() async throws -> some IntentResult {
       UserDefaults.standard.set(alarmId, forKey: AlarmKitBridge.pendingMissionKey)
+      // Stopping the alert is not finishing the mission: the alarm comes
+      // back unless the app pushes this back while the mission is under way
+      // and cancels it once the mission is passed.
+      await AlarmKitBridge.scheduleReRing(
+        alarmId: alarmId,
+        after: AlarmKitBridge.reRingDelay
+      )
       return .result()
     }
   }
@@ -216,11 +250,65 @@ enum AlarmKitBridge {
         return
       }
 
+      let weekdays = (args["weekdays"] as? [Int]) ?? []
+      let schedule = Alarm.Schedule.relative(
+        Alarm.Schedule.Relative(
+          time: Alarm.Schedule.Relative.Time(hour: hour, minute: minute),
+          repeats: weekdays.isEmpty
+            ? .never
+            : .weekly(weekdays.compactMap(Self.weekday(fromIso:)))
+        )
+      )
+
+      let configuration = makeConfiguration(
+        args: args,
+        alarmId: rawId,
+        schedule: schedule
+      )
+      // Kept so a re-ring (see `scheduleReRing`) can rebuild the same alarm
+      // from inside the intent, without the Flutter side running.
+      UserDefaults.standard.set(args, forKey: argsKeyPrefix + rawId)
+
+      do {
+        _ = try await manager.schedule(id: id, configuration: configuration)
+        await MainActor.run { result(true) }
+      } catch AlarmManager.AlarmError.maximumLimitReached {
+        // Surfaced to the user rather than swallowed — an alarm the system
+        // refused to take is exactly the failure people write 1-star reviews
+        // about.
+        await MainActor.run {
+          result(
+            FlutterError(
+              code: "limit_reached",
+              message: "iOS will not accept any more alarms from this app.",
+              details: nil
+            )
+          )
+        }
+      } catch {
+        await MainActor.run {
+          result(
+            FlutterError(
+              code: "schedule_failed",
+              message: error.localizedDescription,
+              details: nil
+            )
+          )
+        }
+      }
+    }
+
+    /// The alarm's look, sound and buttons. Shared by the scheduled alarm and
+    /// its re-rings so they are indistinguishable to the user.
+    static func makeConfiguration(
+      args: [String: Any],
+      alarmId: String,
+      schedule: Alarm.Schedule
+    ) -> AlarmManager.AlarmConfiguration<BanguninAlarmMetadata> {
       let label = (args["label"] as? String) ?? "Bangunin"
       let missionType = (args["missionType"] as? String) ?? "none"
       let secondaryTitle = (args["secondaryButtonTitle"] as? String)
         ?? "Start mission"
-      let weekdays = (args["weekdays"] as? [Int]) ?? []
       let soundName = args["soundName"] as? String
 
       let secondaryButton = AlarmButton(
@@ -259,20 +347,11 @@ enum AlarmKitBridge {
       let attributes = AlarmAttributes<BanguninAlarmMetadata>(
         presentation: AlarmPresentation(alert: alert),
         metadata: BanguninAlarmMetadata(
-          alarmId: rawId,
+          alarmId: alarmId,
           missionType: missionType
         ),
         // Bangunin's electric yellow.
         tintColor: Color(red: 1.0, green: 0.839, blue: 0.039)
-      )
-
-      let schedule = Alarm.Schedule.relative(
-        Alarm.Schedule.Relative(
-          time: Alarm.Schedule.Relative.Time(hour: hour, minute: minute),
-          repeats: weekdays.isEmpty
-            ? .never
-            : .weekly(weekdays.compactMap(Self.weekday(fromIso:)))
-        )
       )
 
       let sound: AlertConfiguration.AlertSound =
@@ -286,38 +365,52 @@ enum AlarmKitBridge {
         // Alarms without a mission retain the normal system Stop behavior.
         stopIntent: missionType == "none"
           ? nil
-          : StartMissionIntent(alarmId: rawId),
-        secondaryIntent: StartMissionIntent(alarmId: rawId),
+          : StartMissionIntent(alarmId: alarmId),
+        secondaryIntent: StartMissionIntent(alarmId: alarmId),
         sound: sound
       )
+      return configuration
+    }
 
+    static let argsKeyPrefix = "bangunin.alarmArgs."
+    static let reRingKeyPrefix = "bangunin.reRing."
+
+    /// How long after a mission alarm is swiped away, without the mission
+    /// done, it rings again.
+    static let reRingDelay: TimeInterval = 60
+
+    /// Arms (or moves) the one pending re-ring for `alarmId` to `delay`
+    /// seconds from now. The system's slide-to-stop cannot be removed, so
+    /// stopping a mission alarm only buys time: until the mission is passed
+    /// the alarm keeps coming back, even if Bangunin is closed.
+    static func scheduleReRing(alarmId: String, after delay: TimeInterval) async {
+      let defaults = UserDefaults.standard
+      guard
+        let args = defaults.dictionary(forKey: argsKeyPrefix + alarmId),
+        (args["missionType"] as? String ?? "none") != "none"
+      else { return }
+      await cancelReRing(alarmId: alarmId)
+      let reRingId = UUID()
+      let configuration = makeConfiguration(
+        args: args,
+        alarmId: alarmId,
+        schedule: .fixed(Date().addingTimeInterval(delay))
+      )
       do {
-        _ = try await manager.schedule(id: id, configuration: configuration)
-        await MainActor.run { result(true) }
-      } catch AlarmManager.AlarmError.maximumLimitReached {
-        // Surfaced to the user rather than swallowed — an alarm the system
-        // refused to take is exactly the failure people write 1-star reviews
-        // about.
-        await MainActor.run {
-          result(
-            FlutterError(
-              code: "limit_reached",
-              message: "iOS will not accept any more alarms from this app.",
-              details: nil
-            )
-          )
-        }
+        _ = try await manager.schedule(id: reRingId, configuration: configuration)
+        defaults.set(reRingId.uuidString, forKey: reRingKeyPrefix + alarmId)
       } catch {
-        await MainActor.run {
-          result(
-            FlutterError(
-              code: "schedule_failed",
-              message: error.localizedDescription,
-              details: nil
-            )
-          )
-        }
+        // Nothing more we can do from here; the app re-arms it on next open.
       }
+    }
+
+    static func cancelReRing(alarmId: String) async {
+      let defaults = UserDefaults.standard
+      let key = reRingKeyPrefix + alarmId
+      if let raw = defaults.string(forKey: key), let id = UUID(uuidString: raw) {
+        try? manager.cancel(id: id)
+      }
+      defaults.removeObject(forKey: key)
     }
 
     /// ISO-8601 weekday (1 = Monday) to `Locale.Weekday`.

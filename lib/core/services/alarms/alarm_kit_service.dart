@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 /// Which mechanism is actually ringing the user's alarms.
@@ -133,6 +134,21 @@ class AlarmKitService {
   Future<List<String>> scheduledIds() async {
     final ids = await _invoke<List<Object?>>('scheduledIds');
     return ids?.whereType<String>().toList() ?? const [];
+  }
+
+  /// Moves the pending re-ring for [alarmId] to [seconds] from now (arming
+  /// one if none is pending). Called repeatedly while a mission is under way
+  /// so the alarm does not come back mid-squat; if the app is closed the
+  /// calls stop and the alarm rings again.
+  Future<void> deferReRing(String alarmId, {required int seconds}) async {
+    if (defaultTargetPlatform != TargetPlatform.iOS) return;
+    await _invoke<bool>('deferReRing', {'id': alarmId, 'seconds': seconds});
+  }
+
+  /// The mission was passed (or escaped): the alarm must not come back.
+  Future<void> cancelReRing(String alarmId) async {
+    if (defaultTargetPlatform != TargetPlatform.iOS) return;
+    await _invoke<bool>('cancelReRing', {'id': alarmId});
   }
 
   /// The alarm the user opened from an alert's mission button, if any.
