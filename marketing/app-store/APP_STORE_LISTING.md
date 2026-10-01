@@ -1,86 +1,97 @@
-# Bangunin App Store listing
+# Bangunin App Store listing (1.0.1)
+
+App Store Connect → Bangunin: Alarm Misi → iOS App 1.0. Primary language: Indonesian.
 
 ## Bahasa Indonesia (primary)
 
-- Name (8/30): `Bangunin`
-- Subtitle (29/30): `Alarm misi biar benar bangun`
-- Promotional text: `Bangun dengan bukti. Pilih misi foto, gerakan, atau benda—lalu selesaikan sebelum sesi alarm berakhir.`
-- Keywords (98/100): `alarm,bangun,pagi,tidur,misi,produktivitas,kebiasaan,squat,pushup,foto,pengingat,rutinitas`
+- Name: `Bangunin: Alarm Misi` (set; "Bangunin" alone is taken)
+- Subtitle (≤30): `Alarm yang bikin kamu bangun`
+- Promotional text (≤170): `Alarm yang nggak bisa dimatiin sambil tidur. Selesaikan misi seru—foto, cari benda, matematika, squat—baru alarmnya diam. Coba gratis 3 hari.`
+- Keywords (≤100, no spaces): `alarm,bangun,pagi,sahur,tidur,misi,kesiangan,snooze,squat,pushup,foto,kebiasaan,disiplin,subuh`
 - Support URL: `https://bangunin.app/`
 - Marketing URL: `https://bangunin.app/`
-- Privacy URL: `https://bangunin.app/privacy.html`
+- Privacy Policy URL: `https://bangunin.app/privacy.html`
+- Category: Primary `Lifestyle`, Secondary `Productivity`
+- Copyright: `2026 HAYAT TIME LTD`
 
 ### Description
 
-Alarm biasa terlalu mudah dimatikan saat kamu masih setengah sadar. Bangunin mengajakmu mengambil satu langkah nyata sebelum sesi alarm berakhir.
+Alarm biasa gampang dimatiin sambil tidur. Bangunin nggak.
 
-Pilih misi yang cocok untuk pagimu:
+Alarmnya baru berhenti setelah kamu menyelesaikan misi bangun. Mau geser buat matiin? Semenit kemudian bunyi lagi, terus, sampai misimu selesai.
 
-• Foto langit atau rumput
-• Temukan benda pilihanmu
-• Rapikan tempat tidur
-• Lakukan squat atau pushup dengan pemeriksaan pose
-• Gunakan suara alarm pilihanmu
+MISI BANGUN
+• Foto langit, rumput, atau kasur yang sudah rapi
+• Cari benda acak di rumah
+• Soal matematika
+• Kocok HP
+• Squat atau push-up, dihitung lewat kamera
+• Gabungkan beberapa misi untuk yang susah bangun
 
-Kenapa Bangunin terasa berbeda:
+SUARA ALARM
+• 20+ suara meme dan lokal: Tung Tung Tung Sahur, Bapak Bangunin Sahur, Om Telolet Om, dan banyak lagi
+• Nada klasik, atau rekam dan impor suaramu sendiri
 
-• Misi membantumu bergerak dan fokus
-• Atur hari berulang, getaran, volume, dan batas tunda
-• Lihat statistik bangun dan streak pagimu
-• Foto dan pemrosesan pose tetap di perangkat
-• Tanpa iklan dan tanpa akun
+BENAR-BENAR BANGUN
+• Alarm iOS asli (AlarmKit): layar penuh dan tetap bunyi walau mode senyap atau Focus
+• Wake Up Check: cek lagi beberapa menit kemudian, alarm bunyi lagi kalau kamu ketiduran
+• Tunda terbatas sesuai pengaturanmu
+• Emergency Escape untuk keadaan darurat
 
-Untuk misi olahraga, letakkan iPhone di posisi stabil agar kamera dapat melihat tubuhmu. Pilih misi non-olahraga jika gerakan tidak aman atau nyaman bagimu.
+STREAK & STATISTIK
+• Streak pagi, rekor terbaik, dan rata-rata jam bangun
 
-iOS mengendalikan bagaimana notifikasi alarm ditampilkan dan dapat membatasi suara berdasarkan Focus, Silent Mode, volume, izin notifikasi, atau pengaturan sistem. Bangunin menjelaskan pengaturan yang perlu diperiksa, tetapi tidak menjanjikan dapat mengabaikan iOS.
+PRIVASI
+• Tanpa akun, tanpa iklan
+• Foto, kamera, dan suara diproses di HP-mu dan tidak diunggah
+
+BANGUNIN PREMIUM
+Semua misi, suara, dan statistik. Tersedia tahunan atau bulanan, dengan uji coba gratis 3 hari. Langganan diperpanjang otomatis kecuali dibatalkan minimal 24 jam sebelum periode berakhir, lewat Pengaturan Apple ID. Ketentuan: https://bangunin.app/terms.html · Privasi: https://bangunin.app/privacy.html
 
 Bangunin bukan perangkat medis, keselamatan, atau darurat.
 
-### What’s New 1.0.0
+### What's New
 
-`Rilis pertama Bangunin: alarm bermisi, misi foto dan pose di perangkat, suara khusus, statistik bangun, serta Bangunin Premium.`
+`Rilis pertama Bangunin di iPhone.`
 
-## English
+## English (U.K. or U.S.) localization
 
-- Name (8/30): `Bangunin`
-- Subtitle (27/30): `Mission alarm to get moving`
-- Promotional text: `Wake up with proof. Choose a photo, movement, or object mission, then finish it before your alarm session ends.`
-- Keywords (96/100): `alarm,wakeup,morning,sleep,mission,productivity,habit,squat,pushup,photo,reminder,routine`
+- Subtitle: `The alarm that gets you up`
+- Promotional text: `An alarm you can't turn off in your sleep. Finish a fun mission—photo, object hunt, maths, squats—and only then does it stop. Try it free for 3 days.`
+- Keywords: `alarm,wake,up,morning,sleep,mission,snooze,oversleep,squat,pushup,photo,habit,routine,discipline`
 
 ### Description
 
-Ordinary alarms are easy to dismiss while you are still half asleep. Bangunin asks you to take one real action before your alarm session ends.
+Normal alarms are easy to turn off in your sleep. Bangunin isn't.
 
-Choose a mission for your morning:
+It only stops once you complete a wake-up mission. Swipe it away? A minute later it rings again, and again, until your mission is done.
 
-• Photograph the sky or grass
-• Find an object you selected
-• Make your bed
-• Complete squats or pushups with pose verification
-• Wake up to a sound you selected
+WAKE-UP MISSIONS
+• Photograph the sky, grass, or your made bed
+• Find a random object around the house
+• Maths problems
+• Shake your phone
+• Squats or push-ups, counted by the camera
+• Chain missions together for heavy sleepers
 
-Why Bangunin feels different:
+ALARM SOUNDS
+• 20+ meme and Indonesian sounds, from Tung Tung Tung Sahur to Om Telolet Om
+• Classic tones, or record and import your own
 
-• Missions help you move and focus
-• Configure repeat days, vibration, volume, and snooze limits
-• See your consistency through wake statistics and streaks
-• Photo and pose processing stays on your device
-• No ads and no account
+ACTUALLY WAKE UP
+• Real iOS alarms (AlarmKit): full screen, and they ring through Silent mode and Focus
+• Wake Up Check: a check-in a few minutes later, and the alarm rings again if you fell back asleep
+• Snooze limited to your own setting
+• An Emergency Escape for genuine emergencies
 
-For exercise missions, place your iPhone somewhere stable where the camera can see your body. Choose a non-exercise mission whenever movement is unsafe or uncomfortable.
+STREAKS & STATS
+• Morning streaks, best streak, and average wake-up time
 
-iOS controls how alarm notifications appear and may limit sound through Focus, Silent Mode, volume, notification permission, or system settings. Bangunin explains what to check but does not claim to override iOS.
+PRIVACY
+• No account, no ads
+• Photos, camera and sounds are processed on your phone and never uploaded
 
-Bangunin is not a medical, safety, or emergency device.
+BANGUNIN PREMIUM
+Every mission, sound and stat. Yearly or monthly, with a 3-day free trial. Subscriptions renew automatically unless cancelled at least 24 hours before the end of the period, in your Apple ID settings. Terms: https://bangunin.app/terms.html · Privacy: https://bangunin.app/privacy.html
 
-### What’s New 1.0.0
-
-`First Bangunin release: mission alarms, on-device photo and pose missions, custom sounds, wake statistics, and Bangunin Premium.`
-
-## Classification
-
-- Primary category: Productivity
-- Secondary category: Lifestyle
-- Copyright: `2026 Bangunin`
-- Bundle ID: `app.bangunin`
-- SKU suggestion: `bangunin-ios-001`
+Bangunin is not a medical, safety or emergency device.
