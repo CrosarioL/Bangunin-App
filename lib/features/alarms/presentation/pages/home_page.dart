@@ -62,11 +62,13 @@ class HomePage extends ConsumerWidget {
                         child: _EmptyState(),
                       )
                     : SliverPadding(
-                        padding: const EdgeInsets.fromLTRB(
+                        // Room for the last alarm to scroll clear of the
+                        // floating button: its offset, size and margin.
+                        padding: EdgeInsets.fromLTRB(
                           AppSpacing.lg,
                           0,
                           AppSpacing.lg,
-                          168,
+                          shellFabBottomPadding(context) + 66 + 32,
                         ),
                         sliver: SliverList.separated(
                           itemCount: alarms.length,
@@ -105,7 +107,7 @@ class HomePage extends ConsumerWidget {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 84.0),
+        padding: EdgeInsets.only(bottom: shellFabBottomPadding(context)),
         child: PressableScale(
           onPressed: () => context.push(Routes.alarmNew),
           semanticLabel: l10n.newAlarm,

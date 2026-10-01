@@ -14,6 +14,21 @@ final fabKey = GlobalKey(debugLabel: 'fab');
 final streakTabKey = GlobalKey(debugLabel: 'streakTab');
 final settingsTabKey = GlobalKey(debugLabel: 'settingsTab');
 
+/// Height of the floating tab bar, and its minimum gap to the screen edge.
+const kShellNavHeight = 80.0;
+const _kShellNavBottomGap = 10.0;
+
+/// How far a page's floating button must sit above its own bottom edge to
+/// clear the floating tab bar (which the pages extend behind), on any phone:
+/// the bar's height plus the home-indicator inset it sits on.
+double shellFabBottomPadding(BuildContext context) {
+  // The device's own inset: inside the page, the shell Scaffold has already
+  // consumed it for the tab bar, so the local MediaQuery reports zero.
+  final inset = MediaQueryData.fromView(View.of(context)).viewPadding.bottom;
+  return kShellNavHeight +
+      (inset > _kShellNavBottomGap ? inset : _kShellNavBottomGap);
+}
+
 /// Bottom-tab scaffold hosting the three top-level destinations. The floating
 /// glass capsule leaves the sunset visible all the way to the screen edge.
 class AppShell extends ConsumerStatefulWidget {
@@ -63,7 +78,7 @@ class _AppShellState extends ConsumerState<AppShell> {
       body: widget.shell,
       extendBody: true,
       bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+        minimum: const EdgeInsets.fromLTRB(12, 0, 12, _kShellNavBottomGap),
         child: DecoratedBox(
           decoration: BoxDecoration(
             color: isDark ? AppColors.glass : AppColors.glassLight,
@@ -84,6 +99,7 @@ class _AppShellState extends ConsumerState<AppShell> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(26),
             child: NavigationBar(
+              height: kShellNavHeight,
               selectedIndex: widget.shell.currentIndex,
               onDestinationSelected: (index) {
                 Haptics.selection();
