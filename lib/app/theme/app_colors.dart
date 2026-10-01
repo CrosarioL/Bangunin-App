@@ -48,6 +48,10 @@ abstract final class AppColors {
   static const nightMid = Color(0xFF163D72);
   static const horizon = Color(0xFFFFA94D);
 
+  /// Deep sunrise orange for accent text on the light sky; [horizon] is too
+  /// pale to read there.
+  static const ember = Color(0xFFD9480F);
+
   // Light theme counterparts. The canvas is a real, unmistakable slate
   // blue — not white, not a whisper of grey. White reads flat and dated,
   // and white cards need actual contrast to sit against.
