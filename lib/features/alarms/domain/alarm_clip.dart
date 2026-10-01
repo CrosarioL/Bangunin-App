@@ -23,7 +23,6 @@ class AlarmClip {
     required this.category,
     required this.emoji,
     this.hasVideo = false,
-    this.onboarding = false,
   });
 
   final String id;
@@ -36,10 +35,6 @@ class AlarmClip {
 
   /// Ships `<id>.mp4` and `<id>.jpg`. Audio-only clips use the art card.
   final bool hasVideo;
-
-  /// Offered on the onboarding sound step. Keep that shortlist to the few
-  /// clips most likely to be picked; the full catalog lives in the editor.
-  final bool onboarding;
 
   String title(String languageCode) => languageCode == 'id' ? titleId : titleEn;
 
@@ -65,7 +60,6 @@ abstract final class AlarmClips {
       titleId: 'Tung Tung Tung Sahur',
       category: ClipCategory.seasonal,
       emoji: '🥁',
-      onboarding: true,
     ),
     // The first half (0-21.4s) of @hikaru_0772's "POV: Bapak bangunin
     // sahur", cut at a natural pause so it loops cleanly.
@@ -75,7 +69,6 @@ abstract final class AlarmClips {
       titleId: 'Bapak Bangunin Sahur',
       category: ClipCategory.seasonal,
       emoji: '👨',
-      onboarding: true,
     ),
     AlarmClip(
       id: 'om_telolet',
@@ -83,7 +76,6 @@ abstract final class AlarmClips {
       titleId: 'Om Telolet Om',
       category: ClipCategory.loud,
       emoji: '🚌',
-      onboarding: true,
     ),
     AlarmClip(
       id: 'tahu_bulat',
@@ -91,7 +83,6 @@ abstract final class AlarmClips {
       titleId: 'Tahu Bulat',
       category: ClipCategory.funny,
       emoji: '📣',
-      onboarding: true,
     ),
     AlarmClip(
       id: 'bangun_sahur',
@@ -149,7 +140,6 @@ abstract final class AlarmClips {
       titleId: 'Your Phone Ringing',
       category: ClipCategory.funny,
       emoji: '📱',
-      onboarding: true,
     ),
     AlarmClip(
       id: 'patapim_alarm',
@@ -157,7 +147,6 @@ abstract final class AlarmClips {
       titleId: 'Brr Brr Patapim',
       category: ClipCategory.funny,
       emoji: '🌳',
-      onboarding: true,
     ),
     AlarmClip(
       id: 'danger_alarm',
@@ -165,7 +154,6 @@ abstract final class AlarmClips {
       titleId: 'Alarm Bahaya',
       category: ClipCategory.loud,
       emoji: '🚨',
-      onboarding: true,
     ),
     AlarmClip(
       id: 'bombardiro',
@@ -232,7 +220,4 @@ abstract final class AlarmClips {
     }
     return null;
   }
-
-  static List<AlarmClip> get onboarding =>
-      all.where((c) => c.onboarding).toList();
 }

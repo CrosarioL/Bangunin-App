@@ -43,7 +43,7 @@ void main() {
     await tester.pump();
     expect(
       container.read(onboardingAnswersProvider).clipId,
-      AlarmClips.onboarding.first.id,
+      AlarmClips.all.first.id,
     );
   });
 

@@ -142,8 +142,4 @@ void main() {
       }
     }
   });
-
-  test('onboarding offers a handful of clips, not the whole catalog', () {
-    expect(AlarmClips.onboarding.length, inInclusiveRange(3, 8));
-  });
 }

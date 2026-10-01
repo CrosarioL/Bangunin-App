@@ -202,7 +202,9 @@ class SoundStep extends ConsumerStatefulWidget {
 
 class _SoundStepState extends ConsumerState<SoundStep> {
   static final _options = [
-    for (final clip in AlarmClips.onboarding) SoundOption.clip(clip),
+    // Every sound, same order as the editor: new users should see the
+    // whole catalog, not a shortlist.
+    for (final clip in AlarmClips.all) SoundOption.clip(clip),
     ...SoundOption.bundled,
   ];
 
