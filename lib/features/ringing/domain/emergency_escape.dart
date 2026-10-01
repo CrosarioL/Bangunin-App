@@ -11,14 +11,14 @@ abstract final class EmergencyEscape {
 
   /// Sentences in the order they are added. The first is always required.
   static const _sentencesEn = [
-    'I am using the emergency exit because I really cannot do my mission.',
+    'I really cannot do my mission right now.',
     'I know this does not count as waking up.',
     'Tomorrow I will do the mission properly.',
     'I promise I am not just going back to sleep.',
   ];
 
   static const _sentencesId = [
-    'Aku pakai jalan darurat karena beneran nggak bisa selesaikan misi.',
+    'Aku beneran nggak bisa kerjakan misi sekarang.',
     'Aku tahu ini nggak dihitung sebagai bangun.',
     'Besok aku kerjakan misinya dengan benar.',
     'Aku janji nggak lanjut tidur lagi.',
@@ -32,10 +32,35 @@ abstract final class EmergencyEscape {
     return sentences.take(count).join(' ');
   }
 
-  /// Case, spacing and punctuation don't matter; the words do. Typing it is
-  /// the friction, not getting a full stop exactly right at 5am.
-  static bool matches(String typed, String pledge) =>
-      _normalise(typed) == _normalise(pledge);
+  /// Case, spacing and punctuation don't matter, and a few slips are
+  /// forgiven (about one character in fifteen): typing the whole thing out
+  /// is the friction, not spelling it perfectly at 5am on a phone keyboard.
+  /// Changing a word ("does count" for "does not count") is still too far.
+  static bool matches(String typed, String pledge) {
+    final a = _normalise(typed);
+    final b = _normalise(pledge);
+    if (a.isEmpty) return false;
+    final allowed = (b.length / 15).floor().clamp(1, 6);
+    return _distance(a, b) <= allowed;
+  }
+
+  /// Levenshtein edit distance.
+  static int _distance(String a, String b) {
+    var previous = List<int>.generate(b.length + 1, (i) => i);
+    for (var i = 1; i <= a.length; i++) {
+      final current = List<int>.filled(b.length + 1, 0)..[0] = i;
+      for (var j = 1; j <= b.length; j++) {
+        final cost = a[i - 1] == b[j - 1] ? 0 : 1;
+        current[j] = [
+          previous[j] + 1,
+          current[j - 1] + 1,
+          previous[j - 1] + cost,
+        ].reduce((x, y) => x < y ? x : y);
+      }
+      previous = current;
+    }
+    return previous[b.length];
+  }
 
   static String _normalise(String text) => text
       .toLowerCase()

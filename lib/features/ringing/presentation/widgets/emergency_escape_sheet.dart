@@ -32,13 +32,16 @@ class EmergencyEscapeSheet extends StatefulWidget {
 
 class _EmergencyEscapeSheetState extends State<EmergencyEscapeSheet> {
   final _controller = TextEditingController();
+  final _focus = FocusNode();
   int _taps = 0;
+  bool _matched = false;
 
   bool get _tapsDone => _taps >= EmergencyEscape.requiredTaps;
 
   @override
   void dispose() {
     _controller.dispose();
+    _focus.dispose();
     super.dispose();
   }
 
@@ -109,11 +112,19 @@ class _EmergencyEscapeSheetState extends State<EmergencyEscapeSheet> {
                     color: AppColors.glass,
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Text(pledge, style: theme.textTheme.bodyLarge),
+                  // White: the box is dark glass in both themes.
+                  child: Text(
+                    pledge,
+                    style: theme.textTheme.bodyLarge!.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 TextField(
                   controller: _controller,
+                  focusNode: _focus,
                   autofocus: true,
                   minLines: 2,
                   maxLines: 5,
@@ -121,12 +132,24 @@ class _EmergencyEscapeSheetState extends State<EmergencyEscapeSheet> {
                   enableInteractiveSelection: false,
                   autocorrect: false,
                   enableSuggestions: false,
-                  onChanged: (_) => setState(() {}),
+                  // A "Done" key rather than a newline, or the keyboard has
+                  // no way down and covers the button below.
+                  keyboardType: TextInputType.text,
+                  textInputAction: TextInputAction.done,
+                  onTapOutside: (_) => _focus.unfocus(),
+                  onSubmitted: (_) => _focus.unfocus(),
+                  onChanged: (text) {
+                    final matched = EmergencyEscape.matches(text, pledge);
+                    // Get the keyboard out of the way the moment it's right,
+                    // so the button is in view.
+                    if (matched && !_matched) _focus.unfocus();
+                    setState(() => _matched = matched);
+                  },
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 PrimaryButton(
                   label: l10n.emergencyConfirm,
-                  onPressed: EmergencyEscape.matches(_controller.text, pledge)
+                  onPressed: _matched
                       ? () => Navigator.of(context).pop(true)
                       : null,
                 ),

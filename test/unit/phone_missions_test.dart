@@ -104,7 +104,7 @@ void main() {
     test('is localised', () {
       expect(
         EmergencyEscape.pledge('id', usedThisMonth: 0),
-        contains('darurat'),
+        contains('misi'),
       );
     });
 
@@ -119,6 +119,18 @@ void main() {
         isFalse,
       );
       expect(EmergencyEscape.matches('', pledge), isFalse);
+    });
+
+    test('a couple of typos are forgiven, a different sentence is not', () {
+      final pledge = EmergencyEscape.pledge('id', usedThisMonth: 0);
+      expect(
+        EmergencyEscape.matches(
+          'aku benerab nggak bisa kerjain misi sekarang',
+          pledge,
+        ),
+        isTrue,
+      );
+      expect(EmergencyEscape.matches('aku bisa', pledge), isFalse);
     });
 
     test('month key resets each calendar month', () {
