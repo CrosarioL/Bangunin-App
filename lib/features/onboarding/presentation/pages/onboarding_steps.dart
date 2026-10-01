@@ -46,39 +46,38 @@ class WelcomeStep extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Spacer(),
-            const Center(child: BanguninMascot(size: 230, flap: true)),
-            const SizedBox(height: AppSpacing.xl),
-            Text(
-              l10n.onboardingWelcomeTitle,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.headlineMedium!.copyWith(
-                fontWeight: FontWeight.w900,
-                height: 1.15,
-              ),
+            // Staged entrance: chick, then the problem, then — on its own
+            // beat — the promise lands with a small punch.
+            const _Reveal(
+              start: 0,
+              end: 0.35,
+              child: Center(child: BanguninMascot(size: 230, flap: true)),
             ),
-            const SizedBox(height: AppSpacing.md),
-            // The promise reads apart from the headline by typeface and
-            // weight, not a loud colour: a short brand-yellow rule, then
-            // solid night-navy body text.
-            Center(
-              child: Container(
-                width: 44,
-                height: 5,
-                margin: const EdgeInsets.only(bottom: AppSpacing.md),
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(99),
+            const SizedBox(height: AppSpacing.xl),
+            _Reveal(
+              start: 0.2,
+              end: 0.55,
+              child: Text(
+                l10n.onboardingWelcomeTitle,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.headlineMedium!.copyWith(
+                  fontWeight: FontWeight.w900,
+                  height: 1.15,
                 ),
               ),
             ),
-            Text(
-              l10n.onboardingWelcomeSubtitle,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.titleLarge!.copyWith(
-                fontFamily: theme.textTheme.bodyLarge!.fontFamily,
-                color: AppColors.nightTop,
-                fontWeight: FontWeight.w600,
-                height: 1.4,
+            const SizedBox(height: AppSpacing.md),
+            _Reveal(
+              start: 0.65,
+              end: 1,
+              punch: true,
+              child: Text(
+                l10n.onboardingWelcomeSubtitle,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.titleMedium!.copyWith(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.78),
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
             const Spacer(),
@@ -86,6 +85,48 @@ class WelcomeStep extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Fades and slides [child] up during the [start]–[end] slice of the welcome
+/// entrance. With [punch] it overshoots slightly and settles, so the line
+/// lands rather than just appears.
+class _Reveal extends StatelessWidget {
+  const _Reveal({
+    required this.start,
+    required this.end,
+    required this.child,
+    this.punch = false,
+  });
+
+  static const _total = Duration(milliseconds: 1800);
+
+  final double start;
+  final double end;
+  final bool punch;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: _total,
+      builder: (context, t, child) {
+        final local = Interval(start, end).transform(t);
+        final eased = Curves.easeOutCubic.transform(local);
+        final scale = punch
+            ? 0.85 + 0.15 * Curves.easeOutBack.transform(local)
+            : 1.0;
+        return Opacity(
+          opacity: eased,
+          child: Transform.translate(
+            offset: Offset(0, 18 * (1 - eased)),
+            child: Transform.scale(scale: scale, child: child),
+          ),
+        );
+      },
+      child: child,
     );
   }
 }
