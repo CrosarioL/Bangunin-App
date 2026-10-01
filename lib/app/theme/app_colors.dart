@@ -56,7 +56,8 @@ abstract final class AppColors {
   static const surfaceRaisedLight = Color(0xFFF0F1F5);
   static const outlineLight = Color(0xFFC5CBE0);
   static const textPrimaryLight = Color(0xFF15171E);
-  static const textSecondaryLight = Color(0xFF5D6370);
+  // Dark enough to read on the warm sunrise background.
+  static const textSecondaryLight = Color(0xFF3A3F4B);
   static const textTertiaryLight = Color(0xFF9BA1B0);
 
   static const sunriseGradient = LinearGradient(

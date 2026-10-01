@@ -13,7 +13,6 @@ import '../../../../app/widgets/bangunin_mascot.dart';
 import '../../../../app/widgets/max_width_box.dart';
 import '../../../../app/widgets/pressable_scale.dart';
 import '../../../../app/widgets/primary_button.dart';
-import '../../../../app/widgets/sunset_page_header.dart';
 import '../../../../core/config/app_config.dart';
 import '../../../../core/services/analytics/analytics_service.dart';
 import '../../../../core/services/subscriptions/subscription_service.dart';
@@ -90,24 +89,45 @@ class _PaywallPageState extends ConsumerState<PaywallPage> {
                     parent: AlwaysScrollableScrollPhysics(),
                   ),
                   children: [
-                    const SizedBox(height: AppSpacing.lg),
-                    SunsetPageHeader(
-                      title: userName.isNotEmpty
-                          ? l10n.paywallTitleNamed(userName)
-                          : l10n.paywallTitle,
-                      subtitle: l10n.paywallGoalLine(
-                        TimeFormat.clock(
-                          context,
-                          answers.wakeGoalHour,
-                          answers.wakeGoalMinute,
+                    // Compact header: plans, the trial timeline and the
+                    // button must all fit on the first screen.
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                userName.isNotEmpty
+                                    ? l10n.paywallTitleNamed(userName)
+                                    : l10n.paywallTitle,
+                                style: theme.textTheme.headlineSmall!.copyWith(
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                l10n.paywallGoalLine(
+                                  TimeFormat.clock(
+                                    context,
+                                    answers.wakeGoalHour,
+                                    answers.wakeGoalMinute,
+                                  ),
+                                ),
+                                style: theme.textTheme.bodyMedium!.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      icon: Icons.workspace_premium_rounded,
-                      mascotPose: MascotPose.crowing,
+                        const BanguninMascot(
+                          size: 72,
+                          pose: MascotPose.crowing,
+                        ),
+                      ],
                     ),
-                    // Plans and the button come first so the free trial is
-                    // visible without scrolling; the detail follows below.
-                    const SizedBox(height: AppSpacing.lg),
+                    const SizedBox(height: AppSpacing.md),
                     for (final plan in plans) ...[
                       _PlanCard(
                         plan: plan,
@@ -152,6 +172,27 @@ class _PaywallPageState extends ConsumerState<PaywallPage> {
                       const SizedBox(height: AppSpacing.lg),
                     ] else
                       const SizedBox(height: AppSpacing.sm),
+                    // The timeline reflects whichever plan is selected,
+                    // independent of whether a toggle is even shown above —
+                    // every plan can carry a trial.
+                    AnimatedSize(
+                      duration: const Duration(milliseconds: 220),
+                      curve: Curves.easeOutCubic,
+                      alignment: Alignment.topCenter,
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 220),
+                        child: selected.hasTrial
+                            ? TrialTimeline(
+                                compact: true,
+                                key: const ValueKey('trial-timeline'),
+                                trialDays: selected.trialDays,
+                              )
+                            : const SizedBox(
+                                key: ValueKey('no-trial-timeline'),
+                                width: double.infinity,
+                              ),
+                      ),
+                    ),
                     const SizedBox(height: AppSpacing.sm),
                     PrimaryButton(
                       label: selected.hasTrial
@@ -207,26 +248,6 @@ class _PaywallPageState extends ConsumerState<PaywallPage> {
                     _Feature(text: l10n.paywallFeatureStreaks),
                     _Feature(text: l10n.paywallFeatureNoLimit),
                     const SizedBox(height: AppSpacing.md),
-                    // The timeline reflects whichever plan is selected,
-                    // independent of whether a toggle is even shown above —
-                    // every plan can carry a trial.
-                    AnimatedSize(
-                      duration: const Duration(milliseconds: 220),
-                      curve: Curves.easeOutCubic,
-                      alignment: Alignment.topCenter,
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 220),
-                        child: selected.hasTrial
-                            ? TrialTimeline(
-                                key: const ValueKey('trial-timeline'),
-                                trialDays: selected.trialDays,
-                              )
-                            : const SizedBox(
-                                key: ValueKey('no-trial-timeline'),
-                                width: double.infinity,
-                              ),
-                      ),
-                    ),
                     const SizedBox(height: AppSpacing.sm),
                     Center(
                       child: TextButton(

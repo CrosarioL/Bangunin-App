@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakio/app/di/providers.dart';
@@ -48,6 +51,52 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
   }
+
+  testWidgets('plans, trial timeline and CTA fit on the first screen', (
+    tester,
+  ) async {
+    // Real fonts: the default test font draws every glyph as a wide block,
+    // which wraps text far more than on a phone and skews the measurement.
+    for (final (family, path) in [
+      ('Baloo2', 'assets/fonts/Baloo2.ttf'),
+      ('Nunito', 'assets/fonts/Nunito.ttf'),
+    ]) {
+      final bytes = File(path).readAsBytesSync();
+      await (FontLoader(
+        family,
+      )..addFont(Future.value(ByteData.sublistView(bytes)))).load();
+    }
+    // iPhone 14 in points, with its notch and home-indicator insets.
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1.0;
+    tester.view.padding = const FakeViewPadding(top: 47, bottom: 34);
+    addTearDown(tester.view.reset);
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+
+    await tester.pumpWidget(
+      testApp(
+        overrides: [
+          sharedPreferencesProvider.overrideWithValue(prefs),
+          subscriptionServiceProvider.overrideWithValue(
+            FakeSubscriptionService(prefs),
+          ),
+        ],
+        child: const PaywallPage(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    const visibleBottom = 844.0 - 34;
+    final cta = find.text('Start my 3-day free trial');
+    expect(cta, findsOneWidget);
+    expect(find.byType(TrialTimeline), findsOneWidget);
+    expect(tester.getRect(cta).bottom, lessThan(visibleBottom));
+    expect(
+      tester.getRect(find.byType(TrialTimeline)).top,
+      lessThan(tester.getRect(cta).top),
+    );
+  });
 
   testWidgets('paywall lists yearly and monthly plans with a trial', (
     tester,

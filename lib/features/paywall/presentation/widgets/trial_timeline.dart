@@ -10,9 +10,17 @@ import '../../../../core/utils/l10n_ext.dart';
 /// free trial. Three rows connected by a vertical line so the trial reads
 /// as a guided sequence rather than a list of disconnected facts.
 class TrialTimeline extends StatelessWidget {
-  const TrialTimeline({super.key, required this.trialDays});
+  const TrialTimeline({
+    super.key,
+    required this.trialDays,
+    this.compact = false,
+  });
 
   final int trialDays;
+
+  /// Tighter rows, for when the timeline shares the first screen with the
+  /// plans and the purchase button.
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +34,7 @@ class TrialTimeline extends StatelessWidget {
             title: l10n.trialToday,
             body: l10n.trialTodayBody,
             isLast: false,
+            compact: compact,
           ),
           _TimelineRow(
             icon: Icons.notifications_active_rounded,
@@ -36,12 +45,14 @@ class TrialTimeline extends StatelessWidget {
                   : 'Google Play',
             ),
             isLast: false,
+            compact: compact,
           ),
           _TimelineRow(
             icon: Icons.workspace_premium_rounded,
             title: l10n.trialDayFinal(trialDays),
             body: l10n.trialDayFinalBody,
             isLast: true,
+            compact: compact,
             iconColor: AppColors.success,
           ),
         ],
@@ -57,6 +68,7 @@ class _TimelineRow extends StatelessWidget {
     required this.body,
     required this.isLast,
     this.iconColor = AppColors.primary,
+    this.compact = false,
   });
 
   final IconData icon;
@@ -64,12 +76,12 @@ class _TimelineRow extends StatelessWidget {
   final String body;
   final bool isLast;
   final Color iconColor;
-
-  static const double _circleSize = 40;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final circleSize = compact ? 32.0 : 40.0;
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,13 +89,13 @@ class _TimelineRow extends StatelessWidget {
           Column(
             children: [
               Container(
-                width: _circleSize,
-                height: _circleSize,
+                width: circleSize,
+                height: circleSize,
                 decoration: BoxDecoration(
                   color: iconColor.withValues(alpha: 0.14),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(icon, color: iconColor, size: 20),
+                child: Icon(icon, color: iconColor, size: compact ? 17 : 20),
               ),
               if (!isLast)
                 Expanded(
@@ -99,8 +111,8 @@ class _TimelineRow extends StatelessWidget {
           Expanded(
             child: Padding(
               padding: EdgeInsets.only(
-                bottom: isLast ? 0 : AppSpacing.lg,
-                top: AppSpacing.xs,
+                bottom: isLast ? 0 : (compact ? AppSpacing.sm : AppSpacing.lg),
+                top: compact ? 2 : AppSpacing.xs,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
