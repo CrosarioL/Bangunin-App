@@ -456,14 +456,14 @@ class AppLocalizationsId extends AppLocalizations {
   String get wakeGoalSubtitle => 'Hari kerja. Bisa diubah kapan saja.';
 
   @override
-  String get notificationsTitle => 'Alarmmu butuh suara';
+  String get notificationsTitle => 'Biar alarmmu beneran bunyi';
 
   @override
   String get notificationsSubtitle =>
-      'Izinkan notifikasi supaya alarmmu tetap bunyi walau aplikasi ditutup.';
+      'Izinkan alarm dan notifikasi supaya Bangunin bunyi layar penuh, walau HP mode senyap atau aplikasinya ditutup.';
 
   @override
-  String get allowNotifications => 'Izinkan notifikasi';
+  String get allowNotifications => 'Izinkan';
 
   @override
   String get paywallTitle => 'Jangan kesiangan lagi';

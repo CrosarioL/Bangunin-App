@@ -19,6 +19,7 @@ import '../../../../core/utils/l10n_ext.dart';
 import '../../../../core/utils/time_format.dart';
 import '../../../alarms/domain/alarm_clip.dart';
 import '../../../alarms/domain/entities/alarm.dart';
+import '../../../alarms/presentation/providers/alarm_capability_provider.dart';
 import '../../../alarms/presentation/widgets/alarm_card.dart';
 import '../../../alarms/presentation/widgets/mission_picker_sheet.dart';
 import '../../../alarms/presentation/widgets/sound_picker_sheet.dart';
@@ -375,6 +376,12 @@ class _NotificationStepState extends ConsumerState<NotificationStep> {
   Future<void> _request() async {
     setState(() => _requesting = true);
     await ref.read(notificationServiceProvider).requestPermission();
+    // On iOS 26+ this is what makes the alarm a real alarm (full screen,
+    // through Silent Mode and Focus) instead of a notification. It must be
+    // asked here, on the screen that explains why: the first alarm is
+    // scheduled right after onboarding and uses whichever engine is
+    // authorized by then. A no-op answer ("unsupported") elsewhere.
+    await ref.read(requestAlarmAuthorizationProvider)();
     if (mounted) {
       setState(() => _requesting = false);
       widget.onNext();

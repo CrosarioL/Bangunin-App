@@ -893,19 +893,19 @@ abstract class AppLocalizations {
   /// No description provided for @notificationsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Your alarm needs a voice'**
+  /// **'Let your alarm really ring'**
   String get notificationsTitle;
 
   /// No description provided for @notificationsSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Allow notifications so your alarm can ring even when the app is closed.'**
+  /// **'Allow alarms and notifications so Bangunin rings full screen, even on silent or with the app closed.'**
   String get notificationsSubtitle;
 
   /// No description provided for @allowNotifications.
   ///
   /// In en, this message translates to:
-  /// **'Allow notifications'**
+  /// **'Allow'**
   String get allowNotifications;
 
   /// No description provided for @paywallTitle.

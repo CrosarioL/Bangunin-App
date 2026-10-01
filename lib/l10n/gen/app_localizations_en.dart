@@ -457,14 +457,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wakeGoalSubtitle => 'Weekdays. You can change it any time.';
 
   @override
-  String get notificationsTitle => 'Your alarm needs a voice';
+  String get notificationsTitle => 'Let your alarm really ring';
 
   @override
   String get notificationsSubtitle =>
-      'Allow notifications so your alarm can ring even when the app is closed.';
+      'Allow alarms and notifications so Bangunin rings full screen, even on silent or with the app closed.';
 
   @override
-  String get allowNotifications => 'Allow notifications';
+  String get allowNotifications => 'Allow';
 
   @override
   String get paywallTitle => 'Never oversleep again';
