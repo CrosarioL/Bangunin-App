@@ -997,4 +997,8 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get alarmsOffSettingsHint =>
       'Buka Pengaturan → Bangunin → nyalakan Alarm.';
+
+  @override
+  String get onboardingNoEscape =>
+      'Geser buat matiin? Boleh aja. Semenit kemudian alarmnya bunyi lagi, terus, sampai misimu selesai.';
 }

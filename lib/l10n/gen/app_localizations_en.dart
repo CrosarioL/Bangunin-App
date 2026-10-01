@@ -996,4 +996,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get alarmsOffSettingsHint =>
       'Open Settings → Bangunin → switch on Alarms.';
+
+  @override
+  String get onboardingNoEscape =>
+      'Swipe it away? Go ahead. A minute later it rings again, and again, until your mission is done.';
 }

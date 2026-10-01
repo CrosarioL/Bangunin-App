@@ -1813,6 +1813,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open Settings → Bangunin → switch on Alarms.'**
   String get alarmsOffSettingsHint;
+
+  /// No description provided for @onboardingNoEscape.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe it away? Go ahead. A minute later it rings again, and again, until your mission is done.'**
+  String get onboardingNoEscape;
 }
 
 class _AppLocalizationsDelegate

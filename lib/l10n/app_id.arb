@@ -285,5 +285,6 @@
   "alarmsOffTitle": "Alarm Bangunin lagi mati",
   "alarmsOffBody": "Tanpa izin Alarm, iPhone cuma kirim notifikasi biasa: nggak bunyi layar penuh, nggak tembus mode senyap. Bangunin nggak bisa bangunin kamu.",
   "alarmsOffEnable": "Nyalakan alarm",
-  "alarmsOffSettingsHint": "Buka Pengaturan → Bangunin → nyalakan Alarm."
+  "alarmsOffSettingsHint": "Buka Pengaturan → Bangunin → nyalakan Alarm.",
+  "onboardingNoEscape": "Geser buat matiin? Boleh aja. Semenit kemudian alarmnya bunyi lagi, terus, sampai misimu selesai."
 }

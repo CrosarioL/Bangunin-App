@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -506,6 +507,33 @@ class ReadyStep extends ConsumerWidget {
                 onToggle: (_) {},
               ),
             ),
+            // Said up front, as a promise rather than a surprise: the
+            // slide-to-stop on the lock screen only buys a minute (see
+            // AlarmKitBridge.scheduleReRing). iOS only for now.
+            if (mission != MissionType.none &&
+                defaultTargetPlatform == TargetPlatform.iOS) ...[
+              const SizedBox(height: AppSpacing.md),
+              AppCard(
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.replay_rounded,
+                      color: AppColors.primary,
+                      size: 28,
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: Text(
+                        l10n.onboardingNoEscape,
+                        style: theme.textTheme.bodyMedium!.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: AppSpacing.md),
             Text(
               l10n.onboardingReadyFootnote,
