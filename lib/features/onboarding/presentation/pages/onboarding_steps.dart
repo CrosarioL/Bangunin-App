@@ -57,15 +57,28 @@ class WelcomeStep extends StatelessWidget {
               ),
             ),
             const SizedBox(height: AppSpacing.md),
-            // The promise: bold in deep sunrise orange, so it reads apart
-            // from the dark headline without a box.
+            // The promise reads apart from the headline by typeface and
+            // weight, not a loud colour: a short brand-yellow rule, then
+            // solid night-navy body text.
+            Center(
+              child: Container(
+                width: 44,
+                height: 5,
+                margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(99),
+                ),
+              ),
+            ),
             Text(
               l10n.onboardingWelcomeSubtitle,
               textAlign: TextAlign.center,
               style: theme.textTheme.titleLarge!.copyWith(
-                color: AppColors.ember,
-                fontWeight: FontWeight.w800,
-                height: 1.25,
+                fontFamily: theme.textTheme.bodyLarge!.fontFamily,
+                color: AppColors.nightTop,
+                fontWeight: FontWeight.w600,
+                height: 1.4,
               ),
             ),
             const Spacer(),
