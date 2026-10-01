@@ -10,6 +10,8 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/widgets/app_card.dart';
 import '../../../../app/widgets/bangunin_mascot.dart';
+import '../../../../app/widgets/max_width_box.dart';
+import '../../../../app/widgets/primary_button.dart';
 import '../../../../app/widgets/swipe_carousel.dart';
 import '../../../../core/services/audio/alarm_audio_service.dart';
 import '../../../../core/utils/haptics.dart';
@@ -33,12 +35,40 @@ class WelcomeStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return OnboardingStepScaffold(
-      title: l10n.onboardingWelcomeTitle,
-      subtitle: l10n.onboardingWelcomeSubtitle,
-      ctaLabel: l10n.getStarted,
-      onNext: onNext,
-      child: const Center(child: BanguninMascot(size: 210, flap: true)),
+    final theme = Theme.of(context);
+    // The hook gets the whole slide: one chick and the line, straight on the
+    // sky. No header card (that would put a second chick on screen) — the
+    // later steps keep theirs because they frame a control underneath.
+    return MaxWidthBox(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Spacer(),
+            const Center(child: BanguninMascot(size: 230, flap: true)),
+            const SizedBox(height: AppSpacing.xl),
+            Text(
+              l10n.onboardingWelcomeTitle,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.headlineMedium!.copyWith(
+                fontWeight: FontWeight.w900,
+                height: 1.15,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              l10n.onboardingWelcomeSubtitle,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleMedium!.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const Spacer(),
+            PrimaryButton(label: l10n.getStarted, onPressed: onNext),
+          ],
+        ),
+      ),
     );
   }
 }

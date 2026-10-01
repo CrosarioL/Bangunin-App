@@ -81,6 +81,18 @@ class _OnboardingFlowPageState extends ConsumerState<OnboardingFlowPage> {
     );
   }
 
+  Future<void> _back() async {
+    if (_step == 0) return;
+    Haptics.tap();
+    FocusScope.of(context).unfocus();
+    setState(() => _step--);
+    await _pageController.animateToPage(
+      _step,
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,46 +101,27 @@ class _OnboardingFlowPageState extends ConsumerState<OnboardingFlowPage> {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(
-                AppSpacing.lg,
-                AppSpacing.lg,
+                AppSpacing.xs,
+                AppSpacing.sm,
                 AppSpacing.lg,
                 0,
               ),
-              child: TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0, end: (_step + 1) / _stepCount),
-                duration: const Duration(milliseconds: 350),
-                curve: Curves.easeOutCubic,
-                builder: (context, value, _) => ClipRRect(
-                  borderRadius: BorderRadius.circular(99),
-                  child: SizedBox(
-                    height: 7,
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        ColoredBox(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.surfaceContainerHighest,
-                        ),
-                        FractionallySizedBox(
-                          alignment: Alignment.centerLeft,
-                          widthFactor: value,
-                          child: const DecoratedBox(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  AppColors.cyan,
-                                  AppColors.primary,
-                                  AppColors.horizon,
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+              child: Row(
+                children: [
+                  // Hidden (not removed) on the first step so the progress
+                  // bar keeps the same width throughout.
+                  Opacity(
+                    opacity: _step == 0 ? 0 : 1,
+                    child: IconButton(
+                      tooltip: MaterialLocalizations.of(
+                        context,
+                      ).backButtonTooltip,
+                      onPressed: _step == 0 ? null : _back,
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded),
                     ),
                   ),
-                ),
+                  Expanded(child: _progressBar(context)),
+                ],
               ),
             ),
             Expanded(
@@ -146,6 +139,43 @@ class _OnboardingFlowPageState extends ConsumerState<OnboardingFlowPage> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _progressBar(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: (_step + 1) / _stepCount),
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeOutCubic,
+      builder: (context, value, _) => ClipRRect(
+        borderRadius: BorderRadius.circular(99),
+        child: SizedBox(
+          height: 7,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              ColoredBox(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              ),
+              FractionallySizedBox(
+                alignment: Alignment.centerLeft,
+                widthFactor: value,
+                child: const DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColors.cyan,
+                        AppColors.primary,
+                        AppColors.horizon,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
