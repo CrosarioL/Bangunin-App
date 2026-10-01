@@ -1789,6 +1789,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'then {price} per month'**
   String thenPricePerMonth(String price);
+
+  /// No description provided for @alarmsOffTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bangunin\'s alarms are switched off'**
+  String get alarmsOffTitle;
+
+  /// No description provided for @alarmsOffBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Without the Alarms permission your iPhone only sends a plain notification: no full-screen alarm, nothing through silent mode. Bangunin can\'t wake you up.'**
+  String get alarmsOffBody;
+
+  /// No description provided for @alarmsOffEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on alarms'**
+  String get alarmsOffEnable;
+
+  /// No description provided for @alarmsOffSettingsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Settings → Bangunin → switch on Alarms.'**
+  String get alarmsOffSettingsHint;
 }
 
 class _AppLocalizationsDelegate

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/utils/haptics.dart';
 import '../../../core/utils/l10n_ext.dart';
+import '../../alarms/presentation/widgets/alarms_off_gate.dart';
 import '../../tutorial/presentation/providers/tutorial_provider.dart';
 import '../../tutorial/presentation/widgets/coach_mark_overlay.dart';
 
@@ -113,44 +114,46 @@ class _AppShellState extends ConsumerState<AppShell> {
       ),
     );
 
-    if (!_showTutorial) return scaffold;
+    if (!_showTutorial) return AlarmsOffGate(child: scaffold);
 
-    return Stack(
-      children: [
-        scaffold,
-        CoachMarkOverlay(
-          onComplete: _onTutorialComplete,
-          steps: [
-            CoachMarkStep(
-              targetKey: null,
-              title: '\u{1F44B} Welcome to Bangunin!',
-              body:
-                  'I\'m here to help you build a morning routine you\'ll actually love. Let\'s take a quick tour!',
-            ),
-            CoachMarkStep(
-              targetKey: fabKey,
-              title: '\u{271A}  Create your alarm',
-              body:
-                  'Tap this button to set a new alarm. Pick your time, choose a mission, and you\'re set!',
-              bubblePosition: BubblePosition.above,
-            ),
-            CoachMarkStep(
-              targetKey: streakTabKey,
-              title: '\u{1F525}  Track your streak',
-              body:
-                  'See how many days in a row you\'ve woken up on time. Keep the streak alive!',
-              bubblePosition: BubblePosition.above,
-            ),
-            CoachMarkStep(
-              targetKey: settingsTabKey,
-              title: '\u{2699}\u{FE0F}  Settings & support',
-              body:
-                  'Find your subscription, privacy policy, terms, and contact support here.',
-              bubblePosition: BubblePosition.above,
-            ),
-          ],
-        ),
-      ],
+    return AlarmsOffGate(
+      child: Stack(
+        children: [
+          scaffold,
+          CoachMarkOverlay(
+            onComplete: _onTutorialComplete,
+            steps: [
+              CoachMarkStep(
+                targetKey: null,
+                title: '\u{1F44B} Welcome to Bangunin!',
+                body:
+                    'I\'m here to help you build a morning routine you\'ll actually love. Let\'s take a quick tour!',
+              ),
+              CoachMarkStep(
+                targetKey: fabKey,
+                title: '\u{271A}  Create your alarm',
+                body:
+                    'Tap this button to set a new alarm. Pick your time, choose a mission, and you\'re set!',
+                bubblePosition: BubblePosition.above,
+              ),
+              CoachMarkStep(
+                targetKey: streakTabKey,
+                title: '\u{1F525}  Track your streak',
+                body:
+                    'See how many days in a row you\'ve woken up on time. Keep the streak alive!',
+                bubblePosition: BubblePosition.above,
+              ),
+              CoachMarkStep(
+                targetKey: settingsTabKey,
+                title: '\u{2699}\u{FE0F}  Settings & support',
+                body:
+                    'Find your subscription, privacy policy, terms, and contact support here.',
+                bubblePosition: BubblePosition.above,
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

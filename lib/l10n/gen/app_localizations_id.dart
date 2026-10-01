@@ -983,4 +983,18 @@ class AppLocalizationsId extends AppLocalizations {
   String thenPricePerMonth(String price) {
     return 'lalu $price per bulan';
   }
+
+  @override
+  String get alarmsOffTitle => 'Alarm Bangunin lagi mati';
+
+  @override
+  String get alarmsOffBody =>
+      'Tanpa izin Alarm, iPhone cuma kirim notifikasi biasa: nggak bunyi layar penuh, nggak tembus mode senyap. Bangunin nggak bisa bangunin kamu.';
+
+  @override
+  String get alarmsOffEnable => 'Nyalakan alarm';
+
+  @override
+  String get alarmsOffSettingsHint =>
+      'Buka Pengaturan → Bangunin → nyalakan Alarm.';
 }

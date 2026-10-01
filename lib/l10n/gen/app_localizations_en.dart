@@ -982,4 +982,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String thenPricePerMonth(String price) {
     return 'then $price per month';
   }
+
+  @override
+  String get alarmsOffTitle => 'Bangunin\'s alarms are switched off';
+
+  @override
+  String get alarmsOffBody =>
+      'Without the Alarms permission your iPhone only sends a plain notification: no full-screen alarm, nothing through silent mode. Bangunin can\'t wake you up.';
+
+  @override
+  String get alarmsOffEnable => 'Turn on alarms';
+
+  @override
+  String get alarmsOffSettingsHint =>
+      'Open Settings → Bangunin → switch on Alarms.';
 }

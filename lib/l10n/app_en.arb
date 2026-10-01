@@ -509,5 +509,9 @@
         "type": "String"
       }
     }
-  }
+  },
+  "alarmsOffTitle": "Bangunin's alarms are switched off",
+  "alarmsOffBody": "Without the Alarms permission your iPhone only sends a plain notification: no full-screen alarm, nothing through silent mode. Bangunin can't wake you up.",
+  "alarmsOffEnable": "Turn on alarms",
+  "alarmsOffSettingsHint": "Open Settings → Bangunin → switch on Alarms."
 }
