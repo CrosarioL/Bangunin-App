@@ -60,8 +60,11 @@ class WelcomeStep extends StatelessWidget {
             Text(
               l10n.onboardingWelcomeSubtitle,
               textAlign: TextAlign.center,
-              style: theme.textTheme.titleMedium!.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+              // The promise, not a footnote: full-strength and bold.
+              style: theme.textTheme.titleLarge!.copyWith(
+                color: theme.colorScheme.onSurface,
+                fontWeight: FontWeight.w800,
+                height: 1.25,
               ),
             ),
             const Spacer(),
