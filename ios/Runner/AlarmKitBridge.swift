@@ -355,7 +355,9 @@ enum AlarmKitBridge {
       )
 
       let sound: AlertConfiguration.AlertSound =
-        soundName.map { .named($0) } ?? .default
+        // AlarmKit plays the file through once and stops, so give it the
+        // five-minute looped copy when there is one.
+        soundName.map { .named(AlarmSoundBridge.longName(for: $0) ?? $0) } ?? .default
 
       let configuration = AlarmManager.AlarmConfiguration.alarm(
         schedule: schedule,

@@ -47,6 +47,17 @@ post_install do |installer|
     # survives future `pod install` runs; never edit Pods.xcodeproj directly.
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.5'
+
+      # permission_handler compiles every iOS permission out unless it is
+      # switched on here. Without these, Permission.camera.request() returns
+      # "permanently denied" without ever showing the prompt, and iOS never
+      # adds a Camera switch under Settings > Bangunin: photo and pose
+      # missions (and recording a custom sound) are impossible.
+      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
+      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] += [
+        'PERMISSION_CAMERA=1',
+        'PERMISSION_MICROPHONE=1',
+      ]
     end
   end
 end

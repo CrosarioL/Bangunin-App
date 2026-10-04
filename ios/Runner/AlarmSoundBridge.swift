@@ -11,12 +11,38 @@ import Foundation
 /// bundle, and custom sounds are arbitrary imported or recorded files, so
 /// without this every iOS alarm fell back to the default system tone.
 ///
-/// `install` converts the source to 16-bit PCM `.caf`, trimmed to 29 seconds,
-/// in `Library/Sounds/<key>.caf`, and returns that file name. Conversion is
-/// skipped when an up-to-date copy already exists.
+/// `install` writes two files to `Library/Sounds`, both made by playing the
+/// clip back to back until they are full, so a short meme sound repeats
+/// instead of firing once and leaving silence:
+///
+///  * `<key>-v2.caf` — 29 seconds of 16-bit PCM, for notifications (snooze,
+///    Wake Up Check), whose sounds iOS refuses beyond 30 seconds.
+///  * `<key>-v2-long.caf` — five minutes of IMA4, for AlarmKit, which plays
+///    the file it is given and stops at its end. Compressed so each sound
+///    stays around a dozen megabytes.
+///
+/// It returns the short name; [longName] maps it to the AlarmKit one.
+/// Conversion is skipped when up-to-date copies already exist. The `-v2`
+/// suffix makes phones that hold the old play-once files build new ones.
 enum AlarmSoundBridge {
   static let channelName = "app.bangunin/alarmsound"
-  private static let maxSeconds = 29.0
+  private static let notificationSeconds = 29.0
+  private static let alarmSeconds = 300.0
+  private static let suffix = "-v2"
+
+  /// The AlarmKit file for a name returned by `install`, when it exists.
+  static func longName(for shortName: String) -> String? {
+    guard shortName.hasSuffix("\(suffix).caf") else { return nil }
+    let long = shortName.replacingOccurrences(
+      of: "\(suffix).caf", with: "\(suffix)-long.caf")
+    guard
+      let dir = try? FileManager.default.url(
+        for: .libraryDirectory, in: .userDomainMask, appropriateFor: nil, create: false),
+      FileManager.default.fileExists(
+        atPath: dir.appendingPathComponent("Sounds/\(long)").path)
+    else { return nil }
+    return long
+  }
 
   static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(
@@ -64,22 +90,32 @@ enum AlarmSoundBridge {
       .appendingPathComponent("Sounds", isDirectory: true)
     try fileManager.createDirectory(at: soundsDir, withIntermediateDirectories: true)
 
-    let fileName = "\(key).caf"
+    let fileName = "\(key)\(suffix).caf"
     let destination = soundsDir.appendingPathComponent(fileName)
-    if isUpToDate(destination, comparedTo: source) { return fileName }
+    let longDestination = soundsDir.appendingPathComponent(
+      "\(key)\(suffix)-long.caf")
+    if isUpToDate(destination, comparedTo: source),
+      isUpToDate(longDestination, comparedTo: source)
+    {
+      return fileName
+    }
 
-    do {
-      try convert(source, to: destination)
-    } catch {
+    var audio = source
+    if (try? AVAudioFile(forReading: source)) == nil {
       // Video containers (imported .mp4/.mov) are not readable by
       // AVAudioFile; extract the audio track first, then convert that.
       let extracted = fileManager.temporaryDirectory
         .appendingPathComponent("\(key)-extract.m4a")
       try? fileManager.removeItem(at: extracted)
       try extractAudio(from: source, to: extracted)
-      defer { try? fileManager.removeItem(at: extracted) }
-      try convert(extracted, to: destination)
+      audio = extracted
     }
+    defer {
+      if audio != source { try? fileManager.removeItem(at: audio) }
+    }
+    try convert(audio, to: destination, seconds: notificationSeconds, compressed: false)
+    // A failed long file is not fatal: AlarmKit then uses the short one.
+    try? convert(audio, to: longDestination, seconds: alarmSeconds, compressed: true)
     return fileName
   }
 
@@ -94,38 +130,56 @@ enum AlarmSoundBridge {
     return destDate >= srcDate
   }
 
-  private static func convert(_ source: URL, to destination: URL) throws {
+  /// Writes [seconds] of audio to [destination] by playing [source] from
+  /// the start again each time it runs out.
+  private static func convert(
+    _ source: URL, to destination: URL, seconds: Double, compressed: Bool
+  ) throws {
     let input = try AVAudioFile(forReading: source)
     let format = input.processingFormat
-    let settings: [String: Any] = [
-      AVFormatIDKey: kAudioFormatLinearPCM,
+    guard input.length > 0 else { throw CocoaError(.fileReadCorruptFile) }
+    var settings: [String: Any] = [
       AVSampleRateKey: format.sampleRate,
       AVNumberOfChannelsKey: format.channelCount,
-      AVLinearPCMBitDepthKey: 16,
-      AVLinearPCMIsFloatKey: false,
-      AVLinearPCMIsBigEndianKey: false,
     ]
+    if compressed {
+      settings[AVFormatIDKey] = kAudioFormatAppleIMA4
+    } else {
+      settings[AVFormatIDKey] = kAudioFormatLinearPCM
+      settings[AVLinearPCMBitDepthKey] = 16
+      settings[AVLinearPCMIsFloatKey] = false
+      settings[AVLinearPCMIsBigEndianKey] = false
+    }
     try? FileManager.default.removeItem(at: destination)
-    let output = try AVAudioFile(
-      forWriting: destination,
-      settings: settings,
-      commonFormat: format.commonFormat,
-      interleaved: format.isInterleaved
-    )
+    do {
+      let output = try AVAudioFile(
+        forWriting: destination,
+        settings: settings,
+        commonFormat: format.commonFormat,
+        interleaved: format.isInterleaved
+      )
 
-    var remaining = min(
-      input.length,
-      AVAudioFramePosition(maxSeconds * format.sampleRate)
-    )
-    let chunk: AVAudioFrameCount = 16_384
-    guard let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: chunk)
-    else { throw CocoaError(.fileWriteUnknown) }
-    while remaining > 0 {
-      let frames = AVAudioFrameCount(min(AVAudioFramePosition(chunk), remaining))
-      try input.read(into: buffer, frameCount: frames)
-      if buffer.frameLength == 0 { break }
-      try output.write(from: buffer)
-      remaining -= AVAudioFramePosition(buffer.frameLength)
+      var remaining = AVAudioFramePosition(seconds * format.sampleRate)
+      let chunk: AVAudioFrameCount = 16_384
+      guard let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: chunk)
+      else { throw CocoaError(.fileWriteUnknown) }
+      while remaining > 0 {
+        if input.framePosition >= input.length { input.framePosition = 0 }
+        let frames = AVAudioFrameCount(
+          min(AVAudioFramePosition(chunk), remaining, input.length - input.framePosition))
+        try input.read(into: buffer, frameCount: frames)
+        if buffer.frameLength == 0 {
+          // Nothing more to read from here: start the clip over.
+          input.framePosition = 0
+          continue
+        }
+        try output.write(from: buffer)
+        remaining -= AVAudioFramePosition(buffer.frameLength)
+      }
+    } catch {
+      // Never leave a half-written file that a later run would trust.
+      try? FileManager.default.removeItem(at: destination)
+      throw error
     }
   }
 
