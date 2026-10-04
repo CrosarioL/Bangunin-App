@@ -6,7 +6,7 @@ import 'package:wakio/app/di/providers.dart';
 import 'package:wakio/core/services/theme/theme_mode_provider.dart';
 
 void main() {
-  test('theme defaults to system and persists an explicit choice', () async {
+  test('theme defaults to dark and persists an explicit choice', () async {
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
     final container = ProviderContainer(
@@ -14,12 +14,12 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    expect(container.read(themeModeProvider), ThemeMode.system);
-
-    await container.read(themeModeProvider.notifier).set(ThemeMode.dark);
-
     expect(container.read(themeModeProvider), ThemeMode.dark);
-    expect(prefs.getString('theme_mode'), 'dark');
+
+    await container.read(themeModeProvider.notifier).set(ThemeMode.system);
+
+    expect(container.read(themeModeProvider), ThemeMode.system);
+    expect(prefs.getString('theme_mode'), 'system');
   });
 
   test('saved theme is restored', () async {

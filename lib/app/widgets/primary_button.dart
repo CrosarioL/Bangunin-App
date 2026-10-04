@@ -20,7 +20,7 @@ class PrimaryButton extends StatefulWidget {
   final VoidCallback? onPressed;
   final bool loading;
 
-  /// Quiet variant: surface face + outline lip, for non-primary actions.
+  /// Quiet variant: surface fill + thin outline, for non-primary actions.
   final bool secondary;
 
   final IconData? icon;
@@ -40,25 +40,24 @@ class _PrimaryButtonState extends State<PrimaryButton> {
     final theme = Theme.of(context);
 
     final Color face;
-    final Color lip;
     final Color fg;
     if (!_enabled) {
       face = isDark ? AppColors.surfaceRaised : AppColors.surfaceRaisedLight;
-      lip = isDark ? AppColors.surfaceEdge : AppColors.surfaceEdgeLight;
       fg = theme.colorScheme.onSurfaceVariant;
     } else if (widget.secondary) {
       face = isDark ? AppColors.surfaceRaised : AppColors.surfaceLight;
-      lip = isDark ? AppColors.surfaceEdge : AppColors.surfaceEdgeLight;
       fg = theme.colorScheme.onSurface;
     } else {
       face = AppColors.primary;
-      lip = AppColors.primaryEdge;
       fg = AppColors.onPrimary;
     }
 
-    const faceHeight = 56.0;
-    final radius = BorderRadius.circular(AppSpacing.radiusButton);
-    final dropped = _pressed && _enabled;
+    const height = 56.0;
+    // A true pill: radius is half the height, so both ends are full
+    // semicircles. (The old raised "lip" slab showed only below the face,
+    // flattening the bottom edge into near-square corners.)
+    final shape = BorderRadius.circular(height / 2);
+    final pressed = _pressed && _enabled;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -71,87 +70,79 @@ class _PrimaryButtonState extends State<PrimaryButton> {
               widget.onPressed!();
             }
           : null,
-      child: SizedBox(
-        height: faceHeight + AppSpacing.buttonLip,
-        width: double.infinity,
-        child: Stack(
-          children: [
-            // The lip: a solid darker slab the face rests on.
-            Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(color: lip, borderRadius: radius),
+      // Pressing sinks the button slightly and dims it, instead of dropping
+      // a face onto a lip.
+      child: AnimatedScale(
+        scale: pressed ? .97 : 1,
+        duration: const Duration(milliseconds: 80),
+        curve: Curves.easeOut,
+        child: SizedBox(
+          height: height,
+          width: double.infinity,
+          child: AnimatedOpacity(
+            opacity: pressed ? .88 : 1,
+            duration: const Duration(milliseconds: 80),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: _enabled && !widget.secondary ? null : face,
+                gradient: _enabled && !widget.secondary
+                    ? const LinearGradient(
+                        colors: [AppColors.primary, AppColors.horizon],
+                      )
+                    : null,
+                borderRadius: shape,
+                border: widget.secondary
+                    ? Border.all(color: AppColors.cyan.withValues(alpha: .28))
+                    : null,
+                boxShadow: _enabled && !widget.secondary
+                    ? [
+                        BoxShadow(
+                          color: AppColors.primary.withValues(alpha: .22),
+                          blurRadius: 20,
+                        ),
+                      ]
+                    : null,
               ),
-            ),
-            // The face: drops down onto the lip when pressed.
-            AnimatedPositioned(
-              duration: const Duration(milliseconds: 60),
-              curve: Curves.easeOut,
-              left: 0,
-              right: 0,
-              top: dropped ? AppSpacing.buttonLip : 0,
-              height: faceHeight,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: _enabled && !widget.secondary ? null : face,
-                  gradient: _enabled && !widget.secondary
-                      ? const LinearGradient(
-                          colors: [AppColors.primary, AppColors.horizon],
-                        )
-                      : null,
-                  borderRadius: radius,
-                  border: widget.secondary
-                      ? Border.all(color: AppColors.cyan.withValues(alpha: .28))
-                      : null,
-                  boxShadow: _enabled && !widget.secondary
-                      ? [
-                          BoxShadow(
-                            color: AppColors.primary.withValues(alpha: .22),
-                            blurRadius: 20,
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Center(
-                  child: widget.loading
-                      ? SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 3,
-                            valueColor: AlwaysStoppedAnimation(fg),
-                          ),
-                        )
-                      // scaleDown keeps a long CTA label on one line by
-                      // shrinking it rather than overflowing the button.
-                      : Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.md,
-                          ),
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                if (widget.icon != null) ...[
-                                  Icon(widget.icon, color: fg, size: 22),
-                                  const SizedBox(width: AppSpacing.sm),
-                                ],
-                                Text(
-                                  widget.label,
-                                  style: theme.textTheme.titleSmall!.copyWith(
-                                    color: fg,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: 0.3,
-                                  ),
-                                ),
+              child: Center(
+                child: widget.loading
+                    ? SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 3,
+                          valueColor: AlwaysStoppedAnimation(fg),
+                        ),
+                      )
+                    // scaleDown keeps a long CTA label on one line by
+                    // shrinking it rather than overflowing the button.
+                    : Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.md,
+                        ),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (widget.icon != null) ...[
+                                Icon(widget.icon, color: fg, size: 22),
+                                const SizedBox(width: AppSpacing.sm),
                               ],
-                            ),
+                              Text(
+                                widget.label,
+                                style: theme.textTheme.titleSmall!.copyWith(
+                                  color: fg,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.3,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                ),
+                      ),
               ),
             ),
-          ],
+          ),
         ),
       ),
     );

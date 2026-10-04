@@ -94,11 +94,22 @@ class RevenueCatSubscriptionService implements SubscriptionService {
     try {
       await Purchases.configure(PurchasesConfiguration(apiKey));
       Purchases.addCustomerInfoUpdateListener(_apply);
-      _apply(await Purchases.getCustomerInfo());
-      return true;
     } on PlatformException catch (error) {
       debugPrint('RevenueCat configure failed: ${error.message}');
       return false;
+    }
+    // The entitlement check is a network round trip. Nothing else needs to
+    // wait for it (the cached entitlement already opened the app), so the
+    // paywall's plans don't queue behind it.
+    unawaited(_refreshCustomerInfo());
+    return true;
+  }
+
+  Future<void> _refreshCustomerInfo() async {
+    try {
+      _apply(await Purchases.getCustomerInfo());
+    } on PlatformException catch (error) {
+      debugPrint('RevenueCat customer info failed: ${error.message}');
     }
   }
 
@@ -110,8 +121,27 @@ class RevenueCatSubscriptionService implements SubscriptionService {
     _premium.value = active;
   }
 
+  /// Plans already fetched (or being fetched). Onboarding starts the fetch
+  /// early so the paywall opens with prices on screen; a failed or empty
+  /// fetch is forgotten so the next call tries again.
+  Future<List<PremiumPlan>>? _plans;
+
   @override
-  Future<List<PremiumPlan>> loadPlans() async {
+  Future<List<PremiumPlan>> loadPlans() {
+    final pending = _plans ??= _fetchPlans();
+    return pending.then(
+      (plans) {
+        if (plans.isEmpty && identical(_plans, pending)) _plans = null;
+        return plans;
+      },
+      onError: (Object error, StackTrace stack) {
+        if (identical(_plans, pending)) _plans = null;
+        return Future<List<PremiumPlan>>.error(error, stack);
+      },
+    );
+  }
+
+  Future<List<PremiumPlan>> _fetchPlans() async {
     if (!await _ready) return const [];
     final offering = (await Purchases.getOfferings()).current;
     if (offering == null) return const [];
@@ -144,12 +174,19 @@ class RevenueCatSubscriptionService implements SubscriptionService {
 
   /// Apple offers the trial only once per subscription group, so ask before
   /// advertising it. Google already hides offers the user can't take.
+  ///
+  /// The answer comes from StoreKit and can be slow. Past
+  /// [_eligibilityTimeout] the plans show anyway, treated as eligible (the
+  /// same as RevenueCat's own "unknown"); the store sheet always states the
+  /// real terms before anyone pays.
+  static const _eligibilityTimeout = Duration(seconds: 2);
+
   Future<Map<String, bool>> _introEligibility(List<Package> packages) async {
     if (defaultTargetPlatform != TargetPlatform.iOS) return const {};
     try {
       final result = await Purchases.checkTrialOrIntroductoryPriceEligibility([
         for (final p in packages) p.storeProduct.identifier,
-      ]);
+      ]).timeout(_eligibilityTimeout);
       return {
         for (final entry in result.entries)
           entry.key:
@@ -157,6 +194,8 @@ class RevenueCatSubscriptionService implements SubscriptionService {
               IntroEligibilityStatus.introEligibilityStatusIneligible,
       };
     } on PlatformException {
+      return const {};
+    } on TimeoutException {
       return const {};
     }
   }

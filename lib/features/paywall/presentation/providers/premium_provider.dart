@@ -21,7 +21,19 @@ final isPremiumProvider = Provider<bool>((ref) {
 /// remote-config lever — see [FeatureFlags.paywallShowsWeeklyFirst] — so it
 /// can be A/B tested without a release.
 final premiumPlansProvider = FutureProvider<List<PremiumPlan>>((ref) async {
-  final plans = await ref.watch(subscriptionServiceProvider).loadPlans();
+  final service = ref.watch(subscriptionServiceProvider);
+  // One quiet retry before showing an error: a slow first connection is
+  // common, and an error screen is where a converting user gives up.
+  List<PremiumPlan> plans;
+  try {
+    plans = await service.loadPlans();
+  } on Object {
+    plans = const [];
+  }
+  if (plans.isEmpty) {
+    await Future<void>.delayed(const Duration(milliseconds: 1500));
+    plans = await service.loadPlans();
+  }
   final weeklyFirst = ref.watch(featureFlagsProvider).paywallShowsWeeklyFirst;
   final sorted = [...plans]
     ..sort((a, b) {

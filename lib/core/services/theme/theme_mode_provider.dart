@@ -5,7 +5,8 @@ import '../../../app/di/providers.dart';
 
 const _prefsKey = 'theme_mode';
 
-/// The user's explicit appearance choice. System is the default.
+/// The user's appearance choice. Dark is the default — the app is designed
+/// around the night sky — until they pick System or Light in Settings.
 final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(
   ThemeModeNotifier.new,
 );
@@ -16,7 +17,7 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
     final saved = ref.watch(sharedPreferencesProvider).getString(_prefsKey);
     return ThemeMode.values.firstWhere(
       (mode) => mode.name == saved,
-      orElse: () => ThemeMode.system,
+      orElse: () => ThemeMode.dark,
     );
   }
 

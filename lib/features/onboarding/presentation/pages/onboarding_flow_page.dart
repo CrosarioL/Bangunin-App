@@ -41,6 +41,15 @@ class _OnboardingFlowPageState extends ConsumerState<OnboardingFlowPage> {
       unawaited(
         ref.read(analyticsProvider).logEvent(AnalyticsEvents.onboardingStarted),
       );
+      // Fetch the paywall's plans now, while onboarding runs, so the paywall
+      // opens with prices instead of a spinner. A failure here is fine: the
+      // paywall simply fetches again.
+      unawaited(
+        ref
+            .read(subscriptionServiceProvider)
+            .loadPlans()
+            .then<void>((_) {}, onError: (Object _) {}),
+      );
     });
   }
 
