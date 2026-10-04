@@ -194,6 +194,43 @@ class AlarmScheduler {
     );
   }
 
+  /// Android only: the app's ringing screen has taken over, so stop the fired
+  /// alarm notification's own looping tone. Otherwise the system default
+  /// tone plays on top of the user's chosen sound. Only notifications on
+  /// screen are pulled; this alarm's future occurrences stay scheduled.
+  Future<void> silenceFiredNotification(String alarmId) async {
+    if (defaultTargetPlatform != TargetPlatform.android) return;
+    final base = notificationBaseId(alarmId);
+    for (final id in await _notifications.activeIds()) {
+      if ((id >= base && id < base + _idsPerAlarm) ||
+          id == _reRingId(alarmId)) {
+        await _notifications.cancel(id);
+      }
+    }
+  }
+
+  /// Android's counterpart to the AlarmKit re-ring: an alarm notification
+  /// [seconds] from now, pushed back again and again while the ringing
+  /// screen is alive. Swipe the app away mid-mission and the pushing stops,
+  /// so the alarm comes back. iOS uses AlarmKit for this instead.
+  Future<void> deferAndroidReRing(Alarm alarm, {required int seconds}) async {
+    if (defaultTargetPlatform != TargetPlatform.android) return;
+    final l10n = currentLocalizations(override: localeOverride);
+    await _notifications.schedule(
+      id: _reRingId(alarm.id),
+      title: alarm.label.isEmpty ? l10n.notificationDefaultTitle : alarm.label,
+      body: l10n.notificationBodyMission,
+      at: DateTime.now().add(Duration(seconds: seconds)),
+      payload: alarm.id,
+    );
+  }
+
+  /// The mission is done (or snoozed or escaped): the re-ring must not fire.
+  Future<void> cancelAndroidReRing(String alarmId) async {
+    if (defaultTargetPlatform != TargetPlatform.android) return;
+    await _notifications.cancel(_reRingId(alarmId));
+  }
+
   /// The Wake Up Check waiting to happen, if any.
   PendingWakeCheck? get pendingWakeCheck =>
       _wakeChecks != null ? _wakeChecks.read() : _memoryWakeCheck;
@@ -286,6 +323,12 @@ class AlarmScheduler {
   static const _wakeCheckPromptSlot = occurrencesPerAlarm + 1;
   static const _wakeCheckRingSlot = occurrencesPerAlarm + 2;
   static const _idsPerAlarm = occurrencesPerAlarm + 3;
+
+  // The Android re-ring lives outside the blocks (which end below 11M), so
+  // adding it didn't move any id already scheduled on someone's phone.
+  static const _reRingIdBase = 100000000;
+  static int _reRingId(String alarmId) =>
+      _reRingIdBase + (alarmId.hashCode & 0x7fffffff) % 1000000;
 
   /// Stable notification id block derived from the alarm's uuid.
   static int notificationBaseId(String alarmId) =>

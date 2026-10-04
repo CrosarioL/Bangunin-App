@@ -190,6 +190,17 @@ class _RingingPageState extends ConsumerState<RingingPage>
                                         .copyWith(color: Colors.white70),
                                     textAlign: TextAlign.center,
                                   ),
+                                  // The art behind shows only the emoji, so
+                                  // the sound is named here.
+                                  if (clip != null && !clip.hasVideo) ...[
+                                    const SizedBox(height: AppSpacing.xs),
+                                    Text(
+                                      '♪ ${clip.title(Localizations.localeOf(context).languageCode)}',
+                                      style: theme.textTheme.titleSmall!
+                                          .copyWith(color: Colors.white60),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
                                 ],
                               ),
                             ),

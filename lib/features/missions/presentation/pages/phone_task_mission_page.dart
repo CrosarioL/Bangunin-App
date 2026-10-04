@@ -319,7 +319,16 @@ class _Keypad extends StatelessWidget {
                             ),
                           ),
                           onPressed: () => key == '✓' ? onSubmit() : onKey(key),
-                          child: Text(key, style: theme.textTheme.titleLarge),
+                          // The theme's titleLarge carries its own (dark)
+                          // colour, which beats foregroundColor: set it here.
+                          child: Text(
+                            key,
+                            style: theme.textTheme.titleLarge!.copyWith(
+                              color: key == '✓'
+                                  ? AppColors.nightTop
+                                  : Colors.white,
+                            ),
+                          ),
                         ),
                       ),
                     ),

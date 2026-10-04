@@ -123,7 +123,9 @@ void main() {
     await tester.pump();
     expect(tester.takeException(), isNull);
     expect(find.text('💥'), findsOneWidget);
-    expect(find.text('VINE BOOM'), findsOneWidget);
+    // The name is on the ringing screen's clock card, not behind it, where
+    // it ran under the card on shorter screens.
+    expect(find.text('VINE BOOM'), findsNothing);
   });
 
   test('every category has its own gradient', () {

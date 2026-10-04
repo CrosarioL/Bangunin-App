@@ -147,8 +147,14 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
     _stopReRingKeepAlive();
     if (alarm.missionType == MissionType.none) return;
     final alarmKit = ref.read(alarmKitServiceProvider);
-    void defer() =>
-        unawaited(alarmKit.deferReRing(alarm.id, seconds: _reRingDeferSeconds));
+    final scheduler = ref.read(alarmSchedulerProvider);
+    void defer() {
+      unawaited(alarmKit.deferReRing(alarm.id, seconds: _reRingDeferSeconds));
+      unawaited(
+        scheduler.deferAndroidReRing(alarm, seconds: _reRingDeferSeconds),
+      );
+    }
+
     defer();
     _reRingKeepAlive = Timer.periodic(_reRingKeepAliveEvery, (_) => defer());
   }
@@ -227,6 +233,8 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
       startedAt: DateTime.now(),
       snoozeCount: _snoozeCounts[alarmId] ?? 0,
     );
+    // The app's own sound takes over from the notification's tone (Android).
+    await scheduler.silenceFiredNotification(alarmId);
     await ref.read(alarmAudioServiceProvider).startRinging(alarm);
     _startReRingKeepAlive(alarm);
     unawaited(
@@ -266,9 +274,9 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
     // A snooze is the sanctioned, capped delay; it replaces the re-ring.
     _stopReRingKeepAlive();
     await ref.read(alarmKitServiceProvider).cancelReRing(session.alarm.id);
-    await ref
-        .read(alarmSchedulerProvider)
-        .scheduleSnooze(session.alarm, session.alarm.snoozeMinutes);
+    final scheduler = ref.read(alarmSchedulerProvider);
+    await scheduler.cancelAndroidReRing(session.alarm.id);
+    await scheduler.scheduleSnooze(session.alarm, session.alarm.snoozeMinutes);
     _snoozeCounts[session.alarm.id] = session.snoozeCount + 1;
     unawaited(
       ref.read(analyticsProvider).logEvent(AnalyticsEvents.alarmSnoozed, {
@@ -335,6 +343,7 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
     final alarm = session.alarm;
     _stopReRingKeepAlive();
     await ref.read(alarmKitServiceProvider).cancelReRing(alarm.id);
+    await ref.read(alarmSchedulerProvider).cancelAndroidReRing(alarm.id);
     _snoozeCounts.remove(alarm.id);
     _hunt = null;
     // The wake is done, so any snooze the scheduler is holding for re-arming

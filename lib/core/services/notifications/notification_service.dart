@@ -162,6 +162,12 @@ class NotificationService {
     ),
   );
 
+  /// Ids of the notifications currently on screen (fired, not just pending).
+  Future<List<int>> activeIds() async => [
+    for (final active in await _plugin.getActiveNotifications())
+      if (active.id != null) active.id!,
+  ];
+
   Future<void> cancel(int id) => _plugin.cancel(id: id);
 
   Future<void> cancelAll() => _plugin.cancelAll();

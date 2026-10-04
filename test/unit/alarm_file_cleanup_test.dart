@@ -33,6 +33,8 @@ class _FakeNotificationService implements NotificationService {
   @override
   Future<void> cancelAll() async {}
   @override
+  Future<List<int>> activeIds() async => const [];
+  @override
   String? launchPayload;
   @override
   Stream<String> get selectedPayloads => const Stream.empty();

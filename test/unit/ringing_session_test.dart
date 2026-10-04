@@ -101,6 +101,22 @@ class _FakeAlarmScheduler implements AlarmScheduler {
 
   @override
   Future<void> cancelWakeCheck() async => pendingWakeCheck = null;
+
+  final silenced = <String>[];
+  final androidDeferred = <String>[];
+  final androidCancelled = <String>[];
+
+  @override
+  Future<void> silenceFiredNotification(String alarmId) async =>
+      silenced.add(alarmId);
+
+  @override
+  Future<void> deferAndroidReRing(Alarm alarm, {required int seconds}) async =>
+      androidDeferred.add(alarm.id);
+
+  @override
+  Future<void> cancelAndroidReRing(String alarmId) async =>
+      androidCancelled.add(alarmId);
 }
 
 class _FakeAlarmKit extends AlarmKitService {
@@ -368,9 +384,11 @@ void main() {
 
       await notifier.begin('m1');
       expect(alarmKit.deferred, ['m1']);
+      expect(scheduler.androidDeferred, ['m1']);
 
       await notifier.complete();
       expect(alarmKit.cancelled, ['m1']);
+      expect(scheduler.androidCancelled, ['m1']);
     },
   );
 
@@ -388,5 +406,21 @@ void main() {
     await notifier.begin('m2');
     await notifier.snooze();
     expect(alarmKit.cancelled, ['m2']);
+    expect(scheduler.androidCancelled, ['m2']);
   });
+
+  test(
+    'ringing silences the fired notification so only one sound plays',
+    () async {
+      final alarm = Alarm(
+        id: 's1',
+        hour: 6,
+        minute: 0,
+        createdAt: DateTime(2026),
+      );
+      await alarmRepository.upsert(alarm);
+      await container.read(ringingSessionProvider.notifier).begin('s1');
+      expect(scheduler.silenced, ['s1']);
+    },
+  );
 }

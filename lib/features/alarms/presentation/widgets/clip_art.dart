@@ -27,11 +27,17 @@ class ClipArt extends StatelessWidget {
     this.large = false,
     this.bounce = 0,
     this.contentAlignment = Alignment.center,
+    this.showTitle = true,
   });
 
   final AlarmClip clip;
   final bool large;
   final double bounce;
+
+  /// Whether a large card draws the clip's name under the emoji. The ringing
+  /// screen turns it off and names the sound on its clock card instead, where
+  /// it can't run under that card on shorter screens.
+  final bool showTitle;
 
   /// Where the emoji and title sit on the card.
   final Alignment contentAlignment;
@@ -97,7 +103,7 @@ class ClipArt extends StatelessWidget {
                         ),
                         // Small cards sit above their own caption, so the name would
                         // only be shown twice (and truncated). Emoji alone reads better.
-                        if (large) ...[
+                        if (large && showTitle) ...[
                           const SizedBox(height: 24),
                           Text(
                             clip.title(language).toUpperCase(),
@@ -179,6 +185,7 @@ class _ClipArtBackgroundState extends State<ClipArtBackground>
           builder: (context, _) => ClipArt(
             clip: widget.clip,
             large: true,
+            showTitle: false,
             contentAlignment: const Alignment(0, -.72),
             bounce: Curves.easeOut.transform(_bounce.value),
           ),
