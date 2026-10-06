@@ -7,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakio/app/di/providers.dart';
 import 'package:wakio/core/services/subscriptions/subscription_service.dart';
 import 'package:wakio/features/paywall/presentation/pages/paywall_page.dart';
-import 'package:wakio/features/paywall/presentation/widgets/trial_timeline.dart';
 
 import '../helpers/test_app.dart';
 
@@ -16,27 +15,6 @@ class _EmptyPlansSubscriptionService extends FakeSubscriptionService {
 
   @override
   Future<List<PremiumPlan>> loadPlans() async => const [];
-}
-
-class _NoTrialSubscriptionService extends FakeSubscriptionService {
-  _NoTrialSubscriptionService(super.prefs);
-
-  @override
-  Future<List<PremiumPlan>> loadPlans() async => const [
-    PremiumPlan(
-      productId: 'bangunin.premium.yearly',
-      price: r'$29.99',
-      rawPrice: 29.99,
-      period: 'year',
-      monthlyEquivalentPrice: r'$2.49',
-    ),
-    PremiumPlan(
-      productId: 'bangunin.premium.monthly',
-      price: r'$4.99',
-      rawPrice: 4.99,
-      period: 'month',
-    ),
-  ];
 }
 
 void main() {
@@ -52,7 +30,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
   }
 
-  testWidgets('plans, trial timeline and CTA fit on the first screen', (
+  testWidgets('plans, CTA and the renewal terms fit on the first screen', (
     tester,
   ) async {
     // Real fonts: the default test font draws every glyph as a wide block,
@@ -88,17 +66,16 @@ void main() {
     await tester.pumpAndSettle();
 
     const visibleBottom = 844.0 - 34;
-    final cta = find.text('Start my 3-day free trial');
+    final cta = find.text('Unlock Bangunin Premium');
     expect(cta, findsOneWidget);
-    expect(find.byType(TrialTimeline), findsOneWidget);
     expect(tester.getRect(cta).bottom, lessThan(visibleBottom));
-    expect(
-      tester.getRect(find.byType(TrialTimeline)).top,
-      lessThan(tester.getRect(cta).top),
-    );
+    // Apple 3.1.2: price, period and auto-renewal stated by the button.
+    final terms = find.textContaining('Renews automatically');
+    expect(terms, findsOneWidget);
+    expect(tester.getRect(terms).bottom, lessThan(visibleBottom));
   });
 
-  testWidgets('paywall lists yearly and monthly plans with a trial', (
+  testWidgets('paywall lists yearly and monthly plans, no free trial', (
     tester,
   ) async {
     await useRealisticPhoneSurface(tester);
@@ -139,17 +116,17 @@ void main() {
     // find.text/ensureVisible on an unbuilt element throws "Bad state: No
     // element" instead of finding it.
     await tester.scrollUntilVisible(
-      find.text('Start my 3-day free trial'),
+      find.text('Unlock Bangunin Premium'),
       100,
       scrollable: find.byType(Scrollable),
     );
-    expect(find.text('Start my 3-day free trial'), findsOneWidget);
-    await tester.scrollUntilVisible(
-      find.byType(TrialTimeline),
-      100,
-      scrollable: find.byType(Scrollable),
+    expect(find.text('Unlock Bangunin Premium'), findsOneWidget);
+    // No trial anywhere: no badge, no toggle, no "free" wording.
+    expect(
+      find.textContaining(RegExp('free|trial', caseSensitive: false)),
+      findsNothing,
     );
-    expect(find.byType(TrialTimeline), findsOneWidget);
+    expect(find.byType(Switch), findsNothing);
 
     await tester.scrollUntilVisible(
       find.text('Restore purchases'),
@@ -159,7 +136,7 @@ void main() {
     expect(find.text('Restore purchases'), findsOneWidget);
   });
 
-  testWidgets('purchasing via trial CTA grants premium', (tester) async {
+  testWidgets('purchasing via the CTA grants premium', (tester) async {
     await useRealisticPhoneSurface(tester);
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
@@ -176,7 +153,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    final ctaFinder = find.text('Start my 3-day free trial');
+    final ctaFinder = find.text('Unlock Bangunin Premium');
     await tester.scrollUntilVisible(
       ctaFinder,
       100,
@@ -190,55 +167,41 @@ void main() {
     expect(service.isPremium.value, isTrue);
   });
 
-  testWidgets(
-    'plans have no trial toggle or timeline when no store offer exists',
-    (tester) async {
-      await useRealisticPhoneSurface(tester);
-      SharedPreferences.setMockInitialValues({});
-      final prefs = await SharedPreferences.getInstance();
-      final service = _NoTrialSubscriptionService(prefs);
+  testWidgets('the terms follow the selected plan', (tester) async {
+    await useRealisticPhoneSurface(tester);
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
 
-      await tester.pumpWidget(
-        testApp(
-          overrides: [
-            sharedPreferencesProvider.overrideWithValue(prefs),
-            subscriptionServiceProvider.overrideWithValue(service),
-          ],
-          child: const PaywallPage(),
-        ),
-      );
-      await tester.pumpAndSettle();
+    await tester.pumpWidget(
+      testApp(
+        overrides: [
+          sharedPreferencesProvider.overrideWithValue(prefs),
+          subscriptionServiceProvider.overrideWithValue(
+            FakeSubscriptionService(prefs),
+          ),
+        ],
+        child: const PaywallPage(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final scrollable = find.byType(Scrollable);
 
-      final scrollableFinder = find.byType(Scrollable);
+    expect(find.textContaining(r'$29.99 per year. Renews'), findsOneWidget);
 
-      await tester.scrollUntilVisible(
-        find.text('Continue'),
-        100,
-        scrollable: scrollableFinder,
-      );
-
-      expect(find.text('Continue'), findsOneWidget);
-      expect(find.byType(TrialTimeline), findsNothing);
-      expect(find.byType(Switch), findsNothing);
-
-      // Switching to Monthly keeps the standard purchase CTA.
-      await tester.scrollUntilVisible(
-        find.text('Monthly'),
-        -100,
-        scrollable: scrollableFinder,
-      );
-      await tester.tap(find.text('Monthly'));
-      await tester.pumpAndSettle();
-
-      await tester.scrollUntilVisible(
-        find.text('Continue'),
-        100,
-        scrollable: scrollableFinder,
-      );
-      expect(find.text('Continue'), findsOneWidget);
-      expect(find.byType(TrialTimeline), findsNothing);
-    },
-  );
+    await tester.scrollUntilVisible(
+      find.text('Monthly'),
+      100,
+      scrollable: scrollable,
+    );
+    await tester.tap(find.text('Monthly'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.textContaining(r'$4.99 per month. Renews'),
+      100,
+      scrollable: scrollable,
+    );
+    expect(find.textContaining(r'$4.99 per month. Renews'), findsOneWidget);
+  });
 
   testWidgets('when plans cannot load, only a retry is offered', (
     tester,

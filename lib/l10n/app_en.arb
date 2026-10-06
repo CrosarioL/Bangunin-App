@@ -297,30 +297,6 @@
       }
     }
   },
-  "freeTrialToggle": "Free trial enabled",
-  "trialToday": "Today",
-  "trialTodayBody": "Unlock every mission, sound and stat.",
-  "trialDay2": "Day 2",
-  "trialDay2Body": "Cancel in {store} before the trial ends and you pay nothing.",
-  "trialDayFinal": "Day {day}",
-  "@trialDayFinal": {
-    "placeholders": {
-      "day": {
-        "type": "int"
-      }
-    }
-  },
-  "trialDayFinalBody": "Your subscription starts. Cancel anytime before.",
-  "paywallCtaTrial": "Start my {days}-day free trial",
-  "@paywallCtaTrial": {
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
-  },
-  "paywallCtaNoTrial": "Continue",
-  "noPaymentNow": "No payment due now",
   "manageSubscription": "Manage subscription",
   "photoFailTooDark": "Too dark to check — try again in brighter light",
   "photoFailTooBright": "Too bright to check — move away from the light",
@@ -475,40 +451,139 @@
   "notifyPointOnTime": "Rings on time, even with the app closed",
   "notifyPointLockScreen": "Shows up on your lock screen",
   "notifyPointNoSpam": "Only your alarms. Never spam.",
-  "@trialDay2Body": {
+  "alarmsOffTitle": "Bangunin's alarms are switched off",
+  "alarmsOffBody": "Without the Alarms permission your iPhone only sends a plain notification: no full-screen alarm, nothing through silent mode. Bangunin can't wake you up.",
+  "alarmsOffEnable": "Turn on alarms",
+  "alarmsOffSettingsHint": "Open Settings → Bangunin → switch on Alarms.",
+  "onboardingNoEscape": "Swipe it away? Go ahead. A minute later it rings again, and again, until your mission is done.",
+  "paywallCta": "Unlock Bangunin Premium",
+  "paywallRenewsYearly": "{price} per year. Renews automatically until you cancel in {store}.",
+  "@paywallRenewsYearly": {
     "placeholders": {
+      "price": {
+        "type": "String"
+      },
       "store": {
         "type": "String"
       }
     }
   },
-  "planTrialBadge": "{days} DAYS FREE",
-  "@planTrialBadge": {
+  "paywallRenewsMonthly": "{price} per month. Renews automatically until you cancel in {store}.",
+  "@paywallRenewsMonthly": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "store": {
+        "type": "String"
+      }
+    }
+  },
+  "obProblemTitle": "You turn your alarm off in your sleep.",
+  "obProblemBody": "Snooze, snooze, and you're late again. It isn't laziness: a half-asleep thumb always wins.",
+  "obPromiseTitle": "Bangunin won't stop until you're really up.",
+  "obPromiseBody": "To switch it off you have to get out of bed and finish a short mission. By the time you're done, you're awake.",
+  "obDemoTitle": "Here's how it works",
+  "obDemoSubtitle": "One morning with Bangunin.",
+  "obDemoRinging": "The alarm rings",
+  "obDemoStartMission": "Start mission",
+  "obDemoMission": "Finish the mission to stop it",
+  "obDemoDone": "You're up. Alarm off.",
+  "obDemoGoodMorning": "Good morning!",
+  "obNameTitle": "What should we call you?",
+  "obNameSubtitle": "We'll use it to make your plan.",
+  "obNameHint": "Your first name",
+  "obAgeTitle": "How old are you?",
+  "obAgeUnder18": "Under 18",
+  "obSnoozeTitle": "How many times do you snooze each morning?",
+  "obSnoozeNever": "Never",
+  "obSnoozeFew": "1–2 times",
+  "obSnoozeSome": "3–5 times",
+  "obSnoozeLots": "More than 5 times",
+  "obCostTitleNamed": "{name}, snoozing costs you {hours} hours a year.",
+  "@obCostTitleNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "obCostTitle": "Snoozing costs you {hours} hours a year.",
+  "@obCostTitle": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "obCostBody": "That's {days} whole days spent half asleep instead of starting your day.",
+  "@obCostBody": {
     "placeholders": {
       "days": {
         "type": "int"
       }
     }
   },
-  "thenPricePerYear": "then {price} per year",
-  "@thenPricePerYear": {
+  "obCostNever": "Even without snoozing, one switched-off alarm is a late morning. Bangunin makes sure it never happens.",
+  "obLoseTitle": "What oversleeping takes from you",
+  "obLoseLate": "Being late for work or school",
+  "obLoseSahur": "Missing sahur or Subuh",
+  "obLoseRush": "Rushed, stressful mornings",
+  "obLoseTrust": "Breaking promises to yourself",
+  "obFixTitle": "The good news: you can win those mornings back.",
+  "obFixBody": "Once you're out of bed to stop the alarm, you don't go back to sleep. Starting tomorrow.",
+  "obGoalTitle": "Why do you want to wake up on time?",
+  "obGoalWork": "Work",
+  "obGoalSchool": "School or college",
+  "obGoalSahur": "Sahur and Subuh",
+  "obGoalExercise": "Exercise",
+  "obGoalProductive": "A more productive day",
+  "obSourceTitle": "Where did you hear about Bangunin?",
+  "obSourceFriend": "A friend or family",
+  "obSourceStore": "App Store or Google Play",
+  "obSourceOther": "Somewhere else",
+  "obProofTitle": "Made for people who struggle to wake up",
+  "obProofSubtitle": "Everything you need to beat the snooze button.",
+  "obProofMissions": "7 wake-up missions: photo, squats, maths and more",
+  "obProofSounds": "{count} alarm sounds, including local favourites",
+  "@obProofSounds": {
     "placeholders": {
-      "price": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "obProofReal": "Real alarms that ring through Silent mode",
+  "obProofPrivate": "No account. Your photos never leave your phone.",
+  "obPlanTitleNamed": "{name}'s 7-day wake-up plan",
+  "@obPlanTitleNamed": {
+    "placeholders": {
+      "name": {
         "type": "String"
       }
     }
   },
-  "thenPricePerMonth": "then {price} per month",
-  "@thenPricePerMonth": {
+  "obPlanTitle": "Your 7-day wake-up plan",
+  "obPlanGoal": "For: {goal}",
+  "@obPlanGoal": {
     "placeholders": {
-      "price": {
+      "goal": {
         "type": "String"
       }
     }
   },
-  "alarmsOffTitle": "Bangunin's alarms are switched off",
-  "alarmsOffBody": "Without the Alarms permission your iPhone only sends a plain notification: no full-screen alarm, nothing through silent mode. Bangunin can't wake you up.",
-  "alarmsOffEnable": "Turn on alarms",
-  "alarmsOffSettingsHint": "Open Settings → Bangunin → switch on Alarms.",
-  "onboardingNoEscape": "Swipe it away? Go ahead. A minute later it rings again, and again, until your mission is done."
+  "obPlanDay1": "Day 1: the alarm rings at {time}. Get up and finish the mission.",
+  "@obPlanDay1": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "obPlanDay3": "Day 3: no snoozing. Your body starts to adjust.",
+  "obPlanDay5": "Day 5: getting up feels easier.",
+  "obPlanDay7": "Day 7: a full week's streak. A new habit."
 }

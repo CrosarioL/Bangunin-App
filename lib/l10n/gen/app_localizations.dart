@@ -1214,66 +1214,6 @@ abstract class AppLocalizations {
   /// **'SAVE {percent}%'**
   String saveBadge(int percent);
 
-  /// No description provided for @freeTrialToggle.
-  ///
-  /// In en, this message translates to:
-  /// **'Free trial enabled'**
-  String get freeTrialToggle;
-
-  /// No description provided for @trialToday.
-  ///
-  /// In en, this message translates to:
-  /// **'Today'**
-  String get trialToday;
-
-  /// No description provided for @trialTodayBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Unlock every mission, sound and stat.'**
-  String get trialTodayBody;
-
-  /// No description provided for @trialDay2.
-  ///
-  /// In en, this message translates to:
-  /// **'Day 2'**
-  String get trialDay2;
-
-  /// No description provided for @trialDay2Body.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel in {store} before the trial ends and you pay nothing.'**
-  String trialDay2Body(String store);
-
-  /// No description provided for @trialDayFinal.
-  ///
-  /// In en, this message translates to:
-  /// **'Day {day}'**
-  String trialDayFinal(int day);
-
-  /// No description provided for @trialDayFinalBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Your subscription starts. Cancel anytime before.'**
-  String get trialDayFinalBody;
-
-  /// No description provided for @paywallCtaTrial.
-  ///
-  /// In en, this message translates to:
-  /// **'Start my {days}-day free trial'**
-  String paywallCtaTrial(int days);
-
-  /// No description provided for @paywallCtaNoTrial.
-  ///
-  /// In en, this message translates to:
-  /// **'Continue'**
-  String get paywallCtaNoTrial;
-
-  /// No description provided for @noPaymentNow.
-  ///
-  /// In en, this message translates to:
-  /// **'No payment due now'**
-  String get noPaymentNow;
-
   /// No description provided for @manageSubscription.
   ///
   /// In en, this message translates to:
@@ -1748,24 +1688,6 @@ abstract class AppLocalizations {
   /// **'Only your alarms. Never spam.'**
   String get notifyPointNoSpam;
 
-  /// No description provided for @planTrialBadge.
-  ///
-  /// In en, this message translates to:
-  /// **'{days} DAYS FREE'**
-  String planTrialBadge(int days);
-
-  /// No description provided for @thenPricePerYear.
-  ///
-  /// In en, this message translates to:
-  /// **'then {price} per year'**
-  String thenPricePerYear(String price);
-
-  /// No description provided for @thenPricePerMonth.
-  ///
-  /// In en, this message translates to:
-  /// **'then {price} per month'**
-  String thenPricePerMonth(String price);
-
   /// No description provided for @alarmsOffTitle.
   ///
   /// In en, this message translates to:
@@ -1795,6 +1717,354 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Swipe it away? Go ahead. A minute later it rings again, and again, until your mission is done.'**
   String get onboardingNoEscape;
+
+  /// No description provided for @paywallCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock Bangunin Premium'**
+  String get paywallCta;
+
+  /// No description provided for @paywallRenewsYearly.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} per year. Renews automatically until you cancel in {store}.'**
+  String paywallRenewsYearly(String price, String store);
+
+  /// No description provided for @paywallRenewsMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} per month. Renews automatically until you cancel in {store}.'**
+  String paywallRenewsMonthly(String price, String store);
+
+  /// No description provided for @obProblemTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You turn your alarm off in your sleep.'**
+  String get obProblemTitle;
+
+  /// No description provided for @obProblemBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Snooze, snooze, and you\'re late again. It isn\'t laziness: a half-asleep thumb always wins.'**
+  String get obProblemBody;
+
+  /// No description provided for @obPromiseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bangunin won\'t stop until you\'re really up.'**
+  String get obPromiseTitle;
+
+  /// No description provided for @obPromiseBody.
+  ///
+  /// In en, this message translates to:
+  /// **'To switch it off you have to get out of bed and finish a short mission. By the time you\'re done, you\'re awake.'**
+  String get obPromiseBody;
+
+  /// No description provided for @obDemoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Here\'s how it works'**
+  String get obDemoTitle;
+
+  /// No description provided for @obDemoSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'One morning with Bangunin.'**
+  String get obDemoSubtitle;
+
+  /// No description provided for @obDemoRinging.
+  ///
+  /// In en, this message translates to:
+  /// **'The alarm rings'**
+  String get obDemoRinging;
+
+  /// No description provided for @obDemoStartMission.
+  ///
+  /// In en, this message translates to:
+  /// **'Start mission'**
+  String get obDemoStartMission;
+
+  /// No description provided for @obDemoMission.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish the mission to stop it'**
+  String get obDemoMission;
+
+  /// No description provided for @obDemoDone.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re up. Alarm off.'**
+  String get obDemoDone;
+
+  /// No description provided for @obDemoGoodMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning!'**
+  String get obDemoGoodMorning;
+
+  /// No description provided for @obNameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What should we call you?'**
+  String get obNameTitle;
+
+  /// No description provided for @obNameSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll use it to make your plan.'**
+  String get obNameSubtitle;
+
+  /// No description provided for @obNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your first name'**
+  String get obNameHint;
+
+  /// No description provided for @obAgeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How old are you?'**
+  String get obAgeTitle;
+
+  /// No description provided for @obAgeUnder18.
+  ///
+  /// In en, this message translates to:
+  /// **'Under 18'**
+  String get obAgeUnder18;
+
+  /// No description provided for @obSnoozeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How many times do you snooze each morning?'**
+  String get obSnoozeTitle;
+
+  /// No description provided for @obSnoozeNever.
+  ///
+  /// In en, this message translates to:
+  /// **'Never'**
+  String get obSnoozeNever;
+
+  /// No description provided for @obSnoozeFew.
+  ///
+  /// In en, this message translates to:
+  /// **'1–2 times'**
+  String get obSnoozeFew;
+
+  /// No description provided for @obSnoozeSome.
+  ///
+  /// In en, this message translates to:
+  /// **'3–5 times'**
+  String get obSnoozeSome;
+
+  /// No description provided for @obSnoozeLots.
+  ///
+  /// In en, this message translates to:
+  /// **'More than 5 times'**
+  String get obSnoozeLots;
+
+  /// No description provided for @obCostTitleNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, snoozing costs you {hours} hours a year.'**
+  String obCostTitleNamed(String name, int hours);
+
+  /// No description provided for @obCostTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Snoozing costs you {hours} hours a year.'**
+  String obCostTitle(int hours);
+
+  /// No description provided for @obCostBody.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s {days} whole days spent half asleep instead of starting your day.'**
+  String obCostBody(int days);
+
+  /// No description provided for @obCostNever.
+  ///
+  /// In en, this message translates to:
+  /// **'Even without snoozing, one switched-off alarm is a late morning. Bangunin makes sure it never happens.'**
+  String get obCostNever;
+
+  /// No description provided for @obLoseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What oversleeping takes from you'**
+  String get obLoseTitle;
+
+  /// No description provided for @obLoseLate.
+  ///
+  /// In en, this message translates to:
+  /// **'Being late for work or school'**
+  String get obLoseLate;
+
+  /// No description provided for @obLoseSahur.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing sahur or Subuh'**
+  String get obLoseSahur;
+
+  /// No description provided for @obLoseRush.
+  ///
+  /// In en, this message translates to:
+  /// **'Rushed, stressful mornings'**
+  String get obLoseRush;
+
+  /// No description provided for @obLoseTrust.
+  ///
+  /// In en, this message translates to:
+  /// **'Breaking promises to yourself'**
+  String get obLoseTrust;
+
+  /// No description provided for @obFixTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The good news: you can win those mornings back.'**
+  String get obFixTitle;
+
+  /// No description provided for @obFixBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Once you\'re out of bed to stop the alarm, you don\'t go back to sleep. Starting tomorrow.'**
+  String get obFixBody;
+
+  /// No description provided for @obGoalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why do you want to wake up on time?'**
+  String get obGoalTitle;
+
+  /// No description provided for @obGoalWork.
+  ///
+  /// In en, this message translates to:
+  /// **'Work'**
+  String get obGoalWork;
+
+  /// No description provided for @obGoalSchool.
+  ///
+  /// In en, this message translates to:
+  /// **'School or college'**
+  String get obGoalSchool;
+
+  /// No description provided for @obGoalSahur.
+  ///
+  /// In en, this message translates to:
+  /// **'Sahur and Subuh'**
+  String get obGoalSahur;
+
+  /// No description provided for @obGoalExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercise'**
+  String get obGoalExercise;
+
+  /// No description provided for @obGoalProductive.
+  ///
+  /// In en, this message translates to:
+  /// **'A more productive day'**
+  String get obGoalProductive;
+
+  /// No description provided for @obSourceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Where did you hear about Bangunin?'**
+  String get obSourceTitle;
+
+  /// No description provided for @obSourceFriend.
+  ///
+  /// In en, this message translates to:
+  /// **'A friend or family'**
+  String get obSourceFriend;
+
+  /// No description provided for @obSourceStore.
+  ///
+  /// In en, this message translates to:
+  /// **'App Store or Google Play'**
+  String get obSourceStore;
+
+  /// No description provided for @obSourceOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Somewhere else'**
+  String get obSourceOther;
+
+  /// No description provided for @obProofTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Made for people who struggle to wake up'**
+  String get obProofTitle;
+
+  /// No description provided for @obProofSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything you need to beat the snooze button.'**
+  String get obProofSubtitle;
+
+  /// No description provided for @obProofMissions.
+  ///
+  /// In en, this message translates to:
+  /// **'7 wake-up missions: photo, squats, maths and more'**
+  String get obProofMissions;
+
+  /// No description provided for @obProofSounds.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} alarm sounds, including local favourites'**
+  String obProofSounds(int count);
+
+  /// No description provided for @obProofReal.
+  ///
+  /// In en, this message translates to:
+  /// **'Real alarms that ring through Silent mode'**
+  String get obProofReal;
+
+  /// No description provided for @obProofPrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'No account. Your photos never leave your phone.'**
+  String get obProofPrivate;
+
+  /// No description provided for @obPlanTitleNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}\'s 7-day wake-up plan'**
+  String obPlanTitleNamed(String name);
+
+  /// No description provided for @obPlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your 7-day wake-up plan'**
+  String get obPlanTitle;
+
+  /// No description provided for @obPlanGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'For: {goal}'**
+  String obPlanGoal(String goal);
+
+  /// No description provided for @obPlanDay1.
+  ///
+  /// In en, this message translates to:
+  /// **'Day 1: the alarm rings at {time}. Get up and finish the mission.'**
+  String obPlanDay1(String time);
+
+  /// No description provided for @obPlanDay3.
+  ///
+  /// In en, this message translates to:
+  /// **'Day 3: no snoozing. Your body starts to adjust.'**
+  String get obPlanDay3;
+
+  /// No description provided for @obPlanDay5.
+  ///
+  /// In en, this message translates to:
+  /// **'Day 5: getting up feels easier.'**
+  String get obPlanDay5;
+
+  /// No description provided for @obPlanDay7.
+  ///
+  /// In en, this message translates to:
+  /// **'Day 7: a full week\'s streak. A new habit.'**
+  String get obPlanDay7;
 }
 
 class _AppLocalizationsDelegate

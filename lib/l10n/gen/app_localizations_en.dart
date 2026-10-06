@@ -644,43 +644,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get freeTrialToggle => 'Free trial enabled';
-
-  @override
-  String get trialToday => 'Today';
-
-  @override
-  String get trialTodayBody => 'Unlock every mission, sound and stat.';
-
-  @override
-  String get trialDay2 => 'Day 2';
-
-  @override
-  String trialDay2Body(String store) {
-    return 'Cancel in $store before the trial ends and you pay nothing.';
-  }
-
-  @override
-  String trialDayFinal(int day) {
-    return 'Day $day';
-  }
-
-  @override
-  String get trialDayFinalBody =>
-      'Your subscription starts. Cancel anytime before.';
-
-  @override
-  String paywallCtaTrial(int days) {
-    return 'Start my $days-day free trial';
-  }
-
-  @override
-  String get paywallCtaNoTrial => 'Continue';
-
-  @override
-  String get noPaymentNow => 'No payment due now';
-
-  @override
   String get manageSubscription => 'Manage subscription';
 
   @override
@@ -957,21 +920,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notifyPointNoSpam => 'Only your alarms. Never spam.';
 
   @override
-  String planTrialBadge(int days) {
-    return '$days DAYS FREE';
-  }
-
-  @override
-  String thenPricePerYear(String price) {
-    return 'then $price per year';
-  }
-
-  @override
-  String thenPricePerMonth(String price) {
-    return 'then $price per month';
-  }
-
-  @override
   String get alarmsOffTitle => 'Bangunin\'s alarms are switched off';
 
   @override
@@ -988,4 +936,203 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get onboardingNoEscape =>
       'Swipe it away? Go ahead. A minute later it rings again, and again, until your mission is done.';
+
+  @override
+  String get paywallCta => 'Unlock Bangunin Premium';
+
+  @override
+  String paywallRenewsYearly(String price, String store) {
+    return '$price per year. Renews automatically until you cancel in $store.';
+  }
+
+  @override
+  String paywallRenewsMonthly(String price, String store) {
+    return '$price per month. Renews automatically until you cancel in $store.';
+  }
+
+  @override
+  String get obProblemTitle => 'You turn your alarm off in your sleep.';
+
+  @override
+  String get obProblemBody =>
+      'Snooze, snooze, and you\'re late again. It isn\'t laziness: a half-asleep thumb always wins.';
+
+  @override
+  String get obPromiseTitle => 'Bangunin won\'t stop until you\'re really up.';
+
+  @override
+  String get obPromiseBody =>
+      'To switch it off you have to get out of bed and finish a short mission. By the time you\'re done, you\'re awake.';
+
+  @override
+  String get obDemoTitle => 'Here\'s how it works';
+
+  @override
+  String get obDemoSubtitle => 'One morning with Bangunin.';
+
+  @override
+  String get obDemoRinging => 'The alarm rings';
+
+  @override
+  String get obDemoStartMission => 'Start mission';
+
+  @override
+  String get obDemoMission => 'Finish the mission to stop it';
+
+  @override
+  String get obDemoDone => 'You\'re up. Alarm off.';
+
+  @override
+  String get obDemoGoodMorning => 'Good morning!';
+
+  @override
+  String get obNameTitle => 'What should we call you?';
+
+  @override
+  String get obNameSubtitle => 'We\'ll use it to make your plan.';
+
+  @override
+  String get obNameHint => 'Your first name';
+
+  @override
+  String get obAgeTitle => 'How old are you?';
+
+  @override
+  String get obAgeUnder18 => 'Under 18';
+
+  @override
+  String get obSnoozeTitle => 'How many times do you snooze each morning?';
+
+  @override
+  String get obSnoozeNever => 'Never';
+
+  @override
+  String get obSnoozeFew => '1–2 times';
+
+  @override
+  String get obSnoozeSome => '3–5 times';
+
+  @override
+  String get obSnoozeLots => 'More than 5 times';
+
+  @override
+  String obCostTitleNamed(String name, int hours) {
+    return '$name, snoozing costs you $hours hours a year.';
+  }
+
+  @override
+  String obCostTitle(int hours) {
+    return 'Snoozing costs you $hours hours a year.';
+  }
+
+  @override
+  String obCostBody(int days) {
+    return 'That\'s $days whole days spent half asleep instead of starting your day.';
+  }
+
+  @override
+  String get obCostNever =>
+      'Even without snoozing, one switched-off alarm is a late morning. Bangunin makes sure it never happens.';
+
+  @override
+  String get obLoseTitle => 'What oversleeping takes from you';
+
+  @override
+  String get obLoseLate => 'Being late for work or school';
+
+  @override
+  String get obLoseSahur => 'Missing sahur or Subuh';
+
+  @override
+  String get obLoseRush => 'Rushed, stressful mornings';
+
+  @override
+  String get obLoseTrust => 'Breaking promises to yourself';
+
+  @override
+  String get obFixTitle => 'The good news: you can win those mornings back.';
+
+  @override
+  String get obFixBody =>
+      'Once you\'re out of bed to stop the alarm, you don\'t go back to sleep. Starting tomorrow.';
+
+  @override
+  String get obGoalTitle => 'Why do you want to wake up on time?';
+
+  @override
+  String get obGoalWork => 'Work';
+
+  @override
+  String get obGoalSchool => 'School or college';
+
+  @override
+  String get obGoalSahur => 'Sahur and Subuh';
+
+  @override
+  String get obGoalExercise => 'Exercise';
+
+  @override
+  String get obGoalProductive => 'A more productive day';
+
+  @override
+  String get obSourceTitle => 'Where did you hear about Bangunin?';
+
+  @override
+  String get obSourceFriend => 'A friend or family';
+
+  @override
+  String get obSourceStore => 'App Store or Google Play';
+
+  @override
+  String get obSourceOther => 'Somewhere else';
+
+  @override
+  String get obProofTitle => 'Made for people who struggle to wake up';
+
+  @override
+  String get obProofSubtitle =>
+      'Everything you need to beat the snooze button.';
+
+  @override
+  String get obProofMissions =>
+      '7 wake-up missions: photo, squats, maths and more';
+
+  @override
+  String obProofSounds(int count) {
+    return '$count alarm sounds, including local favourites';
+  }
+
+  @override
+  String get obProofReal => 'Real alarms that ring through Silent mode';
+
+  @override
+  String get obProofPrivate =>
+      'No account. Your photos never leave your phone.';
+
+  @override
+  String obPlanTitleNamed(String name) {
+    return '$name\'s 7-day wake-up plan';
+  }
+
+  @override
+  String get obPlanTitle => 'Your 7-day wake-up plan';
+
+  @override
+  String obPlanGoal(String goal) {
+    return 'For: $goal';
+  }
+
+  @override
+  String obPlanDay1(String time) {
+    return 'Day 1: the alarm rings at $time. Get up and finish the mission.';
+  }
+
+  @override
+  String get obPlanDay3 => 'Day 3: no snoozing. Your body starts to adjust.';
+
+  @override
+  String get obPlanDay5 => 'Day 5: getting up feels easier.';
+
+  @override
+  String get obPlanDay7 => 'Day 7: a full week\'s streak. A new habit.';
 }

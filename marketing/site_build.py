@@ -4,8 +4,8 @@ Flat output on purpose: the site is deployed by dragging that folder into
 Netlify, and Netlify's pretty URLs serve /cara-agar-tidak-kesiangan for
 cara-agar-tidak-kesiangan.html.
 
-No prices anywhere on the site, not even the trial length: the only offer is
-"try it free now". Pricing lives in the stores.
+No prices and no free trial anywhere on the site (there is no trial): the
+only call to action is to download. Pricing lives in the stores.
 
     python3 marketing/site_build.py
 """
@@ -54,9 +54,9 @@ def store_buttons(lang: str = "id") -> str:
     return (
         '<div class="cta-row">'
         f'<a class="btn btn-sun" href="{APP_STORE}" rel="noopener">{APPLE_SVG}'
-        f'<span>{label("Coba gratis di", "Try free on the")}App Store</span></a>'
+        f'<span>{label("Unduh di", "Download on the")}App Store</span></a>'
         f'<a class="btn btn-ghost" href="{PLAY}" rel="noopener">{PLAY_SVG}'
-        f'<span>{label("Coba gratis di", "Try free on")}Google Play</span></a>'
+        f'<span>{label("Unduh di", "Get it on")}Google Play</span></a>'
         "</div>"
     )
 
@@ -443,8 +443,8 @@ def article_page(post: dict) -> str:
     }
     extra = f'<script type="application/ld+json">{json.dumps(ld, ensure_ascii=False)}</script>'
     cta_title = "Alarm yang nggak bisa dimatiin sambil tidur" if is_id else "The alarm you can't turn off in your sleep"
-    cta_body = ("Bangunin baru diam setelah kamu selesaikan misi bangun. Coba gratis sekarang."
-                if is_id else "Bangunin only stops once you finish a wake-up mission. Try it free now.")
+    cta_body = ("Bangunin baru diam setelah kamu selesaikan misi bangun. Unduh sekarang."
+                if is_id else "Bangunin only stops once you finish a wake-up mission. Download it now.")
     home = "Beranda" if is_id else "Home"
     return (
         head(lang=post["lang"], title=f"{post['title']} | Bangunin", description=post["description"],
@@ -547,8 +547,8 @@ SOUNDS = ["Tung Tung Tung Sahur", "Bapak Bangunin Sahur", "Om Telolet Om", "Tahu
 
 FAQ = [
     ("Bangunin gratis?", "Is Bangunin free?",
-     "Kamu bisa langsung mencobanya gratis. Fitur lengkap tersedia lewat Bangunin Premium di dalam aplikasi.",
-     "You can try it free right away. The full set of features is available through Bangunin Premium inside the app."),
+     "Bangunin gratis diunduh. Untuk memakainya kamu berlangganan Bangunin Premium, bulanan atau tahunan, lewat App Store atau Google Play. Harganya tertera di aplikasi sebelum kamu membayar.",
+     "Bangunin is free to download. To use it you subscribe to Bangunin Premium, monthly or yearly, through the App Store or Google Play. The price is shown in the app before you pay."),
     ("Bagaimana kalau ada keadaan darurat?", "What if there's a real emergency?",
      "Selalu ada Emergency Escape. Sengaja dibuat sedikit merepotkan supaya tidak jadi tombol snooze baru, tapi kamu tidak akan pernah terjebak.",
      "There's always an Emergency Escape. It's deliberately a little tedious so it doesn't become a new snooze button, but you're never trapped."),
@@ -597,7 +597,7 @@ def index_page() -> str:
     posts = "".join(post_card(p) for p in POSTS[:3])
     return (
         head(lang="id", title="Bangunin: Alarm Misi, Alarm yang Bikin Kamu Benar-Benar Bangun",
-             description="Alarm yang baru berhenti setelah kamu menyelesaikan misi bangun: foto, cari benda, matematika, squat. Nggak bisa dimatiin sambil tidur. Coba gratis sekarang.",
+             description="Alarm yang baru berhenti setelah kamu menyelesaikan misi bangun: foto, cari benda, matematika, squat. Nggak bisa dimatiin sambil tidur.",
              path="", extra=extra,
              alternates={"id": SITE + "/", "x-default": SITE + "/"})
         + header(True)
@@ -675,7 +675,7 @@ def index_page() -> str:
 <section class="final"><div class="wrap">
 <img src="/chick-happy.webp" alt="" width="160" height="160" loading="lazy">
 {t("Besok pagi adalah misi pertamamu.", "Tomorrow morning is your first mission.", "h2")}
-{t("Coba gratis sekarang, dan rasakan bangun tanpa drama snooze.", "Try it free now, and wake up without the snooze drama.", "p")}
+{t("Unduh sekarang, dan rasakan bangun tanpa drama snooze.", "Download it now, and wake up without the snooze drama.", "p")}
 {store_buttons("both")}
 </div></section>
 </main>"""

@@ -24,11 +24,39 @@ class OnboardingCompletedNotifier extends Notifier<bool> {
   }
 }
 
-/// The user's first name, if an earlier onboarding version collected it.
-/// Onboarding no longer asks, so new users get the generic paywall headline.
+/// The user's first name from onboarding (may be empty: the step is
+/// optional). Personalises the paywall headline.
 final userNameProvider = Provider<String>(
   (ref) => ref.read(sharedPreferencesProvider).getString(_userNameKey) ?? '',
 );
+
+/// Saves the onboarding name for [userNameProvider].
+Future<void> saveUserName(WidgetRef ref, String name) async {
+  await ref.read(sharedPreferencesProvider).setString(_userNameKey, name);
+  ref.invalidate(userNameProvider);
+}
+
+enum AgeRange { under18, from18to24, from25to34, from35to44, over45 }
+
+/// How often the user snoozes each morning, and the minutes that costs
+/// (one standard 9-minute snooze each time).
+enum SnoozeHabit {
+  never(0),
+  few(1.5),
+  some(4),
+  lots(6.5);
+
+  const SnoozeHabit(this.snoozesPerMorning);
+
+  final double snoozesPerMorning;
+
+  /// Hours a year lost to snoozing, rounded.
+  int get hoursPerYear => (snoozesPerMorning * 9 * 365 / 60).round();
+}
+
+enum WakeReason { work, school, sahur, exercise, productive }
+
+enum HeardFrom { tiktok, instagram, youtube, friend, store, other }
 
 /// The first alarm as the user builds it during onboarding. Onboarding *is*
 /// alarm setup: time, sound and mission are picked here, then saved by
@@ -40,7 +68,20 @@ class OnboardingAnswers {
     this.sound = AlarmSound.classic,
     this.clipId,
     this.mission = MissionType.randomHunt,
+    this.name = '',
+    this.age,
+    this.snooze,
+    this.reason,
+    this.heardFrom,
   });
+
+  /// Survey answers: they shape the cost, plan and paywall copy, and are
+  /// logged (never with the name) to learn who installs and why.
+  final String name;
+  final AgeRange? age;
+  final SnoozeHabit? snooze;
+  final WakeReason? reason;
+  final HeardFrom? heardFrom;
 
   final int wakeGoalHour;
   final int wakeGoalMinute;
@@ -79,6 +120,11 @@ class OnboardingAnswers {
     AlarmSound? sound,
     String? Function()? clipId,
     MissionType? mission,
+    String? name,
+    AgeRange? age,
+    SnoozeHabit? snooze,
+    WakeReason? reason,
+    HeardFrom? heardFrom,
   }) {
     return OnboardingAnswers(
       wakeGoalHour: wakeGoalHour ?? this.wakeGoalHour,
@@ -86,6 +132,11 @@ class OnboardingAnswers {
       sound: sound ?? this.sound,
       clipId: clipId == null ? this.clipId : clipId(),
       mission: mission ?? this.mission,
+      name: name ?? this.name,
+      age: age ?? this.age,
+      snooze: snooze ?? this.snooze,
+      reason: reason ?? this.reason,
+      heardFrom: heardFrom ?? this.heardFrom,
     );
   }
 }
@@ -109,4 +160,10 @@ class OnboardingAnswersNotifier extends Notifier<OnboardingAnswers> {
 
   void setMission(MissionType mission) =>
       state = state.copyWith(mission: mission);
+
+  void setName(String name) => state = state.copyWith(name: name.trim());
+  void setAge(AgeRange age) => state = state.copyWith(age: age);
+  void setSnooze(SnoozeHabit snooze) => state = state.copyWith(snooze: snooze);
+  void setReason(WakeReason reason) => state = state.copyWith(reason: reason);
+  void setHeardFrom(HeardFrom from) => state = state.copyWith(heardFrom: from);
 }

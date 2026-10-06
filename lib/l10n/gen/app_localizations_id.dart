@@ -643,43 +643,6 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
-  String get freeTrialToggle => 'Uji coba gratis aktif';
-
-  @override
-  String get trialToday => 'Hari ini';
-
-  @override
-  String get trialTodayBody => 'Buka semua misi, suara, dan statistik.';
-
-  @override
-  String get trialDay2 => 'Hari ke-2';
-
-  @override
-  String trialDay2Body(String store) {
-    return 'Batalkan di $store sebelum uji coba berakhir, kamu nggak bayar apa pun.';
-  }
-
-  @override
-  String trialDayFinal(int day) {
-    return 'Hari ke-$day';
-  }
-
-  @override
-  String get trialDayFinalBody =>
-      'Langgananmu dimulai. Batalkan kapan saja sebelumnya.';
-
-  @override
-  String paywallCtaTrial(int days) {
-    return 'Mulai uji coba gratis $days hari';
-  }
-
-  @override
-  String get paywallCtaNoTrial => 'Lanjutkan';
-
-  @override
-  String get noPaymentNow => 'Tidak ada tagihan hari ini';
-
-  @override
   String get manageSubscription => 'Kelola langganan';
 
   @override
@@ -958,21 +921,6 @@ class AppLocalizationsId extends AppLocalizations {
   String get notifyPointNoSpam => 'Cuma alarmmu. Nggak ada spam.';
 
   @override
-  String planTrialBadge(int days) {
-    return 'GRATIS $days HARI';
-  }
-
-  @override
-  String thenPricePerYear(String price) {
-    return 'lalu $price per tahun';
-  }
-
-  @override
-  String thenPricePerMonth(String price) {
-    return 'lalu $price per bulan';
-  }
-
-  @override
   String get alarmsOffTitle => 'Alarm Bangunin lagi mati';
 
   @override
@@ -989,4 +937,207 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get onboardingNoEscape =>
       'Geser buat matiin? Boleh aja. Semenit kemudian alarmnya bunyi lagi, terus, sampai misimu selesai.';
+
+  @override
+  String get paywallCta => 'Buka Bangunin Premium';
+
+  @override
+  String paywallRenewsYearly(String price, String store) {
+    return '$price per tahun. Diperpanjang otomatis sampai kamu batalkan di $store.';
+  }
+
+  @override
+  String paywallRenewsMonthly(String price, String store) {
+    return '$price per bulan. Diperpanjang otomatis sampai kamu batalkan di $store.';
+  }
+
+  @override
+  String get obProblemTitle => 'Kamu matikan alarm sambil tidur.';
+
+  @override
+  String get obProblemBody =>
+      'Snooze, snooze, lalu kesiangan lagi. Bukan karena malas: jempol yang masih ngantuk selalu menang.';
+
+  @override
+  String get obPromiseTitle =>
+      'Bangunin nggak berhenti sampai kamu benar-benar bangun.';
+
+  @override
+  String get obPromiseBody =>
+      'Untuk mematikannya, kamu harus turun dari kasur dan menyelesaikan misi singkat. Begitu selesai, kamu sudah melek.';
+
+  @override
+  String get obDemoTitle => 'Begini cara kerjanya';
+
+  @override
+  String get obDemoSubtitle => 'Satu pagi bersama Bangunin.';
+
+  @override
+  String get obDemoRinging => 'Alarm berbunyi';
+
+  @override
+  String get obDemoStartMission => 'Mulai misi';
+
+  @override
+  String get obDemoMission => 'Selesaikan misi untuk mematikannya';
+
+  @override
+  String get obDemoDone => 'Kamu bangun. Alarm mati.';
+
+  @override
+  String get obDemoGoodMorning => 'Selamat pagi!';
+
+  @override
+  String get obNameTitle => 'Kami panggil kamu siapa?';
+
+  @override
+  String get obNameSubtitle => 'Untuk menyusun rencanamu.';
+
+  @override
+  String get obNameHint => 'Nama depanmu';
+
+  @override
+  String get obAgeTitle => 'Berapa umurmu?';
+
+  @override
+  String get obAgeUnder18 => 'Di bawah 18';
+
+  @override
+  String get obSnoozeTitle => 'Berapa kali kamu snooze tiap pagi?';
+
+  @override
+  String get obSnoozeNever => 'Nggak pernah';
+
+  @override
+  String get obSnoozeFew => '1–2 kali';
+
+  @override
+  String get obSnoozeSome => '3–5 kali';
+
+  @override
+  String get obSnoozeLots => 'Lebih dari 5 kali';
+
+  @override
+  String obCostTitleNamed(String name, int hours) {
+    return '$name, snooze menghabiskan $hours jam setahun.';
+  }
+
+  @override
+  String obCostTitle(int hours) {
+    return 'Snooze menghabiskan $hours jam setahun.';
+  }
+
+  @override
+  String obCostBody(int days) {
+    return 'Itu sama dengan $days hari penuh setengah tidur, bukan memulai harimu.';
+  }
+
+  @override
+  String get obCostNever =>
+      'Tanpa snooze pun, satu alarm yang kamu matikan sudah bikin kesiangan. Bangunin memastikan itu nggak terjadi.';
+
+  @override
+  String get obLoseTitle => 'Yang hilang kalau kesiangan';
+
+  @override
+  String get obLoseLate => 'Telat ke kantor atau sekolah';
+
+  @override
+  String get obLoseSahur => 'Ketinggalan sahur atau Subuh';
+
+  @override
+  String get obLoseRush => 'Pagi yang buru-buru dan bikin stres';
+
+  @override
+  String get obLoseTrust => 'Ingkar janji ke diri sendiri';
+
+  @override
+  String get obFixTitle =>
+      'Kabar baiknya: pagi-pagi itu bisa kamu rebut kembali.';
+
+  @override
+  String get obFixBody =>
+      'Begitu turun dari kasur untuk mematikan alarm, kamu nggak tidur lagi. Mulai besok.';
+
+  @override
+  String get obGoalTitle => 'Kenapa kamu ingin bangun tepat waktu?';
+
+  @override
+  String get obGoalWork => 'Kerja';
+
+  @override
+  String get obGoalSchool => 'Sekolah atau kuliah';
+
+  @override
+  String get obGoalSahur => 'Sahur dan Subuh';
+
+  @override
+  String get obGoalExercise => 'Olahraga';
+
+  @override
+  String get obGoalProductive => 'Hari yang lebih produktif';
+
+  @override
+  String get obSourceTitle => 'Dari mana kamu tahu Bangunin?';
+
+  @override
+  String get obSourceFriend => 'Teman atau keluarga';
+
+  @override
+  String get obSourceStore => 'App Store atau Google Play';
+
+  @override
+  String get obSourceOther => 'Lainnya';
+
+  @override
+  String get obProofTitle => 'Dibuat untuk yang susah bangun pagi';
+
+  @override
+  String get obProofSubtitle =>
+      'Semua yang kamu butuhkan untuk mengalahkan tombol snooze.';
+
+  @override
+  String get obProofMissions =>
+      '7 misi bangun: foto, squat, matematika, dan lainnya';
+
+  @override
+  String obProofSounds(int count) {
+    return '$count suara alarm, termasuk favorit lokal';
+  }
+
+  @override
+  String get obProofReal =>
+      'Alarm sungguhan yang tetap bunyi walau mode senyap';
+
+  @override
+  String get obProofPrivate =>
+      'Tanpa akun. Fotomu nggak pernah keluar dari HP.';
+
+  @override
+  String obPlanTitleNamed(String name) {
+    return 'Rencana bangun 7 hari $name';
+  }
+
+  @override
+  String get obPlanTitle => 'Rencana bangun 7 harimu';
+
+  @override
+  String obPlanGoal(String goal) {
+    return 'Untuk: $goal';
+  }
+
+  @override
+  String obPlanDay1(String time) {
+    return 'Hari 1: alarm berbunyi jam $time. Bangun dan selesaikan misinya.';
+  }
+
+  @override
+  String get obPlanDay3 => 'Hari 3: tanpa snooze. Tubuhmu mulai menyesuaikan.';
+
+  @override
+  String get obPlanDay5 => 'Hari 5: bangun terasa lebih mudah.';
+
+  @override
+  String get obPlanDay7 =>
+      'Hari 7: streak seminggu penuh. Kebiasaan baru terbentuk.';
 }

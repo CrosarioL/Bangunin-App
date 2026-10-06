@@ -6,23 +6,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/di/providers.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../app/widgets/bangunin_mascot.dart';
 import '../../../../app/widgets/max_width_box.dart';
 import '../../../../app/widgets/primary_button.dart';
 import '../../../../app/widgets/sunset_page_header.dart';
 import '../../../../core/services/analytics/analytics_service.dart';
 import '../../../../core/services/locale/locale_override_provider.dart';
 import '../../../../core/utils/haptics.dart';
+import '../../../../core/utils/l10n_ext.dart';
 import '../../../alarms/presentation/providers/alarms_provider.dart';
 import '../providers/onboarding_provider.dart';
 import 'onboarding_steps.dart';
+import 'onboarding_story_steps.dart';
 
 /// The onboarding container: progress bar + PageView of steps.
 ///
-/// Onboarding *is* first-alarm setup: hook → time → sound → mission →
-/// permission → "here's when it rings" → paywall. No survey. The user is
-/// setting tomorrow's alarm within seconds, meets the mission (the product's
-/// difference) before being asked for anything, and sees the paywall only
-/// once their alarm exists.
+/// Hook → problem → promise → product demo → a short survey (name, age,
+/// snoozing) that comes back as the cost of snoozing → what it takes →
+/// the fix → why they want to wake up → first-alarm setup (time, sound,
+/// mission) → where they heard of us → what the app does → their 7-day
+/// plan → permissions → "here's when it rings" → paywall. No free trial.
 class OnboardingFlowPage extends ConsumerStatefulWidget {
   const OnboardingFlowPage({super.key});
 
@@ -33,7 +36,46 @@ class OnboardingFlowPage extends ConsumerStatefulWidget {
 class _OnboardingFlowPageState extends ConsumerState<OnboardingFlowPage> {
   final _pageController = PageController();
   int _step = 0;
-  static const _stepCount = 6;
+  bool _advancing = false;
+
+  List<Widget> get _steps => [
+    WelcomeStep(onNext: _next),
+    StoryStep(
+      pose: MascotPose.sleeping,
+      title: context.l10n.obProblemTitle,
+      body: context.l10n.obProblemBody,
+      onNext: _next,
+    ),
+    StoryStep(
+      pose: MascotPose.crowing,
+      title: context.l10n.obPromiseTitle,
+      body: context.l10n.obPromiseBody,
+      onNext: _next,
+    ),
+    DemoStep(onNext: _next),
+    NameStep(onNext: _next),
+    AgeStep(onNext: _next),
+    SnoozeStep(onNext: _next),
+    CostStep(onNext: _next),
+    LoseStep(onNext: _next),
+    StoryStep(
+      pose: MascotPose.happy,
+      title: context.l10n.obFixTitle,
+      body: context.l10n.obFixBody,
+      onNext: _next,
+    ),
+    GoalStep(onNext: _next),
+    WakeGoalStep(onNext: _next),
+    SoundStep(onNext: _next),
+    MissionStep(onNext: _next),
+    HeardFromStep(onNext: _next),
+    ProofStep(onNext: _next),
+    PlanStep(onNext: _next),
+    NotificationStep(onNext: _next),
+    ReadyStep(onNext: _next),
+  ];
+
+  int get _stepCount => _steps.length;
 
   @override
   void initState() {
@@ -61,22 +103,33 @@ class _OnboardingFlowPageState extends ConsumerState<OnboardingFlowPage> {
   }
 
   Future<void> _next() async {
+    // A choice auto-advances; a quick second tap (or the button straight
+    // after) must not skip the following screen.
+    if (_advancing) return;
     if (_step >= _stepCount - 1) {
+      _advancing = true;
       final answers = ref.read(onboardingAnswersProvider);
+      await saveUserName(ref, answers.name);
       await ref.read(alarmActionsProvider).createFromOnboarding(answers);
       await ref.read(onboardingCompletedProvider.notifier).markCompleted();
       // Which sound and mission new users pick is the selection-rate signal
-      // for deciding what to feature and promote.
+      // for deciding what to feature and promote; the survey answers say
+      // who installs and where they came from. Never the name.
       unawaited(
         ref
             .read(analyticsProvider)
             .logEvent(AnalyticsEvents.onboardingCompleted, {
               'sound': answers.clipId ?? answers.sound.name,
               'mission': answers.mission.name,
+              'age': ?answers.age?.name,
+              'snooze': ?answers.snooze?.name,
+              'reason': ?answers.reason?.name,
+              'heard_from': ?answers.heardFrom?.name,
             }),
       );
       return; // Router redirect takes over (→ paywall).
     }
+    _advancing = true;
     Haptics.tap();
     unawaited(
       ref.read(analyticsProvider).logEvent(AnalyticsEvents.onboardingStep, {
@@ -89,6 +142,7 @@ class _OnboardingFlowPageState extends ConsumerState<OnboardingFlowPage> {
       duration: const Duration(milliseconds: 350),
       curve: Curves.easeOutCubic,
     );
+    _advancing = false;
   }
 
   Future<void> _back() async {
@@ -151,14 +205,7 @@ class _OnboardingFlowPageState extends ConsumerState<OnboardingFlowPage> {
               child: PageView(
                 controller: _pageController,
                 physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  WelcomeStep(onNext: _next),
-                  WakeGoalStep(onNext: _next),
-                  SoundStep(onNext: _next),
-                  MissionStep(onNext: _next),
-                  NotificationStep(onNext: _next),
-                  ReadyStep(onNext: _next),
-                ],
+                children: _steps,
               ),
             ),
           ],
