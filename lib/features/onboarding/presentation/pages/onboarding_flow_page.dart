@@ -10,6 +10,7 @@ import '../../../../app/widgets/max_width_box.dart';
 import '../../../../app/widgets/primary_button.dart';
 import '../../../../app/widgets/sunset_page_header.dart';
 import '../../../../core/services/analytics/analytics_service.dart';
+import '../../../../core/services/locale/locale_override_provider.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../alarms/presentation/providers/alarms_provider.dart';
 import '../providers/onboarding_provider.dart';
@@ -130,6 +131,19 @@ class _OnboardingFlowPageState extends ConsumerState<OnboardingFlowPage> {
                     ),
                   ),
                   Expanded(child: _progressBar(context)),
+                  // Language switch on the first screen only, before any
+                  // tutorial text is read. Kept in the layout afterwards so
+                  // the progress bar doesn't jump in width.
+                  Visibility(
+                    visible: _step == 0,
+                    maintainSize: true,
+                    maintainAnimation: true,
+                    maintainState: true,
+                    child: const Padding(
+                      padding: EdgeInsets.only(left: AppSpacing.sm),
+                      child: _LanguageToggle(),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -276,6 +290,63 @@ class OnboardingStepScaffold extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// ID | EN pill. Indonesian is the default; tapping EN switches the whole app
+/// (and is remembered, like the Settings choice).
+class _LanguageToggle extends ConsumerWidget {
+  const _LanguageToggle();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final current = Localizations.localeOf(context).languageCode;
+    final theme = Theme.of(context);
+    Widget option(String code, String label) {
+      final selected = current == code;
+      return Semantics(
+        button: true,
+        selected: selected,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: selected
+              ? null
+              : () {
+                  Haptics.tap();
+                  ref.read(localeOverrideProvider.notifier).set(Locale(code));
+                },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: selected ? AppColors.primary : Colors.transparent,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              label,
+              style: theme.textTheme.labelLarge!.copyWith(
+                fontWeight: FontWeight.w800,
+                color: selected
+                    ? AppColors.onPrimary
+                    : theme.colorScheme.onSurface,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface.withValues(alpha: .7),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [option('id', 'ID'), option('en', 'EN')],
       ),
     );
   }

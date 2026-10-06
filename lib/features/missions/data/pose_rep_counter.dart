@@ -91,7 +91,8 @@ class PoseRepCounter {
   DateTime _lastRepAt = DateTime.fromMillisecondsSinceEpoch(0);
 
   static const _requiredFrames = 3;
-  static const _minimumLikelihood = 0.65;
+  // Ankles near the bottom edge of the frame often come back around 0.6.
+  static const _minimumLikelihood = 0.5;
   static const _minimumRepInterval = Duration(milliseconds: 650);
 
   bool get isComplete => reps >= targetReps;
@@ -193,9 +194,57 @@ class PoseRepCounter {
       PoseLandmarkType.rightKnee,
       PoseLandmarkType.rightAnkle,
     );
-    if (left == null || right == null) return null;
-    final knee = (left + right) / 2;
-    return (knee < 105, knee > 158);
+    final depth = _squatDepth(pose);
+    if ((left == null || right == null) && depth == null) return null;
+
+    // Two independent readings, so a squat counts whichever way the user
+    // faces the phone:
+    //  * Knee angle works side-on, but facing the camera the thighs point
+    //    at the lens and the flat picture shows almost no bend — the old
+    //    angle-only rule never saw a face-on squat at all.
+    //  * Depth (hip drop vs shin length) works face-on and side-on.
+    final knee = (left != null && right != null) ? (left + right) / 2 : null;
+    final lowered =
+        (knee != null && knee < 105) || (depth != null && depth < 0.5);
+    final extended =
+        (knee == null || knee > 158) && (depth == null || depth > 0.75);
+    return (lowered && !extended, extended && !lowered);
+  }
+
+  /// How far the hips sit above the knees, measured in shin lengths and
+  /// averaged over both legs: about 1 standing, near 0 at the bottom of a
+  /// squat. Null when no leg is trustworthy.
+  double? _squatDepth(Pose pose) {
+    final readings = <double>[];
+    for (final (hip, knee, ankle) in const [
+      (
+        PoseLandmarkType.leftHip,
+        PoseLandmarkType.leftKnee,
+        PoseLandmarkType.leftAnkle,
+      ),
+      (
+        PoseLandmarkType.rightHip,
+        PoseLandmarkType.rightKnee,
+        PoseLandmarkType.rightAnkle,
+      ),
+    ]) {
+      final h = pose.landmarks[hip];
+      final k = pose.landmarks[knee];
+      final a = pose.landmarks[ankle];
+      if (h == null ||
+          k == null ||
+          a == null ||
+          h.likelihood < _minimumLikelihood ||
+          k.likelihood < _minimumLikelihood ||
+          a.likelihood < _minimumLikelihood) {
+        continue;
+      }
+      final shin = math.sqrt(math.pow(a.x - k.x, 2) + math.pow(a.y - k.y, 2));
+      if (shin < 1) continue;
+      readings.add((k.y - h.y) / shin);
+    }
+    if (readings.isEmpty) return null;
+    return readings.reduce((x, y) => x + y) / readings.length;
   }
 
   (bool, bool)? _pushupAngles(Pose pose) {

@@ -99,6 +99,28 @@ Pose pushupLowered({double likelihood = 0.9}) =>
 /// Halfway down — inside the hysteresis band, so neither state.
 Pose pushupPartial() => pushupPose(elbowDegrees: 130);
 
+/// Face-on squat: hip, knee and ankle stay in one vertical line (so the
+/// knee angle reads ~180 the whole time) while the hips drop toward the
+/// knees. [hipY] is the hip height; knee at 100, ankle at 200.
+Pose squatFaceOn({required double hipY}) {
+  final points = <PoseLandmarkType, _Point>{};
+  for (final (side, offset) in [(false, 0.0), (true, 80.0)]) {
+    points[side ? PoseLandmarkType.rightHip : PoseLandmarkType.leftHip] = (
+      x: offset,
+      y: hipY,
+    );
+    points[side ? PoseLandmarkType.rightKnee : PoseLandmarkType.leftKnee] = (
+      x: offset,
+      y: 100.0,
+    );
+    points[side ? PoseLandmarkType.rightAnkle : PoseLandmarkType.leftAnkle] = (
+      x: offset,
+      y: 200.0,
+    );
+  }
+  return _poseFrom(points);
+}
+
 Pose squatStanding() => squatPose(kneeDegrees: 170);
 
 Pose squatLowered() => squatPose(kneeDegrees: 90);
@@ -188,6 +210,28 @@ void main() {
 
       expect(c.reps, 1);
       expect(countedFrames, 1, reason: 'holding extended must not re-credit');
+    });
+
+    test('a face-on squat counts even though the knee angle never bends', () {
+      final c = counter(mission: MissionType.squats);
+      final start = DateTime(2026);
+
+      feed(c, squatFaceOn(hipY: 0), now: start);
+      feed(c, squatFaceOn(hipY: 70), now: start);
+      feed(c, squatFaceOn(hipY: 0), now: start.add(const Duration(seconds: 2)));
+
+      expect(c.reps, 1);
+    });
+
+    test('a shallow face-on dip does not count', () {
+      final c = counter(mission: MissionType.squats);
+      final start = DateTime(2026);
+
+      feed(c, squatFaceOn(hipY: 0), now: start);
+      feed(c, squatFaceOn(hipY: 35), count: 10, now: start);
+      feed(c, squatFaceOn(hipY: 0), now: start.add(const Duration(seconds: 2)));
+
+      expect(c.reps, 0);
     });
 
     test('squats count off knee angle', () {
