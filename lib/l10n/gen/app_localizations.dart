@@ -1214,6 +1214,66 @@ abstract class AppLocalizations {
   /// **'SAVE {percent}%'**
   String saveBadge(int percent);
 
+  /// No description provided for @freeTrialToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Free trial enabled'**
+  String get freeTrialToggle;
+
+  /// No description provided for @trialToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get trialToday;
+
+  /// No description provided for @trialTodayBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock every mission, sound and stat.'**
+  String get trialTodayBody;
+
+  /// No description provided for @trialDay2.
+  ///
+  /// In en, this message translates to:
+  /// **'Day 2'**
+  String get trialDay2;
+
+  /// No description provided for @trialDay2Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel in {store} before the trial ends and you pay nothing.'**
+  String trialDay2Body(String store);
+
+  /// No description provided for @trialDayFinal.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day}'**
+  String trialDayFinal(int day);
+
+  /// No description provided for @trialDayFinalBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your subscription starts. Cancel anytime before.'**
+  String get trialDayFinalBody;
+
+  /// No description provided for @paywallCtaTrial.
+  ///
+  /// In en, this message translates to:
+  /// **'Start my {days}-day free trial'**
+  String paywallCtaTrial(int days);
+
+  /// No description provided for @paywallCtaNoTrial.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get paywallCtaNoTrial;
+
+  /// No description provided for @noPaymentNow.
+  ///
+  /// In en, this message translates to:
+  /// **'No payment due now'**
+  String get noPaymentNow;
+
   /// No description provided for @manageSubscription.
   ///
   /// In en, this message translates to:
@@ -1688,6 +1748,24 @@ abstract class AppLocalizations {
   /// **'Only your alarms. Never spam.'**
   String get notifyPointNoSpam;
 
+  /// No description provided for @planTrialBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} DAYS FREE'**
+  String planTrialBadge(int days);
+
+  /// No description provided for @thenPricePerYear.
+  ///
+  /// In en, this message translates to:
+  /// **'then {price} per year'**
+  String thenPricePerYear(String price);
+
+  /// No description provided for @thenPricePerMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'then {price} per month'**
+  String thenPricePerMonth(String price);
+
   /// No description provided for @alarmsOffTitle.
   ///
   /// In en, this message translates to:
@@ -1717,24 +1795,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Swipe it away? Go ahead. A minute later it rings again, and again, until your mission is done.'**
   String get onboardingNoEscape;
-
-  /// No description provided for @paywallCta.
-  ///
-  /// In en, this message translates to:
-  /// **'Unlock Bangunin Premium'**
-  String get paywallCta;
-
-  /// No description provided for @paywallRenewsYearly.
-  ///
-  /// In en, this message translates to:
-  /// **'{price} per year. Renews automatically until you cancel in {store}.'**
-  String paywallRenewsYearly(String price, String store);
-
-  /// No description provided for @paywallRenewsMonthly.
-  ///
-  /// In en, this message translates to:
-  /// **'{price} per month. Renews automatically until you cancel in {store}.'**
-  String paywallRenewsMonthly(String price, String store);
 
   /// No description provided for @obProblemTitle.
   ///

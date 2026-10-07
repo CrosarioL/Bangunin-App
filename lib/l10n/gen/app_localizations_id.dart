@@ -643,6 +643,43 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
+  String get freeTrialToggle => 'Uji coba gratis aktif';
+
+  @override
+  String get trialToday => 'Hari ini';
+
+  @override
+  String get trialTodayBody => 'Buka semua misi, suara, dan statistik.';
+
+  @override
+  String get trialDay2 => 'Hari ke-2';
+
+  @override
+  String trialDay2Body(String store) {
+    return 'Batalkan di $store sebelum uji coba berakhir, kamu nggak bayar apa pun.';
+  }
+
+  @override
+  String trialDayFinal(int day) {
+    return 'Hari ke-$day';
+  }
+
+  @override
+  String get trialDayFinalBody =>
+      'Langgananmu dimulai. Batalkan kapan saja sebelumnya.';
+
+  @override
+  String paywallCtaTrial(int days) {
+    return 'Mulai uji coba gratis $days hari';
+  }
+
+  @override
+  String get paywallCtaNoTrial => 'Lanjutkan';
+
+  @override
+  String get noPaymentNow => 'Tidak ada tagihan hari ini';
+
+  @override
   String get manageSubscription => 'Kelola langganan';
 
   @override
@@ -921,6 +958,21 @@ class AppLocalizationsId extends AppLocalizations {
   String get notifyPointNoSpam => 'Cuma alarmmu. Nggak ada spam.';
 
   @override
+  String planTrialBadge(int days) {
+    return 'GRATIS $days HARI';
+  }
+
+  @override
+  String thenPricePerYear(String price) {
+    return 'lalu $price per tahun';
+  }
+
+  @override
+  String thenPricePerMonth(String price) {
+    return 'lalu $price per bulan';
+  }
+
+  @override
   String get alarmsOffTitle => 'Alarm Bangunin lagi mati';
 
   @override
@@ -937,19 +989,6 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get onboardingNoEscape =>
       'Geser buat matiin? Boleh aja. Semenit kemudian alarmnya bunyi lagi, terus, sampai misimu selesai.';
-
-  @override
-  String get paywallCta => 'Buka Bangunin Premium';
-
-  @override
-  String paywallRenewsYearly(String price, String store) {
-    return '$price per tahun. Diperpanjang otomatis sampai kamu batalkan di $store.';
-  }
-
-  @override
-  String paywallRenewsMonthly(String price, String store) {
-    return '$price per bulan. Diperpanjang otomatis sampai kamu batalkan di $store.';
-  }
 
   @override
   String get obProblemTitle => 'Kamu matikan alarm sambil tidur.';

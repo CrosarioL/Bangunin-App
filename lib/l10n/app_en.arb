@@ -297,6 +297,30 @@
       }
     }
   },
+  "freeTrialToggle": "Free trial enabled",
+  "trialToday": "Today",
+  "trialTodayBody": "Unlock every mission, sound and stat.",
+  "trialDay2": "Day 2",
+  "trialDay2Body": "Cancel in {store} before the trial ends and you pay nothing.",
+  "trialDayFinal": "Day {day}",
+  "@trialDayFinal": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "trialDayFinalBody": "Your subscription starts. Cancel anytime before.",
+  "paywallCtaTrial": "Start my {days}-day free trial",
+  "@paywallCtaTrial": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "paywallCtaNoTrial": "Continue",
+  "noPaymentNow": "No payment due now",
   "manageSubscription": "Manage subscription",
   "photoFailTooDark": "Too dark to check — try again in brighter light",
   "photoFailTooBright": "Too bright to check — move away from the light",
@@ -451,34 +475,42 @@
   "notifyPointOnTime": "Rings on time, even with the app closed",
   "notifyPointLockScreen": "Shows up on your lock screen",
   "notifyPointNoSpam": "Only your alarms. Never spam.",
+  "@trialDay2Body": {
+    "placeholders": {
+      "store": {
+        "type": "String"
+      }
+    }
+  },
+  "planTrialBadge": "{days} DAYS FREE",
+  "@planTrialBadge": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "thenPricePerYear": "then {price} per year",
+  "@thenPricePerYear": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "thenPricePerMonth": "then {price} per month",
+  "@thenPricePerMonth": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
   "alarmsOffTitle": "Bangunin's alarms are switched off",
   "alarmsOffBody": "Without the Alarms permission your iPhone only sends a plain notification: no full-screen alarm, nothing through silent mode. Bangunin can't wake you up.",
   "alarmsOffEnable": "Turn on alarms",
   "alarmsOffSettingsHint": "Open Settings → Bangunin → switch on Alarms.",
   "onboardingNoEscape": "Swipe it away? Go ahead. A minute later it rings again, and again, until your mission is done.",
-  "paywallCta": "Unlock Bangunin Premium",
-  "paywallRenewsYearly": "{price} per year. Renews automatically until you cancel in {store}.",
-  "@paywallRenewsYearly": {
-    "placeholders": {
-      "price": {
-        "type": "String"
-      },
-      "store": {
-        "type": "String"
-      }
-    }
-  },
-  "paywallRenewsMonthly": "{price} per month. Renews automatically until you cancel in {store}.",
-  "@paywallRenewsMonthly": {
-    "placeholders": {
-      "price": {
-        "type": "String"
-      },
-      "store": {
-        "type": "String"
-      }
-    }
-  },
   "obProblemTitle": "You turn your alarm off in your sleep.",
   "obProblemBody": "Snooze, snooze, and you're late again. It isn't laziness: a half-asleep thumb always wins.",
   "obPromiseTitle": "Bangunin won't stop until you're really up.",

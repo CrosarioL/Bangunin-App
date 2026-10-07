@@ -54,6 +54,11 @@ abstract final class AppConfig {
         : revenueCatGoogleKey;
   }
 
+  /// Trial length recognized when an active store offer returns a 3-day phase.
+  /// The app does not create a trial; Play Console/App Store Connect control
+  /// whether one is currently available.
+  static const trialDays = 3;
+
   /// Simulated paywall: tapping the CTA grants premium locally without
   /// contacting any store. Off by default in every build now that real
   /// products exist; opt in with `--dart-define=BANGUNIN_FAKE_PAYWALL=true`

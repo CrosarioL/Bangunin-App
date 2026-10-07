@@ -6,7 +6,7 @@ App Store Connect → Bangunin: Alarm Misi → iOS App 1.0. Primary language: In
 
 - Name: `Bangunin: Alarm Misi` (set; "Bangunin" alone is taken)
 - Subtitle (≤30): `Alarm yang bikin kamu bangun`
-- Promotional text (≤170): `Alarm yang nggak bisa dimatiin sambil tidur. Selesaikan misi seru—foto, cari benda, matematika, squat—baru alarmnya diam.`
+- Promotional text (≤170): `Alarm yang nggak bisa dimatiin sambil tidur. Selesaikan misi seru—foto, cari benda, matematika, squat—baru alarmnya diam. Coba gratis 3 hari.`
 - Keywords (≤100, no spaces): `alarm,bangun,pagi,sahur,tidur,misi,kesiangan,snooze,squat,pushup,foto,kebiasaan,disiplin,subuh`
 - Support URL: `https://bangunin.app/`
 - Marketing URL: `https://bangunin.app/`
@@ -46,7 +46,7 @@ PRIVASI
 • Foto, kamera, dan suara diproses di HP-mu dan tidak diunggah
 
 BANGUNIN PREMIUM
-Semua misi, suara, dan statistik. Tersedia tahunan atau bulanan. Langganan diperpanjang otomatis kecuali dibatalkan minimal 24 jam sebelum periode berakhir, lewat Pengaturan Apple ID. Ketentuan: https://bangunin.app/terms.html · Privasi: https://bangunin.app/privacy.html
+Semua misi, suara, dan statistik. Tersedia tahunan atau bulanan, dengan uji coba gratis 3 hari. Langganan diperpanjang otomatis kecuali dibatalkan minimal 24 jam sebelum periode berakhir, lewat Pengaturan Apple ID. Ketentuan: https://bangunin.app/terms.html · Privasi: https://bangunin.app/privacy.html
 
 Bangunin bukan perangkat medis, keselamatan, atau darurat.
 
@@ -57,7 +57,7 @@ Bangunin bukan perangkat medis, keselamatan, atau darurat.
 ## English (U.K. or U.S.) localization
 
 - Subtitle: `The alarm that gets you up`
-- Promotional text: `An alarm you can't turn off in your sleep. Finish a fun mission—photo, object hunt, maths, squats—and only then does it stop.`
+- Promotional text: `An alarm you can't turn off in your sleep. Finish a fun mission—photo, object hunt, maths, squats—and only then does it stop. Try it free for 3 days.`
 - Keywords: `alarm,wake,up,morning,sleep,mission,snooze,oversleep,squat,pushup,photo,habit,routine,discipline`
 
 ### Description
@@ -92,6 +92,6 @@ PRIVACY
 • Photos, camera and sounds are processed on your phone and never uploaded
 
 BANGUNIN PREMIUM
-Every mission, sound and stat. Yearly or monthly. Subscriptions renew automatically unless cancelled at least 24 hours before the end of the period, in your Apple ID settings. Terms: https://bangunin.app/terms.html · Privacy: https://bangunin.app/privacy.html
+Every mission, sound and stat. Yearly or monthly, with a 3-day free trial. Subscriptions renew automatically unless cancelled at least 24 hours before the end of the period, in your Apple ID settings. Terms: https://bangunin.app/terms.html · Privacy: https://bangunin.app/privacy.html
 
 Bangunin is not a medical, safety or emergency device.

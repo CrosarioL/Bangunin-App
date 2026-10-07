@@ -15,6 +15,7 @@ class PremiumPlan {
     required this.period,
     this.monthlyEquivalentPrice,
     this.rawPrice,
+    this.trialDays = 0,
     this.package,
   });
 
@@ -34,8 +35,13 @@ class PremiumPlan {
   /// the yearly saving; null when the store did not report it.
   final double? rawPrice;
 
+  /// Days of free trial attached to this plan (0 = none).
+  final int trialDays;
+
   /// The RevenueCat package to buy. Null for the simulated store.
   final Package? package;
+
+  bool get hasTrial => trialDays > 0;
 }
 
 /// Entitlement state + purchase flow. Mirrors how the shipped product works:
@@ -58,7 +64,7 @@ abstract interface class SubscriptionService {
 /// Real billing through RevenueCat, on both App Store and Google Play.
 ///
 /// Premium follows RevenueCat's `premium` entitlement, re-read on every launch
-/// and whenever RevenueCat pushes a change, so a cancellation, an expired
+/// and whenever RevenueCat pushes a change, so a cancelled trial, an expired
 /// subscription or a refund takes premium away again. The last known state is
 /// cached so the app opens straight into premium while offline. Store
 /// purchases are the only way in (App Store 3.1.1).
@@ -140,15 +146,19 @@ class RevenueCatSubscriptionService implements SubscriptionService {
     final offering = (await Purchases.getOfferings()).current;
     if (offering == null) return const [];
 
-    // No free trial is offered, so there is no StoreKit eligibility round
-    // trip to wait on either.
+    final packages = [?offering.annual, ?offering.monthly];
+    final eligibility = await _introEligibility(packages);
+
     return [
-      for (final package in [?offering.annual, ?offering.monthly])
-        _planFor(package),
+      for (final package in packages)
+        _planFor(
+          package,
+          eligible: eligibility[package.storeProduct.identifier] ?? true,
+        ),
     ];
   }
 
-  PremiumPlan _planFor(Package package) {
+  PremiumPlan _planFor(Package package, {required bool eligible}) {
     final product = package.storeProduct;
     final isYearly = package.packageType == PackageType.annual;
     return PremiumPlan(
@@ -157,8 +167,37 @@ class RevenueCatSubscriptionService implements SubscriptionService {
       rawPrice: product.price,
       period: isYearly ? 'year' : 'month',
       monthlyEquivalentPrice: isYearly ? product.pricePerMonthString : null,
+      trialDays: eligible ? _freeTrialDays(product.introductoryPrice) : 0,
       package: package,
     );
+  }
+
+  /// Apple offers the trial only once per subscription group, so ask before
+  /// advertising it. Google already hides offers the user can't take.
+  ///
+  /// The answer comes from StoreKit and can be slow. Past
+  /// [_eligibilityTimeout] the plans show anyway, treated as eligible (the
+  /// same as RevenueCat's own "unknown"); the store sheet always states the
+  /// real terms before anyone pays.
+  static const _eligibilityTimeout = Duration(seconds: 2);
+
+  Future<Map<String, bool>> _introEligibility(List<Package> packages) async {
+    if (defaultTargetPlatform != TargetPlatform.iOS) return const {};
+    try {
+      final result = await Purchases.checkTrialOrIntroductoryPriceEligibility([
+        for (final p in packages) p.storeProduct.identifier,
+      ]).timeout(_eligibilityTimeout);
+      return {
+        for (final entry in result.entries)
+          entry.key:
+              entry.value.status !=
+              IntroEligibilityStatus.introEligibilityStatusIneligible,
+      };
+    } on PlatformException {
+      return const {};
+    } on TimeoutException {
+      return const {};
+    }
   }
 
   @override
@@ -195,6 +234,17 @@ class RevenueCatSubscriptionService implements SubscriptionService {
   }
 }
 
+/// Length of a free (zero-price) introductory phase, in days; 0 if none.
+int _freeTrialDays(IntroductoryPrice? intro) {
+  if (intro == null || intro.price != 0) return 0;
+  final units = intro.periodNumberOfUnits * intro.cycles;
+  return switch (intro.periodUnit) {
+    PeriodUnit.day => units,
+    PeriodUnit.week => units * 7,
+    _ => 0,
+  };
+}
+
 /// Simulated store (see [AppConfig.fakePaywall]): serves fixed display
 /// prices and "completes" any purchase instantly and locally. No store
 /// connection, no charge — the paywall UX is fully exercisable before real
@@ -224,12 +274,14 @@ class FakeSubscriptionService implements SubscriptionService {
           rawPrice: 199000,
           period: 'year',
           monthlyEquivalentPrice: 'Rp 16.600',
+          trialDays: AppConfig.trialDays,
         ),
         PremiumPlan(
           productId: AppConfig.monthlyProductId,
           price: 'Rp 49.000',
           rawPrice: 49000,
           period: 'month',
+          trialDays: AppConfig.trialDays,
         ),
       ];
     }
@@ -240,12 +292,14 @@ class FakeSubscriptionService implements SubscriptionService {
         rawPrice: 29.99,
         period: 'year',
         monthlyEquivalentPrice: r'$2.49',
+        trialDays: AppConfig.trialDays,
       ),
       PremiumPlan(
         productId: AppConfig.monthlyProductId,
         price: r'$4.99',
         rawPrice: 4.99,
         period: 'month',
+        trialDays: AppConfig.trialDays,
       ),
     ];
   }

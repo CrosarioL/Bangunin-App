@@ -644,6 +644,43 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get freeTrialToggle => 'Free trial enabled';
+
+  @override
+  String get trialToday => 'Today';
+
+  @override
+  String get trialTodayBody => 'Unlock every mission, sound and stat.';
+
+  @override
+  String get trialDay2 => 'Day 2';
+
+  @override
+  String trialDay2Body(String store) {
+    return 'Cancel in $store before the trial ends and you pay nothing.';
+  }
+
+  @override
+  String trialDayFinal(int day) {
+    return 'Day $day';
+  }
+
+  @override
+  String get trialDayFinalBody =>
+      'Your subscription starts. Cancel anytime before.';
+
+  @override
+  String paywallCtaTrial(int days) {
+    return 'Start my $days-day free trial';
+  }
+
+  @override
+  String get paywallCtaNoTrial => 'Continue';
+
+  @override
+  String get noPaymentNow => 'No payment due now';
+
+  @override
   String get manageSubscription => 'Manage subscription';
 
   @override
@@ -920,6 +957,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notifyPointNoSpam => 'Only your alarms. Never spam.';
 
   @override
+  String planTrialBadge(int days) {
+    return '$days DAYS FREE';
+  }
+
+  @override
+  String thenPricePerYear(String price) {
+    return 'then $price per year';
+  }
+
+  @override
+  String thenPricePerMonth(String price) {
+    return 'then $price per month';
+  }
+
+  @override
   String get alarmsOffTitle => 'Bangunin\'s alarms are switched off';
 
   @override
@@ -936,19 +988,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get onboardingNoEscape =>
       'Swipe it away? Go ahead. A minute later it rings again, and again, until your mission is done.';
-
-  @override
-  String get paywallCta => 'Unlock Bangunin Premium';
-
-  @override
-  String paywallRenewsYearly(String price, String store) {
-    return '$price per year. Renews automatically until you cancel in $store.';
-  }
-
-  @override
-  String paywallRenewsMonthly(String price, String store) {
-    return '$price per month. Renews automatically until you cancel in $store.';
-  }
 
   @override
   String get obProblemTitle => 'You turn your alarm off in your sleep.';

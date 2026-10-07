@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../app/di/providers.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../app/widgets/app_card.dart';
 import '../../../../app/widgets/bangunin_mascot.dart';
 import '../../../../app/widgets/max_width_box.dart';
 import '../../../../app/widgets/pressable_scale.dart';
@@ -20,11 +21,12 @@ import '../../../../core/utils/l10n_ext.dart';
 import '../../../../core/utils/time_format.dart';
 import '../../../onboarding/presentation/providers/onboarding_provider.dart';
 import '../providers/premium_provider.dart';
+import '../widgets/trial_timeline.dart';
 
 /// Hard paywall shown right after onboarding (and on any locked entry
-/// point). Yearly is pre-selected as the anchor; monthly sits below it.
-/// No free trial: the price is paid from day one. There is no close button —
-/// the product gates everything on premium.
+/// point). Yearly is pre-selected as the anchor and carries the free trial;
+/// monthly sits below it. There is no close button — the product gates
+/// everything on premium.
 class PaywallPage extends ConsumerStatefulWidget {
   const PaywallPage({super.key});
 
@@ -74,13 +76,19 @@ class _PaywallPageState extends ConsumerState<PaywallPage> {
                   (p) => p.productId == _selectedProductId,
                   orElse: () => plans.first,
                 );
+                final trialPlans = plans.where((p) => p.hasTrial);
+                final noTrialPlans = plans.where((p) => !p.hasTrial);
+                final trialPlan = trialPlans.isEmpty ? null : trialPlans.first;
+                final noTrialPlan = noTrialPlans.isEmpty
+                    ? null
+                    : noTrialPlans.first;
                 return ListView(
                   physics: const BouncingScrollPhysics(
                     parent: AlwaysScrollableScrollPhysics(),
                   ),
                   children: [
-                    // Compact header: the plans and the button must fit on
-                    // the first screen.
+                    // Compact header: plans, the trial timeline and the
+                    // button must all fit on the first screen.
                     Row(
                       children: [
                         Expanded(
@@ -130,30 +138,101 @@ class _PaywallPageState extends ConsumerState<PaywallPage> {
                       ),
                       const SizedBox(height: AppSpacing.md),
                     ],
+                    // The toggle only makes sense when there's an actual
+                    // trial vs. no-trial choice between plans; now that
+                    // every plan carries a trial, noTrialPlan is always
+                    // null and this simply never renders.
+                    if (trialPlan != null && noTrialPlan != null) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      AppCard(
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                l10n.freeTrialToggle,
+                                style: theme.textTheme.bodyLarge,
+                              ),
+                            ),
+                            Switch(
+                              value: selected.hasTrial,
+                              onChanged: (enabled) {
+                                Haptics.selection();
+                                setState(() {
+                                  _selectedProductId =
+                                      (enabled ? trialPlan : noTrialPlan)
+                                          .productId;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                    ] else
+                      const SizedBox(height: AppSpacing.sm),
+                    // The timeline reflects whichever plan is selected,
+                    // independent of whether a toggle is even shown above —
+                    // every plan can carry a trial.
+                    AnimatedSize(
+                      duration: const Duration(milliseconds: 220),
+                      curve: Curves.easeOutCubic,
+                      alignment: Alignment.topCenter,
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 220),
+                        child: selected.hasTrial
+                            ? TrialTimeline(
+                                compact: true,
+                                key: const ValueKey('trial-timeline'),
+                                trialDays: selected.trialDays,
+                              )
+                            : const SizedBox(
+                                key: ValueKey('no-trial-timeline'),
+                                width: double.infinity,
+                              ),
+                      ),
+                    ),
                     const SizedBox(height: AppSpacing.sm),
                     PrimaryButton(
-                      label: l10n.paywallCta,
+                      label: selected.hasTrial
+                          ? l10n.paywallCtaTrial(selected.trialDays)
+                          : l10n.paywallCtaNoTrial,
                       loading: purchasing,
                       onPressed: () => _purchase(selected),
                     ),
-                    const SizedBox(height: AppSpacing.sm),
-                    // Apple 3.1.2 / Play: what is charged, how often, and
-                    // that it renews, right under the button.
-                    Text(
-                      selected.period == 'year'
-                          ? l10n.paywallRenewsYearly(
-                              selected.price,
-                              _storeName(),
-                            )
-                          : l10n.paywallRenewsMonthly(
-                              selected.price,
-                              _storeName(),
-                            ),
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodySmall!.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
+                    if (selected.hasTrial) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        Localizations.localeOf(context).languageCode == 'id'
+                            ? 'Setelah uji coba ${selected.trialDays} hari, '
+                                  '${selected.price} per ${selected.period == 'month' ? 'bulan' : 'tahun'}. '
+                                  'Langganan diperpanjang otomatis sampai dibatalkan di ${_storeName()}.'
+                            : 'After the ${selected.trialDays}-day trial, '
+                                  '${selected.price} per ${selected.period}. '
+                                  'Auto-renews until cancelled in ${_storeName()}.',
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodySmall!.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
                       ),
-                    ),
+                    ],
+                    if (selected.hasTrial) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.check_circle_rounded,
+                            color: AppColors.success,
+                            size: 16,
+                          ),
+                          const SizedBox(width: AppSpacing.xs),
+                          Text(
+                            l10n.noPaymentNow,
+                            style: theme.textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
+                    ],
                     const SizedBox(height: AppSpacing.xl),
                     Text(
                       l10n.paywallSubtitle,
@@ -291,6 +370,34 @@ class _Feature extends StatelessWidget {
   }
 }
 
+class _Badge extends StatelessWidget {
+  const _Badge({required this.text, required this.color});
+
+  final String text;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: 2,
+      ),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusCapsule),
+      ),
+      child: Text(
+        text,
+        style: Theme.of(context).textTheme.labelSmall!.copyWith(
+          color: Colors.white,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+    );
+  }
+}
+
 class _PlanCard extends StatelessWidget {
   const _PlanCard({
     required this.plan,
@@ -369,6 +476,12 @@ class _PlanCard extends StatelessWidget {
                             color: textColor,
                           ),
                         ),
+                        if (plan.hasTrial) ...[
+                          _Badge(
+                            text: l10n.planTrialBadge(plan.trialDays),
+                            color: AppColors.success,
+                          ),
+                        ],
                         if (isYearly && savePercent != null) ...[
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -396,9 +509,12 @@ class _PlanCard extends StatelessWidget {
                     // Apple 3.1.2: the amount billed stays the clearest price
                     // on the card, so it is not shrunk next to the badge.
                     Text(
-                      isYearly
-                          ? l10n.pricePerYear(plan.price)
-                          : l10n.pricePerMonth(plan.price),
+                      switch ((plan.hasTrial, isYearly)) {
+                        (true, true) => l10n.thenPricePerYear(plan.price),
+                        (true, false) => l10n.thenPricePerMonth(plan.price),
+                        (false, true) => l10n.pricePerYear(plan.price),
+                        (false, false) => l10n.pricePerMonth(plan.price),
+                      },
                       style: theme.textTheme.bodyMedium!.copyWith(
                         color: textColor,
                       ),
