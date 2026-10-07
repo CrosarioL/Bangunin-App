@@ -1180,4 +1180,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get obDemoVerified => 'Verified';
+
+  @override
+  String get obReminderTitle => 'We\'ll remind you before your free trial ends';
+
+  @override
+  String obReminderSubtitle(String store) {
+    return 'No surprises. Cancel anytime in $store.';
+  }
+
+  @override
+  String get obReminderToday => 'Today';
+
+  @override
+  String get obReminderTodayBody => 'Every mission, sound and stat unlocked.';
+
+  @override
+  String obReminderDay(int day) {
+    return 'Day $day';
+  }
+
+  @override
+  String get obReminderDayBody =>
+      'We send you a reminder that your trial ends tomorrow.';
+
+  @override
+  String get obReminderEndBody =>
+      'Your subscription starts, unless you\'ve cancelled.';
+
+  @override
+  String get trialReminderTitle => 'Your free trial ends tomorrow';
+
+  @override
+  String trialReminderBody(String store) {
+    return 'Bangunin Premium starts tomorrow. Not for you? Cancel in $store before then.';
+  }
 }

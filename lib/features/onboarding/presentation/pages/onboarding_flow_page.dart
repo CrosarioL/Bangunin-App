@@ -15,6 +15,7 @@ import '../../../../core/services/locale/locale_override_provider.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/l10n_ext.dart';
 import '../../../alarms/presentation/providers/alarms_provider.dart';
+import '../../../paywall/presentation/providers/premium_provider.dart';
 import '../providers/onboarding_provider.dart';
 import 'onboarding_steps.dart';
 import 'onboarding_story_steps.dart';
@@ -73,7 +74,20 @@ class _OnboardingFlowPageState extends ConsumerState<OnboardingFlowPage> {
     PlanStep(onNext: _next),
     NotificationStep(onNext: _next),
     ReadyStep(onNext: _next),
+    // Only when this person is actually offered a trial (plans were fetched
+    // at the start of onboarding): never promise a reminder for a trial
+    // they can't take.
+    if (_trialDays case final days?)
+      TrialReminderStep(trialDays: days, onNext: _next),
   ];
+
+  int? get _trialDays {
+    final plans = ref.watch(premiumPlansProvider).value ?? const [];
+    for (final plan in plans) {
+      if (plan.hasTrial) return plan.trialDays;
+    }
+    return null;
+  }
 
   int get _stepCount => _steps.length;
 

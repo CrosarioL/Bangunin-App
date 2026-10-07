@@ -1185,4 +1185,40 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get obDemoVerified => 'Terverifikasi';
+
+  @override
+  String get obReminderTitle =>
+      'Kami ingatkan sebelum uji coba gratismu berakhir';
+
+  @override
+  String obReminderSubtitle(String store) {
+    return 'Tanpa kejutan. Batalkan kapan saja di $store.';
+  }
+
+  @override
+  String get obReminderToday => 'Hari ini';
+
+  @override
+  String get obReminderTodayBody => 'Semua misi, suara, dan statistik terbuka.';
+
+  @override
+  String obReminderDay(int day) {
+    return 'Hari ke-$day';
+  }
+
+  @override
+  String get obReminderDayBody =>
+      'Kami kirim pengingat bahwa uji cobamu berakhir besok.';
+
+  @override
+  String get obReminderEndBody =>
+      'Langgananmu dimulai, kecuali kamu sudah membatalkan.';
+
+  @override
+  String get trialReminderTitle => 'Uji coba gratismu berakhir besok';
+
+  @override
+  String trialReminderBody(String store) {
+    return 'Bangunin Premium dimulai besok. Nggak cocok? Batalkan di $store sebelum itu.';
+  }
 }

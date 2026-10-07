@@ -339,5 +339,14 @@
   "obPlanDay5": "Hari 5: bangun terasa lebih mudah.",
   "obPlanDay7": "Hari 7: streak seminggu penuh. Kebiasaan baru terbentuk.",
   "obDemoPhotoPrompt": "Foto langit",
-  "obDemoVerified": "Terverifikasi"
+  "obDemoVerified": "Terverifikasi",
+  "obReminderTitle": "Kami ingatkan sebelum uji coba gratismu berakhir",
+  "obReminderSubtitle": "Tanpa kejutan. Batalkan kapan saja di {store}.",
+  "obReminderToday": "Hari ini",
+  "obReminderTodayBody": "Semua misi, suara, dan statistik terbuka.",
+  "obReminderDay": "Hari ke-{day}",
+  "obReminderDayBody": "Kami kirim pengingat bahwa uji cobamu berakhir besok.",
+  "obReminderEndBody": "Langgananmu dimulai, kecuali kamu sudah membatalkan.",
+  "trialReminderTitle": "Uji coba gratismu berakhir besok",
+  "trialReminderBody": "Bangunin Premium dimulai besok. Nggak cocok? Batalkan di {store} sebelum itu."
 }

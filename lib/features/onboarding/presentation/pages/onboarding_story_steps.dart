@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -1154,6 +1155,99 @@ class _PointList extends StatelessWidget {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+/// "We'll remind you before your free trial ends." Shown just before the
+/// paywall, and only when the store actually offers this person a trial.
+/// The promise is real: a successful trial purchase schedules the reminder
+/// (see PurchaseInProgressNotifier), one day before the first charge.
+class TrialReminderStep extends StatelessWidget {
+  const TrialReminderStep({
+    super.key,
+    required this.trialDays,
+    required this.onNext,
+  });
+
+  final int trialDays;
+  final VoidCallback onNext;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final store = defaultTargetPlatform == TargetPlatform.iOS
+        ? 'App Store'
+        : 'Google Play';
+    final rows = [
+      (Icons.lock_open_rounded, l10n.obReminderToday, l10n.obReminderTodayBody),
+      (
+        Icons.notifications_active_rounded,
+        l10n.obReminderDay(trialDays - 1),
+        l10n.obReminderDayBody,
+      ),
+      (
+        Icons.workspace_premium_rounded,
+        l10n.obReminderDay(trialDays),
+        l10n.obReminderEndBody,
+      ),
+    ];
+    return OnboardingStepScaffold(
+      title: l10n.obReminderTitle,
+      subtitle: l10n.obReminderSubtitle(store),
+      ctaLabel: l10n.continueLabel,
+      onNext: onNext,
+      child: AppCard(
+        child: Column(
+          children: [
+            for (var i = 0; i < rows.length; i++)
+              _FadeUp(
+                delay: i * .15,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: i == 1
+                              ? AppColors.primary
+                              : AppColors.primary.withValues(alpha: .18),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          rows[i].$1,
+                          size: 20,
+                          color: i == 1
+                              ? AppColors.onPrimary
+                              : AppColors.primary,
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              rows[i].$2,
+                              style: theme.textTheme.titleSmall!.copyWith(
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            Text(rows[i].$3, style: theme.textTheme.bodyMedium),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

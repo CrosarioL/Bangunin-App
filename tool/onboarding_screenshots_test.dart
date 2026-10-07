@@ -158,6 +158,11 @@ void main() {
       () => ReadyStep(onNext: () {}, now: DateTime(2026, 10, 6, 21)),
       const Duration(seconds: 1),
     ),
+    (
+      '20_trial_reminder',
+      () => TrialReminderStep(trialDays: 3, onNext: () {}),
+      const Duration(seconds: 2),
+    ),
   ];
 
   for (final (name, build, wait) in shots) {

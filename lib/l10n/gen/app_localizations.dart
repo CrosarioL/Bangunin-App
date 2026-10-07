@@ -2137,6 +2137,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Verified'**
   String get obDemoVerified;
+
+  /// No description provided for @obReminderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll remind you before your free trial ends'**
+  String get obReminderTitle;
+
+  /// No description provided for @obReminderSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No surprises. Cancel anytime in {store}.'**
+  String obReminderSubtitle(String store);
+
+  /// No description provided for @obReminderToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get obReminderToday;
+
+  /// No description provided for @obReminderTodayBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Every mission, sound and stat unlocked.'**
+  String get obReminderTodayBody;
+
+  /// No description provided for @obReminderDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day}'**
+  String obReminderDay(int day);
+
+  /// No description provided for @obReminderDayBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We send you a reminder that your trial ends tomorrow.'**
+  String get obReminderDayBody;
+
+  /// No description provided for @obReminderEndBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your subscription starts, unless you\'ve cancelled.'**
+  String get obReminderEndBody;
+
+  /// No description provided for @trialReminderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your free trial ends tomorrow'**
+  String get trialReminderTitle;
+
+  /// No description provided for @trialReminderBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Bangunin Premium starts tomorrow. Not for you? Cancel in {store} before then.'**
+  String trialReminderBody(String store);
 }
 
 class _AppLocalizationsDelegate

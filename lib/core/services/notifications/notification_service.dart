@@ -170,5 +170,23 @@ class NotificationService {
 
   Future<void> cancel(int id) => _plugin.cancel(id: id);
 
-  Future<void> cancelAll() => _plugin.cancelAll();
+  /// Notifications that outlive alarm rescheduling. The alarm scheduler
+  /// clears everything on each resync and re-adds the alarms; the trial
+  /// reminder is not an alarm and must survive that.
+  static const preservedIds = {2000000001};
+
+  /// Cancels every pending and shown notification except [preservedIds].
+  Future<void> cancelAll() async {
+    final pending = await _plugin.pendingNotificationRequests();
+    if (!pending.any((request) => preservedIds.contains(request.id))) {
+      await _plugin.cancelAll();
+      return;
+    }
+    for (final request in pending) {
+      if (!preservedIds.contains(request.id)) await cancel(request.id);
+    }
+    for (final id in await activeIds()) {
+      if (!preservedIds.contains(id)) await cancel(id);
+    }
+  }
 }

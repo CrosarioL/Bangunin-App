@@ -2,7 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/di/providers.dart';
+import '../../../../core/services/locale/locale_override_provider.dart';
+import '../../../../core/services/notifications/notification_service.dart';
 import '../../../../core/services/subscriptions/subscription_service.dart';
+import '../../../../core/utils/current_locale.dart';
 
 /// Reactive premium entitlement, bridged from the subscription service's
 /// ValueListenable so widgets and the router can watch it.
@@ -46,6 +49,10 @@ final premiumPlansProvider = FutureProvider<List<PremiumPlan>>((ref) async {
 
 /// In-flight purchase state so the paywall can disable buttons and show a
 /// spinner on the tapped plan.
+/// The single "your free trial ends tomorrow" notification. Listed in
+/// [NotificationService.preservedIds] so alarm resyncs don't wipe it.
+const trialReminderNotificationId = 2000000001;
+
 final purchaseInProgressProvider =
     NotifierProvider<PurchaseInProgressNotifier, bool>(
       PurchaseInProgressNotifier.new,
@@ -59,12 +66,40 @@ class PurchaseInProgressNotifier extends Notifier<bool> {
     if (state) return false;
     state = true;
     try {
-      return await ref.read(subscriptionServiceProvider).purchase(plan);
+      final bought = await ref.read(subscriptionServiceProvider).purchase(plan);
+      if (bought && plan.hasTrial) await _scheduleTrialReminder(plan);
+      return bought;
     } on Exception catch (error, stackTrace) {
       await ref.read(crashReporterProvider).recordError(error, stackTrace);
       return false;
     } finally {
       state = false;
+    }
+  }
+
+  /// Keeps onboarding's promise: a reminder one day before the trial turns
+  /// into a paid subscription. Best effort; a failure never blocks the
+  /// purchase that just succeeded.
+  Future<void> _scheduleTrialReminder(PremiumPlan plan, {DateTime? now}) async {
+    try {
+      final l10n = currentLocalizations(
+        override: ref.read(localeOverrideProvider),
+      );
+      final store = defaultTargetPlatform == TargetPlatform.iOS
+          ? 'App Store'
+          : 'Google Play';
+      await ref
+          .read(notificationServiceProvider)
+          .schedule(
+            id: trialReminderNotificationId,
+            title: l10n.trialReminderTitle,
+            body: l10n.trialReminderBody(store),
+            at: (now ?? DateTime.now()).add(Duration(days: plan.trialDays - 1)),
+            payload: 'trial_reminder',
+            urgent: false,
+          );
+    } on Exception catch (error, stackTrace) {
+      await ref.read(crashReporterProvider).recordError(error, stackTrace);
     }
   }
 

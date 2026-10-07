@@ -230,6 +230,7 @@ void main() {
       'sound': () => SoundStep(onNext: () {}),
       'mission': () => MissionStep(onNext: () {}),
       'permissions': () => NotificationStep(onNext: () {}),
+      'trial reminder': () => TrialReminderStep(trialDays: 3, onNext: () {}),
       'ready': () => ReadyStep(onNext: () {}, now: DateTime(2026, 10, 6, 21)),
     };
     for (final (device, size, top, bottom) in [
@@ -335,5 +336,15 @@ void main() {
         });
       }
     }
+  });
+
+  testWidgets('the trial reminder spells out day 2 and day 3', (tester) async {
+    await _pump(tester, TrialReminderStep(trialDays: 3, onNext: () {}));
+    expect(
+      find.text("We'll remind you before your free trial ends"),
+      findsOneWidget,
+    );
+    expect(find.text('Day 2'), findsOneWidget);
+    expect(find.text('Day 3'), findsOneWidget);
   });
 }

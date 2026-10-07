@@ -619,5 +619,35 @@
   "obPlanDay5": "Day 5: getting up feels easier.",
   "obPlanDay7": "Day 7: a full week's streak. A new habit.",
   "obDemoPhotoPrompt": "Take a photo of the sky",
-  "obDemoVerified": "Verified"
+  "obDemoVerified": "Verified",
+  "obReminderTitle": "We'll remind you before your free trial ends",
+  "obReminderSubtitle": "No surprises. Cancel anytime in {store}.",
+  "@obReminderSubtitle": {
+    "placeholders": {
+      "store": {
+        "type": "String"
+      }
+    }
+  },
+  "obReminderToday": "Today",
+  "obReminderTodayBody": "Every mission, sound and stat unlocked.",
+  "obReminderDay": "Day {day}",
+  "@obReminderDay": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "obReminderDayBody": "We send you a reminder that your trial ends tomorrow.",
+  "obReminderEndBody": "Your subscription starts, unless you've cancelled.",
+  "trialReminderTitle": "Your free trial ends tomorrow",
+  "trialReminderBody": "Bangunin Premium starts tomorrow. Not for you? Cancel in {store} before then.",
+  "@trialReminderBody": {
+    "placeholders": {
+      "store": {
+        "type": "String"
+      }
+    }
+  }
 }
