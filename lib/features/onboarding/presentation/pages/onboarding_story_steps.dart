@@ -547,38 +547,42 @@ class _DoneScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [AppColors.nightMid, AppColors.horizon],
+    // Expanded to the whole phone screen: inside the scene switcher it
+    // is offered loose constraints and otherwise shrinks to its text.
+    return SizedBox.expand(
+      child: DecoratedBox(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [AppColors.nightMid, AppColors.horizon],
+          ),
         ),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const BanguninMascot(
-            pose: MascotPose.celebrating,
-            size: 110,
-            animateIdle: false,
-            interactive: false,
-          ),
-          const SizedBox(height: AppSpacing.md),
-          const Icon(
-            Icons.notifications_off_rounded,
-            color: Colors.white,
-            size: 30,
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            l10n.obDemoGoodMorning,
-            style: theme.textTheme.titleLarge!.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w900,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const BanguninMascot(
+              pose: MascotPose.celebrating,
+              size: 110,
+              animateIdle: false,
+              interactive: false,
             ),
-          ),
-        ],
+            const SizedBox(height: AppSpacing.md),
+            const Icon(
+              Icons.notifications_off_rounded,
+              color: Colors.white,
+              size: 30,
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              l10n.obDemoGoodMorning,
+              style: theme.textTheme.titleLarge!.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
