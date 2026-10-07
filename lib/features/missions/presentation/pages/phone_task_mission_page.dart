@@ -121,6 +121,7 @@ class _PhoneTaskMissionPageState extends ConsumerState<PhoneTaskMissionPage> {
           ),
           actions: [AlarmActivePill(active: !widget.isPreview)],
         ),
+        bottomNavigationBar: widget.isPreview ? null : const MissionExitBar(),
         body: alarm == null
             ? const Center(child: CircularProgressIndicator())
             : SafeArea(

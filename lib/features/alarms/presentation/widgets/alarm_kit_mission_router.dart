@@ -22,8 +22,9 @@ import '../providers/alarms_provider.dart';
 /// On mission routing: AlarmKit presents its own system alert. For alarms with
 /// a mission, tapping either Stop or the secondary button runs
 /// `StartMissionIntent`, which opens the app and leaves the alarm id behind.
-/// This picks it up and opens the ringing screen, where Bangunin starts its
-/// own audio and guides the user into the mission.
+/// This picks it up and opens the mission straight away (over the ringing
+/// screen, which starts Bangunin's own audio and is where backing out of the
+/// mission returns to).
 ///
 /// Checked on launch *and* on resume, because the app may already have been
 /// in memory when the alarm fired.
@@ -85,7 +86,11 @@ class _AlarmKitMissionRouterState extends ConsumerState<AlarmKitMissionRouter>
       final alarm = await ref.read(alarmRepositoryProvider).getById(alarmId);
       if (alarm == null || !mounted) return;
 
-      ref.read(appRouterProvider).go(Routes.ringing(alarmId));
+      // The user already pressed the alarm's button on the lock screen: open
+      // the mission itself, not the ringing screen and a second button.
+      ref
+          .read(appRouterProvider)
+          .go(Routes.ringing(alarmId, startMission: true));
     } finally {
       _checking = false;
     }

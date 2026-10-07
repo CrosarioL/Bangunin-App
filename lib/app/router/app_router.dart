@@ -125,8 +125,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: Routes.ringingPattern,
-        builder: (context, state) =>
-            RingingPage(alarmId: state.pathParameters['id']!),
+        builder: (context, state) => RingingPage(
+          alarmId: state.pathParameters['id']!,
+          startMission: state.uri.queryParameters['mission'] == '1',
+        ),
       ),
       GoRoute(
         path: Routes.photoMissionPattern,

@@ -21,15 +21,22 @@ import '../../../missions/presentation/widgets/mission_experience.dart';
 import '../mission_flow.dart';
 import '../providers/ringing_provider.dart';
 import '../widgets/alarm_video_background.dart';
-import '../widgets/emergency_escape_sheet.dart';
 
 /// Full-screen takeover while an alarm rings. The only exits are the
 /// mission (or dismiss, for mission-less alarms) and snooze while snoozes
 /// remain. Back gestures are blocked.
 class RingingPage extends ConsumerStatefulWidget {
-  const RingingPage({super.key, required this.alarmId});
+  const RingingPage({
+    super.key,
+    required this.alarmId,
+    this.startMission = false,
+  });
 
   final String alarmId;
+
+  /// Open the mission as soon as the ring starts (arrived from the
+  /// lock-screen alarm's button, which already meant "start the mission").
+  final bool startMission;
 
   @override
   ConsumerState<RingingPage> createState() => _RingingPageState();
@@ -67,6 +74,9 @@ class _RingingPageState extends ConsumerState<RingingPage>
         return;
       }
       setState(() => _alarm = alarm);
+      if (widget.startMission && alarm.missionType != MissionType.none) {
+        await _startMission(alarm);
+      }
     });
   }
 
@@ -251,7 +261,7 @@ class _RingingPageState extends ConsumerState<RingingPage>
                               const SizedBox(height: AppSpacing.md),
                               if (session?.canSnooze ?? false)
                                 TextButton(
-                                  onPressed: _snooze,
+                                  onPressed: () => runSnooze(context, ref),
                                   child: Text(
                                     l10n.snoozeWithRemaining(
                                       alarm.snoozeMinutes,
@@ -270,7 +280,8 @@ class _RingingPageState extends ConsumerState<RingingPage>
                               // dismiss button already is the way out.
                               if (alarm.missionType != MissionType.none)
                                 TextButton(
-                                  onPressed: _emergencyEscape,
+                                  onPressed: () =>
+                                      runEmergencyEscape(context, ref),
                                   child: Text(
                                     l10n.emergencyLink,
                                     textAlign: TextAlign.center,
@@ -307,26 +318,6 @@ class _RingingPageState extends ConsumerState<RingingPage>
   Future<void> _dismissNoMission() async {
     await ref.read(ringingSessionProvider.notifier).complete();
     if (mounted) context.go(Routes.wakeSuccess);
-  }
-
-  Future<void> _emergencyEscape() async {
-    final notifier = ref.read(ringingSessionProvider.notifier);
-    final escaped = await showEmergencyEscapeSheet(
-      context,
-      usedThisMonth: notifier.emergencyEscapesThisMonth(),
-    );
-    if (!escaped || !mounted) return;
-    await notifier.escape();
-    if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(context.l10n.emergencyDone)));
-    context.go(Routes.home);
-  }
-
-  Future<void> _snooze() async {
-    final snoozed = await ref.read(ringingSessionProvider.notifier).snooze();
-    if (snoozed && mounted) context.go(Routes.home);
   }
 }
 

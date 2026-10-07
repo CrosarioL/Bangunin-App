@@ -242,6 +242,7 @@ class _PhotoMissionPageState extends ConsumerState<PhotoMissionPage> {
           ),
           actions: [AlarmActivePill(active: !widget.isPreview)],
         ),
+        bottomNavigationBar: widget.isPreview ? null : const MissionExitBar(),
         body: alarm == null
             ? const Center(child: CircularProgressIndicator())
             : SafeArea(

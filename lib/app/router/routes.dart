@@ -10,7 +10,10 @@ abstract final class Routes {
   static String alarmEdit(String id) => '/alarm/$id/edit';
   static const alarmEditPattern = '/alarm/:id/edit';
 
-  static String ringing(String alarmId) => '/ringing/$alarmId';
+  /// [startMission]: opened from the lock-screen alarm's button, so go
+  /// straight into the mission rather than showing the ringing screen first.
+  static String ringing(String alarmId, {bool startMission = false}) =>
+      '/ringing/$alarmId${startMission ? '?mission=1' : ''}';
   static const ringingPattern = '/ringing/:id';
 
   static String photoMission(String alarmId) => '/mission/photo/$alarmId';

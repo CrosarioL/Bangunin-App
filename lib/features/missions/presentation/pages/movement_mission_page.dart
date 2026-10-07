@@ -326,6 +326,7 @@ class _MovementMissionPageState extends ConsumerState<MovementMissionPage>
           ),
           actions: [AlarmActivePill(active: !widget.isPreview)],
         ),
+        bottomNavigationBar: widget.isPreview ? null : const MissionExitBar(),
         body: _error != null
             ? Center(
                 child: Padding(
