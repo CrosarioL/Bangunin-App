@@ -1,7 +1,16 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:wakio/app/di/providers.dart';
 import 'package:wakio/app/theme/app_theme.dart';
+import 'package:wakio/app/widgets/app_card.dart';
+import 'package:wakio/app/widgets/bangunin_mascot.dart';
+import 'package:wakio/app/widgets/primary_button.dart';
+import 'package:wakio/core/services/audio/alarm_audio_service.dart';
+import 'package:wakio/features/onboarding/presentation/pages/onboarding_steps.dart';
 import 'package:wakio/features/onboarding/presentation/pages/onboarding_story_steps.dart';
 import 'package:wakio/features/onboarding/presentation/providers/onboarding_provider.dart';
 import 'package:wakio/l10n/gen/app_localizations.dart';
@@ -15,6 +24,14 @@ class _Seeded extends OnboardingAnswersNotifier {
 
   @override
   OnboardingAnswers build() => _initial;
+}
+
+class _SilentAudio implements AlarmAudioService {
+  @override
+  Future<void> stopPreview() async {}
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => null;
 }
 
 Future<ProviderContainer> _pump(
@@ -58,9 +75,12 @@ void main() {
     await tester.pump(const Duration(milliseconds: 3600));
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.text('Finish the mission to stop it'), findsOneWidget);
-    expect(find.textContaining('= ?'), findsOneWidget);
+    expect(find.text('Take a photo of the sky'), findsOneWidget);
+    // Shutter, then the on-device check passes.
+    await tester.pump(const Duration(milliseconds: 2600));
+    expect(find.text('Verified'), findsOneWidget);
 
-    await tester.pump(const Duration(milliseconds: 3600));
+    await tester.pump(const Duration(milliseconds: 1000));
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.text("You're up. Alarm off."), findsOneWidget);
     expect(find.text('Good morning!'), findsOneWidget);
@@ -142,5 +162,178 @@ void main() {
       find.textContaining(RegExp('free|trial', caseSensitive: false)),
       findsNothing,
     );
+  });
+
+  for (final (name, size, top, bottom) in [
+    ('iPhone SE', const Size(375, 667), 20.0, 0.0),
+    ('iPhone 14', const Size(390, 844), 47.0, 34.0),
+  ]) {
+    testWidgets('the whole demo fits above the button on $name', (
+      tester,
+    ) async {
+      for (final (family, path) in [
+        ('Baloo2', 'assets/fonts/Baloo2.ttf'),
+        ('Nunito', 'assets/fonts/Nunito.ttf'),
+      ]) {
+        final bytes = File(path).readAsBytesSync();
+        await (FontLoader(
+          family,
+        )..addFont(Future.value(ByteData.sublistView(bytes)))).load();
+      }
+      tester.view.physicalSize = size;
+      tester.view.devicePixelRatio = 1;
+      tester.view.padding = FakeViewPadding(top: top, bottom: bottom);
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        testApp(
+          child: Scaffold(
+            body: SafeArea(child: DemoStep(onNext: () {})),
+          ),
+        ),
+      );
+      await tester.pump(const Duration(seconds: 1));
+
+      expect(tester.takeException(), isNull);
+      final demo = tester.getRect(find.byType(ProductDemo));
+      final button = tester.getRect(find.text('Continue'));
+      // Test motion is off, so the demo holds its mid-mission frame.
+      final caption = tester.getRect(
+        find.text('Finish the mission to stop it'),
+      );
+      expect(demo.top, greaterThanOrEqualTo(0));
+      expect(caption.bottom, lessThan(button.top));
+      expect(demo.bottom, lessThanOrEqualTo(size.height - bottom));
+    });
+  }
+
+  group('every story screen fits above its button', () {
+    final screens = <String, Widget Function()>{
+      'hook': () => WelcomeStep(onNext: () {}),
+      'problem': () => StoryStep(
+        pose: MascotPose.sleeping,
+        title: 'You turn your alarm off in your sleep.',
+        body:
+            "Snooze, snooze, and you're late again. It isn't laziness: a "
+            'half-asleep thumb always wins.',
+        onNext: () {},
+      ),
+      'name': () => NameStep(onNext: () {}),
+      'snooze': () => SnoozeStep(onNext: () {}),
+      'cost': () => CostStep(onNext: () {}),
+      'lose': () => LoseStep(onNext: () {}),
+      'goal': () => GoalStep(onNext: () {}),
+      'heard from': () => HeardFromStep(onNext: () {}),
+      'proof': () => ProofStep(onNext: () {}),
+      'plan': () => PlanStep(onNext: () {}),
+      'wake time': () => WakeGoalStep(onNext: () {}),
+      'sound': () => SoundStep(onNext: () {}),
+      'mission': () => MissionStep(onNext: () {}),
+      'permissions': () => NotificationStep(onNext: () {}),
+      'ready': () => ReadyStep(onNext: () {}, now: DateTime(2026, 10, 6, 21)),
+    };
+    for (final (device, size, top, bottom) in [
+      ('iPhone SE', const Size(375, 667), 20.0, 0.0),
+      ('iPhone 14', const Size(390, 844), 47.0, 34.0),
+    ]) {
+      for (final entry in screens.entries) {
+        testWidgets('${entry.key} on $device', (tester) async {
+          for (final (family, path) in [
+            ('Baloo2', 'assets/fonts/Baloo2.ttf'),
+            ('Nunito', 'assets/fonts/Nunito.ttf'),
+          ]) {
+            final bytes = File(path).readAsBytesSync();
+            await (FontLoader(
+              family,
+            )..addFont(Future.value(ByteData.sublistView(bytes)))).load();
+          }
+          tester.view.physicalSize = size;
+          tester.view.devicePixelRatio = 1;
+          tester.view.padding = FakeViewPadding(top: top, bottom: bottom);
+          addTearDown(tester.view.reset);
+          await tester.pumpWidget(
+            ProviderScope(
+              overrides: [
+                alarmAudioServiceProvider.overrideWithValue(_SilentAudio()),
+                onboardingAnswersProvider.overrideWith(
+                  () => _Seeded(
+                    const OnboardingAnswers(
+                      name: 'Rina',
+                      snooze: SnoozeHabit.some,
+                      reason: WakeReason.work,
+                    ),
+                  ),
+                ),
+              ],
+              child: testApp(
+                child: Scaffold(body: SafeArea(child: entry.value())),
+              ),
+            ),
+          );
+          await tester.pump(const Duration(seconds: 2));
+
+          expect(tester.takeException(), isNull, reason: 'no overflow');
+          final button = tester.getRect(find.byType(PrimaryButton));
+          expect(button.bottom, lessThanOrEqualTo(size.height - bottom));
+          // Whatever is shown above the button ends before it starts (or
+          // scrolls, but never sits underneath it).
+          final scroll = find.byType(SingleChildScrollView);
+          if (scroll.evaluate().isNotEmpty) {
+            expect(
+              tester.getRect(scroll.first).bottom,
+              lessThanOrEqualTo(button.top),
+            );
+          }
+          // Cards hug their content instead of filling the screen.
+          final cards = find.byType(AppCard);
+          if (const {
+                'problem',
+                'snooze',
+                'cost',
+                'lose',
+                'goal',
+                'heard from',
+                'proof',
+                'plan',
+              }.contains(entry.key) &&
+              cards.evaluate().isNotEmpty) {
+            final card = tester.getSize(cards.first).height;
+            final column = tester
+                .getSize(
+                  find
+                      .descendant(
+                        of: cards.first,
+                        matching: find.byType(Column),
+                      )
+                      .first,
+                )
+                .height;
+            expect(
+              card,
+              lessThan(column + 60),
+              reason: 'card height follows its content',
+            );
+          }
+          // Everything fits on screen without scrolling.
+          for (final state in tester.stateList<ScrollableState>(
+            find.byType(Scrollable),
+          )) {
+            if (state.position.axis != Axis.vertical) continue;
+            expect(
+              state.position.maxScrollExtent,
+              lessThan(1),
+              reason: '${entry.key} must fit on $device without scrolling',
+            );
+          }
+          if (entry.key == 'name') {
+            expect(
+              tester.getSize(find.byType(AppCard)).height,
+              lessThan(120),
+              reason: 'the name box is a field, not the whole screen',
+            );
+          }
+        });
+      }
+    }
   });
 }

@@ -47,13 +47,33 @@ class _SwipeCarouselState extends State<SwipeCarousel> {
     super.dispose();
   }
 
+  /// Room the indicator below the cards needs (gap + dots or counter).
+  static const _indicatorSpace = AppSpacing.md + 24;
+
   @override
   Widget build(BuildContext context) {
+    // [SwipeCarousel.height] is the preferred card height. When the parent
+    // offers less (a short phone, a step with a long title), the cards
+    // shrink to fit instead of running under whatever sits below.
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final height = constraints.hasBoundedHeight
+            ? (constraints.maxHeight - _indicatorSpace).clamp(
+                160.0,
+                widget.height,
+              )
+            : widget.height;
+        return _build(context, height);
+      },
+    );
+  }
+
+  Widget _build(BuildContext context, double height) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(
-          height: widget.height,
+          height: height,
           child: PageView.builder(
             controller: _controller,
             itemCount: widget.itemCount,

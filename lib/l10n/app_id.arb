@@ -337,5 +337,7 @@
   "obPlanDay1": "Hari 1: alarm berbunyi jam {time}. Bangun dan selesaikan misinya.",
   "obPlanDay3": "Hari 3: tanpa snooze. Tubuhmu mulai menyesuaikan.",
   "obPlanDay5": "Hari 5: bangun terasa lebih mudah.",
-  "obPlanDay7": "Hari 7: streak seminggu penuh. Kebiasaan baru terbentuk."
+  "obPlanDay7": "Hari 7: streak seminggu penuh. Kebiasaan baru terbentuk.",
+  "obDemoPhotoPrompt": "Foto langit",
+  "obDemoVerified": "Terverifikasi"
 }

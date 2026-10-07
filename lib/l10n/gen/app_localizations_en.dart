@@ -1174,4 +1174,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get obPlanDay7 => 'Day 7: a full week\'s streak. A new habit.';
+
+  @override
+  String get obDemoPhotoPrompt => 'Take a photo of the sky';
+
+  @override
+  String get obDemoVerified => 'Verified';
 }

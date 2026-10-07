@@ -11,7 +11,6 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/widgets/app_card.dart';
 import '../../../../app/widgets/bangunin_mascot.dart';
-import '../../../../app/widgets/max_width_box.dart';
 import '../../../../app/widgets/primary_button.dart';
 import '../../../../app/widgets/swipe_carousel.dart';
 import '../../../../core/services/audio/alarm_audio_service.dart';
@@ -41,52 +40,53 @@ class WelcomeStep extends StatelessWidget {
     // The hook gets the whole slide: one chick and the line, straight on the
     // sky. No header card (that would put a second chick on screen) — the
     // later steps keep theirs because they frame a control underneath.
-    return MaxWidthBox(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xl),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Spacer(),
-            // Staged entrance: chick, then the problem, then — on its own
-            // beat — the promise lands with a small punch.
-            const _Reveal(
-              start: 0,
-              end: 0.35,
-              child: Center(child: BanguninMascot(size: 230, flap: true)),
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            _Reveal(
-              start: 0.2,
-              end: 0.55,
-              child: Text(
-                l10n.onboardingWelcomeTitle,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.headlineMedium!.copyWith(
-                  fontWeight: FontWeight.w900,
-                  height: 1.15,
-                ),
+    return OnboardingFullSlide(
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Staged entrance: chick, then the problem, then — on its own
+          // beat — the promise lands with a small punch.
+          _Reveal(
+            start: 0,
+            end: 0.35,
+            child: Center(
+              child: BanguninMascot(
+                size: OnboardingFullSlide.mascotSize(context, 230),
+                flap: true,
               ),
             ),
-            const SizedBox(height: AppSpacing.md),
-            _Reveal(
-              start: 0.65,
-              end: 1,
-              punch: true,
-              child: Text(
-                l10n.onboardingWelcomeSubtitle,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.titleMedium!.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.78),
-                  fontWeight: FontWeight.w700,
-                ),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          _Reveal(
+            start: 0.2,
+            end: 0.55,
+            child: Text(
+              l10n.onboardingWelcomeTitle,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.headlineMedium!.copyWith(
+                fontWeight: FontWeight.w900,
+                height: 1.15,
               ),
             ),
-            const Spacer(),
-            PrimaryButton(label: l10n.getStarted, onPressed: onNext),
-          ],
-        ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          _Reveal(
+            start: 0.65,
+            end: 1,
+            punch: true,
+            child: Text(
+              l10n.onboardingWelcomeSubtitle,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleMedium!.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.78),
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
       ),
+      button: PrimaryButton(label: l10n.getStarted, onPressed: onNext),
     );
   }
 }
@@ -278,6 +278,9 @@ class _SoundStepState extends ConsumerState<SoundStep> {
       subtitle: l10n.onboardingSoundSubtitle,
       ctaLabel: l10n.continueLabel,
       fullBleedChild: true,
+      // The carousel sizes its cards to the space left, never under the
+      // button.
+      scrollable: false,
       onNext: () {
         unawaited(_audio.stopPreview());
         widget.onNext();
@@ -334,6 +337,9 @@ class MissionStep extends ConsumerWidget {
       subtitle: l10n.onboardingMissionSubtitle,
       ctaLabel: l10n.continueLabel,
       fullBleedChild: true,
+      // The carousel sizes its cards to the space left, never under the
+      // button.
+      scrollable: false,
       onNext: onNext,
       child: Center(
         child: SwipeCarousel(
@@ -404,15 +410,15 @@ class _NotificationStepState extends ConsumerState<NotificationStep> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 88,
-                height: 88,
+                width: onboardingIsShortScreen(context) ? 60 : 88,
+                height: onboardingIsShortScreen(context) ? 60 : 88,
                 decoration: BoxDecoration(
                   color: AppColors.primary.withValues(alpha: 0.14),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.notifications_active_rounded,
-                  size: 44,
+                  size: onboardingIsShortScreen(context) ? 30 : 44,
                   color: AppColors.primary,
                 ),
               ),
@@ -494,7 +500,10 @@ class ReadyStep extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const BanguninMascot(pose: MascotPose.crowing, size: 130),
+            BanguninMascot(
+              pose: MascotPose.crowing,
+              size: onboardingIsShortScreen(context) ? 76 : 120,
+            ),
             const SizedBox(height: AppSpacing.lg),
             // Exactly what the home screen will show, so the first thing
             // after the paywall is already familiar.

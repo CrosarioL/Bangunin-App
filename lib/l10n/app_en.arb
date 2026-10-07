@@ -617,5 +617,7 @@
   },
   "obPlanDay3": "Day 3: no snoozing. Your body starts to adjust.",
   "obPlanDay5": "Day 5: getting up feels easier.",
-  "obPlanDay7": "Day 7: a full week's streak. A new habit."
+  "obPlanDay7": "Day 7: a full week's streak. A new habit.",
+  "obDemoPhotoPrompt": "Take a photo of the sky",
+  "obDemoVerified": "Verified"
 }

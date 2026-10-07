@@ -7,7 +7,6 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/widgets/app_card.dart';
 import '../../../../app/widgets/bangunin_mascot.dart';
-import '../../../../app/widgets/max_width_box.dart';
 import '../../../../app/widgets/primary_button.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/l10n_ext.dart';
@@ -43,53 +42,49 @@ class StoryStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return MaxWidthBox(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xl),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Spacer(),
-            _FadeUp(
-              child: Center(
-                child: BanguninMascot(
-                  pose: pose,
-                  size: 190,
-                  flap: pose == MascotPose.happy,
-                ),
+    return OnboardingFullSlide(
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _FadeUp(
+            child: Center(
+              child: BanguninMascot(
+                pose: pose,
+                size: OnboardingFullSlide.mascotSize(context, 190),
+                flap: pose == MascotPose.happy,
               ),
             ),
-            const SizedBox(height: AppSpacing.xl),
-            _FadeUp(
-              delay: .15,
-              child: Text(
-                title,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.headlineSmall!.copyWith(
-                  fontWeight: FontWeight.w900,
-                  height: 1.2,
-                ),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          _FadeUp(
+            delay: .15,
+            child: Text(
+              title,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.headlineSmall!.copyWith(
+                fontWeight: FontWeight.w900,
+                height: 1.2,
               ),
             ),
-            const SizedBox(height: AppSpacing.md),
-            _FadeUp(
-              delay: .3,
-              child: Text(
-                body,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.titleMedium!.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: .78),
-                  fontWeight: FontWeight.w600,
-                ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          _FadeUp(
+            delay: .3,
+            child: Text(
+              body,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleMedium!.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: .78),
+                fontWeight: FontWeight.w600,
               ),
             ),
-            const Spacer(),
-            PrimaryButton(
-              label: ctaLabel ?? context.l10n.continueLabel,
-              onPressed: onNext,
-            ),
-          ],
-        ),
+          ),
+        ],
+      ),
+      button: PrimaryButton(
+        label: ctaLabel ?? context.l10n.continueLabel,
+        onPressed: onNext,
       ),
     );
   }
@@ -124,8 +119,8 @@ class _FadeUp extends StatelessWidget {
 }
 
 /// "How it works": a looping, animated phone showing one Bangunin morning —
-/// the alarm rings, the mission starts, three sums get solved, the alarm
-/// goes quiet. Drawn in Flutter, so it follows the app's language and theme
+/// the alarm rings, the mission starts, a photo of the sky is taken and
+/// verified on the phone, the alarm goes quiet. Drawn in Flutter, so it follows the app's language and theme
 /// and adds nothing to the download.
 class DemoStep extends StatelessWidget {
   const DemoStep({super.key, required this.onNext});
@@ -140,7 +135,12 @@ class DemoStep extends StatelessWidget {
       subtitle: l10n.obDemoSubtitle,
       ctaLabel: l10n.continueLabel,
       onNext: onNext,
-      child: const Center(child: ProductDemo()),
+      scrollable: false,
+      // Scales the whole demo down to the space available, so on a small
+      // phone it shrinks instead of running off the bottom of the screen.
+      child: const Center(
+        child: FittedBox(fit: BoxFit.scaleDown, child: ProductDemo()),
+      ),
     );
   }
 }
@@ -188,7 +188,7 @@ class _ProductDemoState extends State<ProductDemo>
 
   // Timeline (fraction of the loop):
   //  0.00–0.30 ringing, the Start mission button pulses, then is "tapped"
-  //  0.30–0.75 math mission: three sums solved one after another
+  //  0.30–0.75 photo mission: frame the sky, snap, verified
   //  0.75–1.00 done: alarm off, good morning
   static _DemoScene _sceneAt(double t) => t < .30
       ? _DemoScene.ringing
@@ -221,7 +221,7 @@ class _ProductDemoState extends State<ProductDemo>
                     key: const ValueKey('ringing'),
                     t: t / .30,
                   ),
-                  _DemoScene.mission => _MathScreen(
+                  _DemoScene.mission => _PhotoScreen(
                     key: const ValueKey('mission'),
                     t: (t - .30) / .45,
                   ),
@@ -363,104 +363,178 @@ class _RingingScreen extends StatelessWidget {
   }
 }
 
-class _MathScreen extends StatelessWidget {
-  const _MathScreen({super.key, required this.t});
+/// The photo mission in miniature: the sky in the viewfinder, a scanning
+/// frame, the shutter, then the on-device check passing.
+class _PhotoScreen extends StatelessWidget {
+  const _PhotoScreen({super.key, required this.t});
 
+  /// Progress through this scene, 0..1.
   final double t;
-
-  static const _sums = [('7 + 5', '12'), ('9 × 3', '27'), ('18 − 4', '14')];
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final index = (t * _sums.length).floor().clamp(0, _sums.length - 1);
-    final within = (t * _sums.length - index).clamp(0.0, 1.0);
-    final (question, answer) = _sums[index];
-    // Type the answer digit by digit, then hold it as "correct".
-    final typed = answer.substring(
-      0,
-      (within * 1.6 * answer.length).floor().clamp(0, answer.length),
-    );
-    final solved = typed.length == answer.length;
-    return Padding(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      child: Column(
-        children: [
-          const SizedBox(height: AppSpacing.sm),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(99),
-            child: LinearProgressIndicator(
-              value: (index + (solved ? 1 : 0)) / _sums.length,
-              minHeight: 6,
-              backgroundColor: Colors.white.withValues(alpha: .15),
-              color: AppColors.sunsetViolet,
+    final l10n = context.l10n;
+    final flash = t > .52 && t < .62 ? 1 - ((t - .52) / .10) : 0.0;
+    final verified = t >= .6;
+    final scan = (t / .52).clamp(0.0, 1.0);
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // The viewfinder: a morning sky with drifting clouds.
+        const DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFF4FA3F7), Color(0xFFBFE3FF)],
             ),
           ),
-          const Spacer(),
-          Text(
-            '$question = ?',
-            style: theme.textTheme.headlineSmall!.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w800,
-            ),
+        ),
+        Positioned(
+          top: 70,
+          left: 20 + 14 * t,
+          child: Icon(
+            Icons.cloud_rounded,
+            size: 54,
+            color: Colors.white.withValues(alpha: .95),
           ),
-          const SizedBox(height: AppSpacing.md),
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 8),
+        ),
+        Positioned(
+          top: 150,
+          right: 18 + 10 * t,
+          child: Icon(
+            Icons.cloud_rounded,
+            size: 40,
+            color: Colors.white.withValues(alpha: .85),
+          ),
+        ),
+        // What to photograph.
+        Positioned(
+          top: 14,
+          left: 10,
+          right: 10,
+          child: _Chip(
+            icon: Icons.photo_camera_rounded,
+            label: l10n.obDemoPhotoPrompt,
+            color: Colors.black.withValues(alpha: .45),
+          ),
+        ),
+        // The scanning frame, then the result.
+        Positioned(
+          left: 22,
+          right: 22,
+          top: 52,
+          bottom: 92,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: solved ? AppColors.success : AppColors.sunsetViolet,
-                width: 2,
+                color: verified ? AppColors.success : Colors.white,
+                width: verified ? 4 : 2,
               ),
             ),
-            child: Text(
-              typed.isEmpty ? ' ' : typed,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.headlineSmall!.copyWith(
-                color: solved ? AppColors.success : AppColors.sunsetViolet,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-          const Spacer(),
-          // A miniature keypad: digits of the current answer light up as
-          // they are "pressed".
-          for (final row in const [
-            ['1', '2', '3'],
-            ['4', '5', '6'],
-            ['7', '8', '9'],
-          ])
-            Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Row(
-                children: [
-                  for (final key in row)
-                    Expanded(
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 2),
-                        height: 22,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: typed.isNotEmpty && typed.endsWith(key)
-                              ? AppColors.sunsetViolet.withValues(alpha: .6)
-                              : Colors.white.withValues(alpha: .08),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          key,
-                          style: theme.textTheme.labelLarge!.copyWith(
-                            color: Colors.white,
+            child: verified
+                ? null
+                : Align(
+                    alignment: Alignment(0, -1 + 2 * scan),
+                    child: Container(
+                      height: 3,
+                      margin: const EdgeInsets.symmetric(horizontal: 6),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withValues(alpha: .7),
+                            blurRadius: 10,
                           ),
-                        ),
+                        ],
                       ),
                     ),
-                ],
+                  ),
+          ),
+        ),
+        if (verified)
+          Positioned(
+            left: 10,
+            right: 10,
+            bottom: 104,
+            child: _Chip(
+              icon: Icons.check_circle_rounded,
+              label: l10n.obDemoVerified,
+              color: AppColors.success,
+            ),
+          ),
+        // Shutter button.
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 22,
+          child: Center(
+            child: AnimatedScale(
+              scale: t > .48 && t < .58 ? .85 : 1,
+              duration: const Duration(milliseconds: 100),
+              child: Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: .5),
+                    width: 5,
+                    strokeAlign: BorderSide.strokeAlignOutside,
+                  ),
+                ),
               ),
             ),
-        ],
+          ),
+        ),
+        // Shutter flash.
+        if (flash > 0)
+          IgnorePointer(
+            child: ColoredBox(color: Colors.white.withValues(alpha: flash)),
+          ),
+      ],
+    );
+  }
+}
+
+/// A small label pill on the demo phone. Shrinks rather than overflowing
+/// when the text is long or the user's text size is large.
+class _Chip extends StatelessWidget {
+  const _Chip({required this.icon, required this.label, required this.color});
+
+  final IconData icon;
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(99),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: Colors.white, size: 15),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -634,7 +708,7 @@ class ChoiceStep<T> extends StatelessWidget {
         children: [
           for (final option in options)
             Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.md),
+              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
               child: Semantics(
                 button: true,
                 selected: option == selected,
@@ -650,9 +724,11 @@ class ChoiceStep<T> extends StatelessWidget {
                   },
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 160),
-                    padding: const EdgeInsets.symmetric(
+                    padding: EdgeInsets.symmetric(
                       horizontal: AppSpacing.lg,
-                      vertical: AppSpacing.lg,
+                      vertical: onboardingIsShortScreen(context)
+                          ? 10
+                          : AppSpacing.md + 2,
                     ),
                     decoration: BoxDecoration(
                       color: option == selected
@@ -775,64 +851,63 @@ class CostStep extends ConsumerWidget {
         ? l10n.obCostTitleNamed(answers.name, hours)
         : l10n.obCostTitle(hours);
 
-    return MaxWidthBox(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xl),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Spacer(),
-            if (!never)
-              _FadeUp(
-                child: TweenAnimationBuilder<double>(
-                  tween: Tween(begin: 0, end: hours.toDouble()),
-                  duration: const Duration(milliseconds: 1400),
-                  curve: Curves.easeOutCubic,
-                  builder: (context, value, _) => Text(
-                    '${value.round()}',
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.displayLarge!.copyWith(
-                      fontWeight: FontWeight.w900,
-                      color: AppColors.sunsetCoral,
-                    ),
+    return OnboardingFullSlide(
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (!never)
+            _FadeUp(
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0, end: hours.toDouble()),
+                duration: const Duration(milliseconds: 1400),
+                curve: Curves.easeOutCubic,
+                builder: (context, value, _) => Text(
+                  '${value.round()}',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.displayLarge!.copyWith(
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.sunsetCoral,
                   ),
                 ),
-              )
-            else
-              const _FadeUp(
-                child: Center(
-                  child: BanguninMascot(pose: MascotPose.sleeping, size: 170),
-                ),
               ),
-            const SizedBox(height: AppSpacing.lg),
+            )
+          else
             _FadeUp(
-              delay: .2,
-              child: Text(
-                title,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.headlineSmall!.copyWith(
-                  fontWeight: FontWeight.w900,
-                  height: 1.2,
+              child: Center(
+                child: BanguninMascot(
+                  pose: MascotPose.sleeping,
+                  size: OnboardingFullSlide.mascotSize(context, 170),
                 ),
               ),
             ),
-            const SizedBox(height: AppSpacing.md),
-            _FadeUp(
-              delay: .35,
-              child: Text(
-                never ? l10n.obCostNever : l10n.obCostBody(days),
-                textAlign: TextAlign.center,
-                style: theme.textTheme.titleMedium!.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: .78),
-                  fontWeight: FontWeight.w600,
-                ),
+          const SizedBox(height: AppSpacing.lg),
+          _FadeUp(
+            delay: .2,
+            child: Text(
+              title,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.headlineSmall!.copyWith(
+                fontWeight: FontWeight.w900,
+                height: 1.2,
               ),
             ),
-            const Spacer(),
-            PrimaryButton(label: l10n.continueLabel, onPressed: onNext),
-          ],
-        ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          _FadeUp(
+            delay: .35,
+            child: Text(
+              never ? l10n.obCostNever : l10n.obCostBody(days),
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleMedium!.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: .78),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
       ),
+      button: PrimaryButton(label: l10n.continueLabel, onPressed: onNext),
     );
   }
 }
@@ -1055,7 +1130,9 @@ class _PointList extends StatelessWidget {
             _FadeUp(
               delay: i * .15,
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                padding: EdgeInsets.symmetric(
+                  vertical: onboardingIsShortScreen(context) ? 5 : 10,
+                ),
                 child: Row(
                   children: [
                     Icon(points[i].$1, color: color, size: 26),

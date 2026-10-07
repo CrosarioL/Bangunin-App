@@ -251,41 +251,59 @@ class MissionCard extends StatelessWidget {
                     : CarouselBadge(text: badge!, color: accent),
               ),
             ),
-            const Spacer(),
-            Container(
-              width: 104,
-              height: 104,
-              decoration: BoxDecoration(
-                color: accent.withValues(alpha: .18),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: accent.withValues(alpha: .3),
-                    blurRadius: 30,
+            // Icon, name and description scale down together when the card
+            // is shorter than they need (small phones), rather than spill
+            // out of the card.
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, box) => Center(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: SizedBox(
+                      width: box.maxWidth,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 104,
+                            height: 104,
+                            decoration: BoxDecoration(
+                              color: accent.withValues(alpha: .18),
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: accent.withValues(alpha: .3),
+                                  blurRadius: 30,
+                                ),
+                              ],
+                            ),
+                            child: Icon(mission.icon, color: accent, size: 56),
+                          ),
+                          const SizedBox(height: AppSpacing.lg),
+                          Text(
+                            name,
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.headlineSmall!.copyWith(
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          Text(
+                            description,
+                            textAlign: TextAlign.center,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodyMedium!.copyWith(
+                              color: Colors.white70,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ],
-              ),
-              child: Icon(mission.icon, color: accent, size: 56),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            Text(
-              name,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.headlineSmall!.copyWith(
-                color: Colors.white,
+                ),
               ),
             ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              description,
-              textAlign: TextAlign.center,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodyMedium!.copyWith(
-                color: Colors.white70,
-              ),
-            ),
-            const Spacer(),
           ],
         ),
       ),

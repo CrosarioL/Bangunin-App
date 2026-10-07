@@ -1179,4 +1179,10 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get obPlanDay7 =>
       'Hari 7: streak seminggu penuh. Kebiasaan baru terbentuk.';
+
+  @override
+  String get obDemoPhotoPrompt => 'Foto langit';
+
+  @override
+  String get obDemoVerified => 'Terverifikasi';
 }

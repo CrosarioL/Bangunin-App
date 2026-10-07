@@ -2125,6 +2125,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Day 7: a full week\'s streak. A new habit.'**
   String get obPlanDay7;
+
+  /// No description provided for @obDemoPhotoPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo of the sky'**
+  String get obDemoPhotoPrompt;
+
+  /// No description provided for @obDemoVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified'**
+  String get obDemoVerified;
 }
 
 class _AppLocalizationsDelegate

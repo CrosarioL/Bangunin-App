@@ -264,6 +264,7 @@ class OnboardingStepScaffold extends StatelessWidget {
     this.ctaEnabled = true,
     required this.onNext,
     this.fullBleedChild = false,
+    this.scrollable = true,
   });
 
   final String title;
@@ -277,6 +278,11 @@ class OnboardingStepScaffold extends StatelessWidget {
   /// the header and button keep their margins.
   final bool fullBleedChild;
 
+  /// False gives [child] exactly the space between the header and the
+  /// button (no scrolling), so it can scale itself to fit: the product
+  /// demo must be seen whole, never cut off below the fold.
+  final bool scrollable;
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -288,7 +294,11 @@ class OnboardingStepScaffold extends StatelessWidget {
       behavior: HitTestBehavior.translucent,
       child: MaxWidthBox(
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
+          // Shorter phones (iPhone SE and similar) get tighter margins so
+          // every step fits without scrolling.
+          padding: EdgeInsets.symmetric(
+            vertical: _isShort(context) ? AppSpacing.md : AppSpacing.xl,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -301,27 +311,46 @@ class OnboardingStepScaffold extends StatelessWidget {
                   icon: Icons.wb_sunny_rounded,
                 ),
               ),
-              const SizedBox(height: AppSpacing.xl),
-              Expanded(
-                child: LayoutBuilder(
-                  builder: (context, constraints) => SingleChildScrollView(
-                    physics: const ClampingScrollPhysics(),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minHeight: constraints.maxHeight,
+              SizedBox(
+                height: _isShort(context) ? AppSpacing.md : AppSpacing.xl,
+              ),
+              if (!scrollable)
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: fullBleedChild ? 0 : AppSpacing.xl,
+                    ),
+                    child: child,
+                  ),
+                )
+              else
+                Expanded(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) => SingleChildScrollView(
+                      physics: const ClampingScrollPhysics(),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        // Centred, not stretched: the box is forced to the
+                        // full height, and a card placed straight into it
+                        // (the name field, the plan) grew to fill it all.
+                        child: Center(
+                          child: fullBleedChild
+                              ? child
+                              : Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: AppSpacing.xl,
+                                  ),
+                                  child: child,
+                                ),
+                        ),
                       ),
-                      child: fullBleedChild
-                          ? child
-                          : Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: AppSpacing.xl,
-                              ),
-                              child: child,
-                            ),
                     ),
                   ),
                 ),
-              ),
+              // Breathing room so content never runs into the button.
+              const SizedBox(height: AppSpacing.md),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
                 child: PrimaryButton(
@@ -398,3 +427,56 @@ class _LanguageToggle extends ConsumerWidget {
     );
   }
 }
+
+/// A whole-screen onboarding slide (hook, problem, promise, cost): centred
+/// [body], button pinned at the bottom. On a short phone the body scrolls
+/// instead of being pushed under the button.
+class OnboardingFullSlide extends StatelessWidget {
+  const OnboardingFullSlide({
+    super.key,
+    required this.body,
+    required this.button,
+  });
+
+  final Widget body;
+  final Widget button;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaxWidthBox(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) => SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
+                    child: Center(child: body),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            button,
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Mascot size that leaves room for the text on shorter screens.
+  static double mascotSize(BuildContext context, double preferred) =>
+      (MediaQuery.sizeOf(context).height * 0.24).clamp(110, preferred);
+}
+
+/// True on phones around iPhone SE height, where onboarding tightens up.
+bool _isShort(BuildContext context) => MediaQuery.sizeOf(context).height < 720;
+
+/// Public alias for steps in other files.
+bool onboardingIsShortScreen(BuildContext context) => _isShort(context);
