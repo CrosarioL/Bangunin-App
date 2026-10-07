@@ -97,6 +97,16 @@ class AlarmScheduler {
       for (final alarm in enabled) {
         await _scheduleWithAlarmKit(alarm);
       }
+      // Backup rings for mission alarms (see AlarmKitService.armBackups),
+      // and none left behind for alarms that are gone.
+      final now = DateTime.now();
+      final missionAlarms = enabled.where(
+        (a) => a.missionType != MissionType.none,
+      );
+      for (final alarm in missionAlarms) {
+        await _alarmKit.armBackups(alarm.id, alarm.nextTrigger(now));
+      }
+      await _alarmKit.pruneSafety({for (final a in missionAlarms) a.id});
       // Snooze and Wake Up Check still ride on notifications until the
       // countdown presentation (and the widget extension it requires) lands.
       await _restorePendingSnooze();

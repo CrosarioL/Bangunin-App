@@ -127,9 +127,15 @@ class _FakeAlarmKit extends AlarmKitService {
       deferred.add(alarmId);
   @override
   Future<void> cancelReRing(String alarmId) async => cancelled.add(alarmId);
+  final backupsCancelled = <String>[];
+  @override
+  Future<void> cancelBackups(String alarmId) async =>
+      backupsCancelled.add(alarmId);
 }
 
 void main() {
+  // The ringing session watches app lifecycle (lock screen / background).
+  TestWidgetsFlutterBinding.ensureInitialized();
   late Directory tempDir;
   late ProviderContainer container;
   late _FakeAlarmKit alarmKit;
@@ -421,6 +427,45 @@ void main() {
       await alarmRepository.upsert(alarm);
       await container.read(ringingSessionProvider.notifier).begin('s1');
       expect(scheduler.silenced, ['s1']);
+    },
+  );
+
+  test('the ringing screen takes over from the advance backups', () async {
+    await alarmRepository.upsert(
+      Alarm(
+        id: 'b1',
+        hour: 6,
+        minute: 0,
+        missionType: MissionType.math,
+        createdAt: DateTime(2026),
+      ),
+    );
+    await container.read(ringingSessionProvider.notifier).begin('b1');
+    expect(alarmKit.backupsCancelled, ['b1']);
+  });
+
+  test(
+    'leaving the app lets the re-ring come; returning holds it off again',
+    () async {
+      await alarmRepository.upsert(
+        Alarm(
+          id: 'l1',
+          hour: 6,
+          minute: 0,
+          missionType: MissionType.squats,
+          createdAt: DateTime(2026),
+        ),
+      );
+      await container.read(ringingSessionProvider.notifier).begin('l1');
+      expect(alarmKit.deferred, ['l1']);
+
+      final binding = TestWidgetsFlutterBinding.instance;
+      binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      // Back in the app: the hold is re-armed straight away.
+      binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      expect(alarmKit.deferred, ['l1', 'l1']);
     },
   );
 }

@@ -131,6 +131,47 @@ enum AlarmKitBridge {
         await MainActor.run { result(true) }
       }
 
+    case "armBackups":
+      guard #available(iOS 26.0, *), isSupported,
+        let args = call.arguments as? [String: Any],
+        let alarmId = args["id"] as? String,
+        let epoch = args["occurrence"] as? Int
+      else {
+        result(false)
+        return
+      }
+      Task {
+        await armBackups(
+          alarmId: alarmId,
+          occurrence: Date(timeIntervalSince1970: TimeInterval(epoch))
+        )
+        await MainActor.run { result(true) }
+      }
+
+    case "cancelBackups":
+      guard #available(iOS 26.0, *), isSupported,
+        let args = call.arguments as? [String: Any],
+        let alarmId = args["id"] as? String
+      else {
+        result(false)
+        return
+      }
+      cancelBackups(alarmId: alarmId)
+      result(true)
+
+    case "pruneSafety":
+      guard #available(iOS 26.0, *), isSupported,
+        let args = call.arguments as? [String: Any],
+        let keep = args["keep"] as? [String]
+      else {
+        result(false)
+        return
+      }
+      Task {
+        await pruneSafety(keeping: Set(keep))
+        await MainActor.run { result(true) }
+      }
+
     case "consumePendingMissionAlarmId":
       let defaults = UserDefaults.standard
       let pending = defaults.string(forKey: pendingMissionKey)
@@ -196,6 +237,9 @@ enum AlarmKitBridge {
 
     func perform() async throws -> some IntentResult {
       UserDefaults.standard.set(alarmId, forKey: AlarmKitBridge.pendingMissionKey)
+      // This ring is now handled by the re-ring below; the advance backups
+      // (armed in case this intent never ran) would only double up.
+      AlarmKitBridge.cancelBackups(alarmId: alarmId)
       // Stopping the alert is not finishing the mission: the alarm comes
       // back unless the app pushes this back while the mission is under way
       // and cancels it once the mission is passed.
@@ -413,6 +457,102 @@ enum AlarmKitBridge {
         try? manager.cancel(id: id)
       }
       defaults.removeObject(forKey: key)
+      // Mission passed, snoozed or escaped: this ring is settled, so its
+      // advance backups must not fire either.
+      cancelBackups(alarmId: alarmId)
+    }
+
+    static let backupKeyPrefix = "bangunin.backup."
+    static let backupForKeyPrefix = "bangunin.backupFor."
+
+    /// Seconds after the alarm's time at which its backups ring.
+    static let backupOffsets: [TimeInterval] = [60, 180, 360, 600]
+
+    /// Arms one-shot backup rings after `occurrence` for a mission alarm.
+    ///
+    /// They exist for the case where nothing else can act: the alarm is
+    /// stopped from the lock screen (the side button counts as Stop) and
+    /// iOS never runs `StartMissionIntent`, so no re-ring is armed and the
+    /// app is never opened. Armed in advance, they ring regardless; only
+    /// passing, snoozing or escaping the mission cancels them.
+    static func armBackups(alarmId: String, occurrence: Date) async {
+      let defaults = UserDefaults.standard
+      guard
+        let args = defaults.dictionary(forKey: argsKeyPrefix + alarmId),
+        (args["missionType"] as? String ?? "none") != "none"
+      else {
+        cancelBackups(alarmId: alarmId)
+        return
+      }
+      let forKey = backupForKeyPrefix + alarmId
+      let armedFor = defaults.double(forKey: forKey)
+      let now = Date()
+      if armedFor > 0 {
+        let armed = Date(timeIntervalSince1970: armedFor)
+        // Already armed for this occurrence.
+        if armed == occurrence { return }
+        // An earlier occurrence has started and still has backups to come:
+        // that ring is unresolved, so a resync must not trade its backups
+        // for tomorrow's.
+        let lastBackup = armed.addingTimeInterval(backupOffsets.last ?? 0)
+        if armed <= now && lastBackup > now { return }
+      }
+      cancelBackups(alarmId: alarmId)
+      var ids: [String] = []
+      for offset in backupOffsets {
+        let backupId = UUID()
+        let configuration = makeConfiguration(
+          args: args,
+          alarmId: alarmId,
+          schedule: .fixed(occurrence.addingTimeInterval(offset))
+        )
+        if (try? await manager.schedule(id: backupId, configuration: configuration)) != nil {
+          ids.append(backupId.uuidString)
+        }
+      }
+      defaults.set(ids, forKey: backupKeyPrefix + alarmId)
+      defaults.set(occurrence.timeIntervalSince1970, forKey: forKey)
+    }
+
+    static func cancelBackups(alarmId: String) {
+      let defaults = UserDefaults.standard
+      for raw in defaults.stringArray(forKey: backupKeyPrefix + alarmId) ?? [] {
+        if let id = UUID(uuidString: raw) { try? manager.cancel(id: id) }
+      }
+      defaults.removeObject(forKey: backupKeyPrefix + alarmId)
+      defaults.removeObject(forKey: backupForKeyPrefix + alarmId)
+    }
+
+    /// Ids of every re-ring and backup currently armed, by alarm.
+    static func safetyIds() -> [String: Set<UUID>] {
+      let defaults = UserDefaults.standard
+      var byAlarm: [String: Set<UUID>] = [:]
+      for (key, value) in defaults.dictionaryRepresentation() {
+        if key.hasPrefix(reRingKeyPrefix), let raw = value as? String,
+          let id = UUID(uuidString: raw)
+        {
+          byAlarm[String(key.dropFirst(reRingKeyPrefix.count)), default: []]
+            .insert(id)
+        } else if key.hasPrefix(backupKeyPrefix), !key.hasPrefix(backupForKeyPrefix),
+          let raws = value as? [String]
+        {
+          let alarm = String(key.dropFirst(backupKeyPrefix.count))
+          for raw in raws {
+            if let id = UUID(uuidString: raw) {
+              byAlarm[alarm, default: []].insert(id)
+            }
+          }
+        }
+      }
+      return byAlarm
+    }
+
+    /// Drops the re-rings and backups of alarms that no longer exist (or no
+    /// longer have a mission), so a deleted alarm can never come back.
+    static func pruneSafety(keeping alarmIds: Set<String>) async {
+      for alarmId in safetyIds().keys where !alarmIds.contains(alarmId) {
+        await cancelReRing(alarmId: alarmId)
+      }
     }
 
     /// ISO-8601 weekday (1 = Monday) to `Locale.Weekday`.
@@ -440,9 +580,14 @@ enum AlarmKitBridge {
       }
     }
 
+    /// Cancels the regular alarms so a resync can re-add them. Re-rings and
+    /// backups are left alone: a resync (opening the app, changing a
+    /// setting) must never silence a ring that is still unresolved. Those of
+    /// deleted alarms are dropped by `pruneSafety` instead.
     static func cancelAll(result: @escaping FlutterResult) {
+      let safety = safetyIds().values.reduce(into: Set<UUID>()) { $0.formUnion($1) }
       do {
-        for alarm in try manager.alarms {
+        for alarm in try manager.alarms where !safety.contains(alarm.id) {
           try? manager.cancel(id: alarm.id)
         }
         result(true)

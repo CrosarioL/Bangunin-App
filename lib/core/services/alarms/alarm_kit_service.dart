@@ -151,6 +151,32 @@ class AlarmKitService {
     await _invoke<bool>('cancelReRing', {'id': alarmId});
   }
 
+  /// Arms backup rings after [occurrence] (the alarm's next ring) for a
+  /// mission alarm. They ring even if the alert is stopped from the lock
+  /// screen and Bangunin never gets to run; passing, snoozing or escaping
+  /// the mission ([cancelReRing]) cancels them.
+  Future<void> armBackups(String alarmId, DateTime occurrence) async {
+    if (defaultTargetPlatform != TargetPlatform.iOS) return;
+    await _invoke<bool>('armBackups', {
+      'id': alarmId,
+      'occurrence': occurrence.millisecondsSinceEpoch ~/ 1000,
+    });
+  }
+
+  /// The app's ringing screen has taken over this ring (with its own
+  /// re-ring), so the advance backups would only double up.
+  Future<void> cancelBackups(String alarmId) async {
+    if (defaultTargetPlatform != TargetPlatform.iOS) return;
+    await _invoke<bool>('cancelBackups', {'id': alarmId});
+  }
+
+  /// Drops re-rings and backups belonging to alarms not in [keep] (deleted,
+  /// disabled or no longer a mission alarm).
+  Future<void> pruneSafety(Set<String> keep) async {
+    if (defaultTargetPlatform != TargetPlatform.iOS) return;
+    await _invoke<bool>('pruneSafety', {'keep': keep.toList()});
+  }
+
   /// The alarm the user opened from an alert's mission button, if any.
   /// Consuming it clears it, so a mission is routed to exactly once.
   Future<String?> consumePendingMissionAlarmId() async =>

@@ -5,6 +5,7 @@ import 'package:wakio/core/services/alarms/alarm_kit_service.dart';
 import 'package:wakio/core/services/notifications/notification_service.dart';
 import 'package:wakio/features/alarms/data/alarm_scheduler.dart';
 import 'package:wakio/features/alarms/domain/entities/alarm.dart';
+import 'package:wakio/features/missions/domain/mission_type.dart';
 
 class _RecordingNotificationService implements NotificationService {
   final scheduled = <int, DateTime>{};
@@ -187,6 +188,34 @@ void main() {
           [1, 2, 3, 4, 5],
           reason: 'ISO weekdays, sorted, straight from repeatDays',
         );
+      },
+    );
+
+    test(
+      'mission alarms get lock-screen backups; others and deleted ones none',
+      () async {
+        final calls = installNativeStub(
+          supported: true,
+          authorization: 'authorized',
+        );
+        final scheduler = schedulerUsing(AlarmKitService(channel: channel));
+
+        await scheduler.reschedule([
+          Alarm(
+            id: 'mission',
+            hour: 6,
+            minute: 0,
+            missionType: MissionType.math,
+            createdAt: DateTime(2026),
+          ),
+          alarmAt(id: 'plain', hour: 7),
+        ]);
+
+        final armed = calls.where((c) => c.method == 'armBackups').toList();
+        expect(armed, hasLength(1));
+        expect((armed.single.arguments as Map)['id'], 'mission');
+        final prune = calls.singleWhere((c) => c.method == 'pruneSafety');
+        expect((prune.arguments as Map)['keep'], ['mission']);
       },
     );
 

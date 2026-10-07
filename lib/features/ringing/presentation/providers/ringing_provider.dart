@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
@@ -164,10 +165,31 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
     _reRingKeepAlive = null;
   }
 
+  /// Watches the app going to the background during a ring. See [begin].
+  AppLifecycleListener? _lifecycle;
+
   @override
   RingingSession? build() {
-    ref.onDispose(_stopReRingKeepAlive);
+    ref.onDispose(() {
+      _stopReRingKeepAlive();
+      _lifecycle?.dispose();
+    });
     return null;
+  }
+
+  /// While Bangunin is in the background (screen locked, app switched away)
+  /// it stops holding the re-ring off, so the alarm comes back within
+  /// [_reRingDeferSeconds] unless the user returns; coming back resumes the
+  /// hold. Background audio keeps Dart running, so without this the timer
+  /// would keep pushing the re-ring away from a phone left locked.
+  void _watchLifecycle() {
+    _lifecycle ??= AppLifecycleListener(
+      onHide: _stopReRingKeepAlive,
+      onShow: () {
+        final session = state;
+        if (session != null) _startReRingKeepAlive(session.alarm);
+      },
+    );
   }
 
   /// The object this ring asks for, assigned on first request.
@@ -235,6 +257,10 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
     );
     // The app's own sound takes over from the notification's tone (Android).
     await scheduler.silenceFiredNotification(alarmId);
+    // The ringing screen now runs this ring (and its own re-ring), so the
+    // advance backups armed for the lock-screen case would double up.
+    await ref.read(alarmKitServiceProvider).cancelBackups(alarmId);
+    _watchLifecycle();
     await ref.read(alarmAudioServiceProvider).startRinging(alarm);
     _startReRingKeepAlive(alarm);
     unawaited(
