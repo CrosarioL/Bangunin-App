@@ -397,7 +397,10 @@ class _MovementMissionPageState extends ConsumerState<MovementMissionPage>
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  _GuidanceBanner(guidance: _guidance),
+                                  _GuidanceBanner(
+                                    guidance: _guidance,
+                                    mission: alarm.missionType,
+                                  ),
                                   const SizedBox(height: AppSpacing.sm),
                                   Text(
                                     l10n.missionSafetyNote,
@@ -536,9 +539,10 @@ class _RepProgress extends StatelessWidget {
 /// they get a warning tint and an icon; ordinary rep prompts stay quiet. The
 /// text is announced politely to VoiceOver rather than interrupting.
 class _GuidanceBanner extends StatelessWidget {
-  const _GuidanceBanner({required this.guidance});
+  const _GuidanceBanner({required this.guidance, required this.mission});
 
   final PoseGuidance guidance;
+  final MissionType mission;
 
   @override
   Widget build(BuildContext context) {
@@ -548,7 +552,14 @@ class _GuidanceBanner extends StatelessWidget {
     final (text, isProblem) = switch (guidance) {
       PoseGuidance.noPersonDetected => (l10n.poseGuidanceNoPerson, true),
       PoseGuidance.keyJointsNotVisible => (l10n.poseGuidanceJointsHidden, true),
-      PoseGuidance.getIntoStartPosition => (l10n.poseGuidanceGetReady, false),
+      PoseGuidance.getIntoStartPosition => (
+        switch (mission) {
+          MissionType.squats => l10n.poseGuidanceStandTall,
+          MissionType.pushups => l10n.poseGuidancePushupTop,
+          _ => l10n.poseGuidanceGetReady,
+        },
+        false,
+      ),
       PoseGuidance.ready => (l10n.poseGuidanceGoDown, false),
       PoseGuidance.lowered => (l10n.poseGuidanceComeUp, false),
       PoseGuidance.complete => (l10n.poseGuidanceComplete, false),

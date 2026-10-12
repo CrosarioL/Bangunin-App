@@ -678,6 +678,12 @@ class AppLocalizationsId extends AppLocalizations {
   String get noPaymentNow => 'Tidak ada tagihan hari ini';
 
   @override
+  String get paywallDueToday => 'Bayar hari ini';
+
+  @override
+  String get paywallFree => 'GRATIS';
+
+  @override
   String get manageSubscription => 'Kelola langganan';
 
   @override
@@ -726,6 +732,12 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get poseGuidanceGetReady => 'Tahan posisi awal untuk mulai';
+
+  @override
+  String get poseGuidanceStandTall => 'Berdiri tegak, seluruh badan kelihatan';
+
+  @override
+  String get poseGuidancePushupTop => 'Posisi push-up, tangan lurus';
 
   @override
   String get poseGuidanceGoDown => 'Turun';

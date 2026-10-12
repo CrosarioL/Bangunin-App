@@ -205,7 +205,7 @@ class PoseRepCounter {
     //  * Depth (hip drop vs shin length) works face-on and side-on.
     final knee = (left != null && right != null) ? (left + right) / 2 : null;
     final lowered =
-        (knee != null && knee < 105) || (depth != null && depth < 0.5);
+        (knee != null && knee < 110) || (depth != null && depth < 0.55);
     final extended =
         (knee == null || knee > 158) && (depth == null || depth > 0.75);
     return (lowered && !extended, extended && !lowered);
@@ -247,7 +247,64 @@ class PoseRepCounter {
     return readings.reduce((x, y) => x + y) / readings.length;
   }
 
+  /// Pushups, read whichever way the phone sees them:
+  ///
+  ///  * **Side-on** (phone beside you): elbow angle plus a straight
+  ///    shoulder-hip-ankle body line. Only one side needs to be visible; the
+  ///    far arm is usually hidden behind the body, and requiring both sides
+  ///    meant a side-on pushup was never tracked at all. Knees stand in for
+  ///    ankles when the feet are out of frame.
+  ///  * **Face-on** (phone on the floor in front of your head, the natural
+  ///    spot for a front camera): hips and feet are hidden behind the head
+  ///    and shoulders, so there is no body line. Instead the shoulders
+  ///    dropping toward the hands is measured against this user's own
+  ///    straight-arm height, with hands planted at least shoulder-width
+  ///    apart (which rules out curling your arms in bed).
   (bool, bool)? _pushupAngles(Pose pose) {
+    final elbows = <double>[];
+    final bodies = <double>[];
+    for (final (shoulder, elbow, wrist, hip, ankle, knee) in const [
+      (
+        PoseLandmarkType.leftShoulder,
+        PoseLandmarkType.leftElbow,
+        PoseLandmarkType.leftWrist,
+        PoseLandmarkType.leftHip,
+        PoseLandmarkType.leftAnkle,
+        PoseLandmarkType.leftKnee,
+      ),
+      (
+        PoseLandmarkType.rightShoulder,
+        PoseLandmarkType.rightElbow,
+        PoseLandmarkType.rightWrist,
+        PoseLandmarkType.rightHip,
+        PoseLandmarkType.rightAnkle,
+        PoseLandmarkType.rightKnee,
+      ),
+    ]) {
+      final elbowAngle = _jointAngle(pose, shoulder, elbow, wrist);
+      if (elbowAngle == null) continue;
+      final body =
+          _jointAngle(pose, shoulder, hip, ankle) ??
+          _jointAngle(pose, shoulder, hip, knee);
+      if (body == null) continue;
+      elbows.add(elbowAngle);
+      bodies.add(body);
+    }
+
+    if (elbows.isNotEmpty) {
+      final elbow = _mean(elbows);
+      // A straight-ish body line separates a pushup from kneeling and bobbing.
+      final validBodyLine = _mean(bodies) > 145;
+      return (validBodyLine && elbow < 105, validBodyLine && elbow > 150);
+    }
+    return _pushupFaceOn(pose);
+  }
+
+  /// Highest shoulder-over-hands height seen with straight arms, in
+  /// shoulder widths: this user's "up" position for face-on pushups.
+  double _faceOnTop = 0;
+
+  (bool, bool)? _pushupFaceOn(Pose pose) {
     final leftElbow = _jointAngle(
       pose,
       PoseLandmarkType.leftShoulder,
@@ -260,30 +317,42 @@ class PoseRepCounter {
       PoseLandmarkType.rightElbow,
       PoseLandmarkType.rightWrist,
     );
-    final leftBody = _jointAngle(
-      pose,
-      PoseLandmarkType.leftShoulder,
-      PoseLandmarkType.leftHip,
-      PoseLandmarkType.leftAnkle,
-    );
-    final rightBody = _jointAngle(
-      pose,
-      PoseLandmarkType.rightShoulder,
-      PoseLandmarkType.rightHip,
-      PoseLandmarkType.rightAnkle,
-    );
-    if (leftElbow == null ||
-        rightElbow == null ||
-        leftBody == null ||
-        rightBody == null) {
-      return null;
+    if (leftElbow == null || rightElbow == null) return null;
+    final ls = pose.landmarks[PoseLandmarkType.leftShoulder]!;
+    final rs = pose.landmarks[PoseLandmarkType.rightShoulder]!;
+    final lw = pose.landmarks[PoseLandmarkType.leftWrist]!;
+    final rw = pose.landmarks[PoseLandmarkType.rightWrist]!;
+    final le = pose.landmarks[PoseLandmarkType.leftElbow]!;
+    final re = pose.landmarks[PoseLandmarkType.rightElbow]!;
+    final shoulderWidth = (ls.x - rs.x).abs();
+    final upperArm = (_distance(ls, le) + _distance(rs, re)) / 2;
+    // Face-on, the shoulders are about an upper arm apart. Side-on they
+    // overlap; that view needs the body line, so it isn't read here.
+    if (shoulderWidth < 1 || shoulderWidth < upperArm * 0.6) {
+      return (false, false);
     }
+
+    final handsPlanted =
+        (lw.x - rw.x).abs() >= shoulderWidth * 0.95 &&
+        lw.y > ls.y &&
+        rw.y > rs.y;
+    if (!handsPlanted) return (false, false);
+
+    final height = ((lw.y - ls.y) + (rw.y - rs.y)) / 2 / shoulderWidth;
     final elbow = (leftElbow + rightElbow) / 2;
-    final body = (leftBody + rightBody) / 2;
-    // A straight-ish body line separates a pushup from kneeling and bobbing.
-    final validBodyLine = body > 145;
-    return (validBodyLine && elbow < 100, validBodyLine && elbow > 155);
+    if (elbow > 150 && height > _faceOnTop) _faceOnTop = height;
+    if (_faceOnTop == 0) return (false, false);
+
+    final lowered = elbow < 110 || height < _faceOnTop * 0.6;
+    final extended = elbow > 150 && height > _faceOnTop * 0.85;
+    return (lowered && !extended, extended && !lowered);
   }
+
+  static double _distance(PoseLandmark a, PoseLandmark b) =>
+      math.sqrt(math.pow(a.x - b.x, 2) + math.pow(a.y - b.y, 2));
+
+  static double _mean(List<double> values) =>
+      values.reduce((a, b) => a + b) / values.length;
 
   double? _jointAngle(
     Pose pose,

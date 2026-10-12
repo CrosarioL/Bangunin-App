@@ -121,6 +121,31 @@ Pose squatFaceOn({required double hipY}) {
   return _poseFrom(points);
 }
 
+/// Face-on pushup, camera on the floor in front of the head: shoulders
+/// 100 apart, hands [handSpread] apart below them. Only the arms are
+/// visible. [drop] lowers the shoulders toward the hands; elbows flare.
+Pose pushupFaceOn({double drop = 0, double handSpread = 140}) {
+  final points = <PoseLandmarkType, _Point>{};
+  for (final (right, sign) in [(false, -1.0), (true, 1.0)]) {
+    final shoulder = (x: 200 + sign * 50, y: 100 + drop);
+    final wrist = (x: 200 + sign * handSpread / 2, y: 260.0);
+    // Straight arm halfway between; bent arm pushes the elbow outward.
+    final elbow = (
+      x: (shoulder.x + wrist.x) / 2 + sign * drop * 0.9,
+      y: (shoulder.y + wrist.y) / 2,
+    );
+    points[right
+            ? PoseLandmarkType.rightShoulder
+            : PoseLandmarkType.leftShoulder] =
+        shoulder;
+    points[right ? PoseLandmarkType.rightElbow : PoseLandmarkType.leftElbow] =
+        elbow;
+    points[right ? PoseLandmarkType.rightWrist : PoseLandmarkType.leftWrist] =
+        wrist;
+  }
+  return _poseFrom(points);
+}
+
 Pose squatStanding() => squatPose(kneeDegrees: 170);
 
 Pose squatLowered() => squatPose(kneeDegrees: 90);
@@ -432,6 +457,69 @@ void main() {
 
       expect(c.reps, 0);
       expect(c.hasStarted, isFalse, reason: 'never a valid start position');
+    });
+  });
+
+  group('pushups from any angle', () {
+    test('side-on with the far arm hidden still counts', () {
+      final c = counter();
+      final start = DateTime(2026);
+      const hidden = {
+        PoseLandmarkType.rightShoulder,
+        PoseLandmarkType.rightElbow,
+        PoseLandmarkType.rightWrist,
+        PoseLandmarkType.rightHip,
+        PoseLandmarkType.rightAnkle,
+      };
+
+      feed(c, pushupPose(elbowDegrees: 170, omit: hidden), now: start);
+      feed(c, pushupPose(elbowDegrees: 80, omit: hidden), now: start);
+      feed(
+        c,
+        pushupPose(elbowDegrees: 170, omit: hidden),
+        now: start.add(const Duration(seconds: 2)),
+      );
+
+      expect(c.reps, 1);
+    });
+
+    test('face-on, shoulders dropping to the hands counts', () {
+      final c = counter();
+      final start = DateTime(2026);
+
+      feed(c, pushupFaceOn(), now: start);
+      expect(c.hasStarted, isTrue);
+      feed(c, pushupFaceOn(drop: 90), now: start);
+      feed(c, pushupFaceOn(), now: start.add(const Duration(seconds: 2)));
+
+      expect(c.reps, 1);
+    });
+
+    test('face-on, a shallow dip does not count', () {
+      final c = counter();
+      final start = DateTime(2026);
+
+      feed(c, pushupFaceOn(), now: start);
+      feed(c, pushupFaceOn(drop: 15), now: start);
+      feed(c, pushupFaceOn(), now: start.add(const Duration(seconds: 2)));
+
+      expect(c.reps, 0);
+    });
+
+    test('arms curled in close (not planted) never start', () {
+      final c = counter();
+      final start = DateTime(2026);
+
+      feed(c, pushupFaceOn(handSpread: 60), now: start);
+      feed(c, pushupFaceOn(handSpread: 60, drop: 90), now: start);
+      feed(
+        c,
+        pushupFaceOn(handSpread: 60),
+        now: start.add(const Duration(seconds: 2)),
+      );
+
+      expect(c.hasStarted, isFalse);
+      expect(c.reps, 0);
     });
   });
 }

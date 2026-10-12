@@ -1274,6 +1274,18 @@ abstract class AppLocalizations {
   /// **'No payment due now'**
   String get noPaymentNow;
 
+  /// No description provided for @paywallDueToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Due today'**
+  String get paywallDueToday;
+
+  /// No description provided for @paywallFree.
+  ///
+  /// In en, this message translates to:
+  /// **'FREE'**
+  String get paywallFree;
+
   /// No description provided for @manageSubscription.
   ///
   /// In en, this message translates to:
@@ -1351,6 +1363,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hold the starting position to begin'**
   String get poseGuidanceGetReady;
+
+  /// No description provided for @poseGuidanceStandTall.
+  ///
+  /// In en, this message translates to:
+  /// **'Stand up straight, whole body in view'**
+  String get poseGuidanceStandTall;
+
+  /// No description provided for @poseGuidancePushupTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Get into a pushup, arms straight'**
+  String get poseGuidancePushupTop;
 
   /// No description provided for @poseGuidanceGoDown.
   ///

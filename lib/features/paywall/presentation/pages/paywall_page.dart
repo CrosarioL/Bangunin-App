@@ -142,6 +142,10 @@ class _PaywallPageState extends ConsumerState<PaywallPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (selected.hasTrial) ...[
+                _DueToday(price: selected.price),
+                const SizedBox(height: AppSpacing.md),
+              ],
               PrimaryButton(
                 label: selected.hasTrial
                     ? l10n.paywallCtaTrial(selected.trialDays)
@@ -273,6 +277,59 @@ class _Feature extends StatelessWidget {
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Text(text, style: Theme.of(context).textTheme.bodyLarge),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// "Due today: ~~Rp 199.000~~ FREE", the trial shown as a discount.
+class _DueToday extends StatelessWidget {
+  const _DueToday({required this.price});
+
+  final String price;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.sm + 2,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.glass,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusControl),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              l10n.paywallDueToday,
+              style: theme.textTheme.titleSmall!.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          Text(
+            price,
+            style: theme.textTheme.bodyLarge!.copyWith(
+              color: Colors.white60,
+              decoration: TextDecoration.lineThrough,
+              decorationColor: Colors.white60,
+              decorationThickness: 2,
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Text(
+            l10n.paywallFree,
+            style: theme.textTheme.titleMedium!.copyWith(
+              color: AppColors.success,
+              fontWeight: FontWeight.w900,
+            ),
           ),
         ],
       ),

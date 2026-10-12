@@ -679,6 +679,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noPaymentNow => 'No payment due now';
 
   @override
+  String get paywallDueToday => 'Due today';
+
+  @override
+  String get paywallFree => 'FREE';
+
+  @override
   String get manageSubscription => 'Manage subscription';
 
   @override
@@ -725,6 +731,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get poseGuidanceGetReady => 'Hold the starting position to begin';
+
+  @override
+  String get poseGuidanceStandTall => 'Stand up straight, whole body in view';
+
+  @override
+  String get poseGuidancePushupTop => 'Get into a pushup, arms straight';
 
   @override
   String get poseGuidanceGoDown => 'Go down';
