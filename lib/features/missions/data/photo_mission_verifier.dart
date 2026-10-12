@@ -109,8 +109,6 @@ class PhotoMissionVerifier {
       return const PhotoVerification.fail(PhotoFailure.invalidImage);
     }
 
-    // Exposure problems are the user's to fix and the cheapest to detect, so
-    // they are reported before anything else regardless of engine.
     final heuristic = switch (mission) {
       MissionType.skyPhoto => _verifySky(photo),
       MissionType.grassPhoto => _verifyGrass(photo),
@@ -118,10 +116,6 @@ class PhotoMissionVerifier {
       _ => null,
     };
     if (heuristic != null) {
-      if (heuristic.failure == PhotoFailure.tooDark ||
-          heuristic.failure == PhotoFailure.tooBright) {
-        return heuristic;
-      }
       return _combineWithScene(mission, photoPath, heuristic);
     }
 
@@ -199,19 +193,17 @@ class PhotoMissionVerifier {
 
   /// Reconciles Apple Vision's opinion with the pixel heuristics.
   ///
-  /// Policy, and the reasoning behind it:
+  /// Lenient on purpose: someone pointing their phone at real grass at 6am
+  /// and being told "no" is the worst thing this feature can do, so either
+  /// signal saying yes is enough.
   ///
-  ///  * **Vision positive → pass**, even where the heuristic was marginal.
-  ///    A classifier that recognises grass is better evidence than a texture
-  ///    number, and this is what stops us rejecting someone standing on real
-  ///    grass in poor light — the worst failure this feature can have.
-  ///  * **Vision negative → fail**, even where the heuristic passed. This is
-  ///    what catches the busy green rug the texture check cannot.
-  ///  * **Vision inconclusive** (no labels at all, or unavailable) → defer to
-  ///    the heuristic. Silence is not a rejection.
-  ///
-  /// For Touch Grass a hand must also be visible; recognising a lawn from the
-  /// far side of a window is not touching it.
+  ///  * **Vision recognises the scene → pass**, whatever the pixels say,
+  ///    exposure included (Vision copes with dim light better than we do).
+  ///  * **Vision is sure it's indoors** (a ceiling, a rug) and sees nothing
+  ///    of the target → fail. That's the white-ceiling-for-sky cheat.
+  ///  * Otherwise **the heuristic decides**. Vision not mentioning grass is
+  ///    not evidence against grass; its top labels are often "outdoor",
+  ///    "tree" or "land" for a perfectly good lawn.
   Future<PhotoVerification> _combineWithScene(
     MissionType mission,
     String photoPath,
@@ -220,23 +212,35 @@ class PhotoMissionVerifier {
     final classifier = sceneClassifier;
     if (classifier == null) return heuristic;
 
-    final wantHand = mission == MissionType.grassPhoto;
-    final evidence = await classifier.inspect(photoPath, wantHand: wantHand);
-
-    // Unavailable, or the classifier had nothing to say.
+    final evidence = await classifier.inspect(photoPath);
+    // No Vision (Android): ML Kit's labels can still say yes. Its taxonomy
+    // differs, so it only ever helps; it never vetoes.
+    if (!evidence.supported && !heuristic.passed) {
+      final labels = await classifier.objectLabels(photoPath);
+      final seen = labels.confidenceFor(
+        SceneClassifier.missionLabels[mission] ?? const [],
+      );
+      return seen >= SceneClassifier.supportingConfidence
+          ? const PhotoVerification.pass()
+          : heuristic;
+    }
     if (!evidence.supported || evidence.labels.isEmpty) return heuristic;
 
     final confidence = evidence.confidenceFor(
       SceneClassifier.missionLabels[mission] ?? const [],
     );
-    if (confidence < SceneClassifier.supportingConfidence) {
-      return const PhotoVerification.fail(PhotoFailure.surfaceDoesNotLookRight);
+    if (confidence >= SceneClassifier.supportingConfidence) {
+      return const PhotoVerification.pass();
     }
 
-    if (wantHand && !evidence.sawHand) {
-      return const PhotoVerification.fail(PhotoFailure.noHandVisible);
+    final indoors =
+        mission != MissionType.makeBed &&
+        evidence.confidenceFor(SceneClassifier.indoorLabels) >=
+            SceneClassifier.indoorConfidence;
+    if (indoors) {
+      return const PhotoVerification.fail(PhotoFailure.surfaceDoesNotLookRight);
     }
-    return const PhotoVerification.pass();
+    return heuristic;
   }
 
   /// Verifies a short burst of frames instead of a single still.
@@ -341,7 +345,7 @@ class PhotoMissionVerifier {
         if (y < topRows) {
           topBrightness += value;
           topSamples++;
-          if (b > r * 1.05 && b > g * 0.95) blueLead++;
+          if (b > r * 1.02 && b >= g * 0.9) blueLead++;
           if (value > 175 && _saturation(r, g, b) < 0.25) brightDesaturated++;
         } else {
           bottomBrightness += value;
@@ -356,7 +360,7 @@ class PhotoMissionVerifier {
     }
 
     final blueRatio = blueLead / topSamples;
-    if (blueRatio > 0.45) return const PhotoVerification.pass();
+    if (blueRatio > 0.35) return const PhotoVerification.pass();
 
     // Overcast sky: bright and desaturated is not enough on its own, or a
     // white ceiling passes and the mission can be completed in bed. Real sky
@@ -365,9 +369,9 @@ class PhotoMissionVerifier {
     final meanBottom = bottomSamples == 0
         ? meanTop
         : bottomBrightness / bottomSamples;
-    final brightensUpward = meanTop > meanBottom * 1.15;
+    final brightensUpward = meanTop > meanBottom * 1.05;
 
-    if (overcastRatio > 0.45 && brightensUpward) {
+    if (overcastRatio > 0.35 && brightensUpward) {
       return const PhotoVerification.pass();
     }
     return const PhotoVerification.fail(PhotoFailure.surfaceDoesNotLookRight);
@@ -385,7 +389,7 @@ class PhotoMissionVerifier {
         final g = p.g.toDouble();
         final b = p.b.toDouble();
         brightness += (r + g + b) / 3;
-        if (g > r * 1.08 && g > b * 1.08) greenish++;
+        if (g > r * 1.03 && g > b * 1.03) greenish++;
         samples++;
       }
     }
@@ -397,7 +401,7 @@ class PhotoMissionVerifier {
     if (brightness > 235) {
       return const PhotoVerification.fail(PhotoFailure.tooBright);
     }
-    if (greenish / samples <= 0.35) {
+    if (greenish / samples <= 0.25) {
       return const PhotoVerification.fail(PhotoFailure.surfaceDoesNotLookRight);
     }
 
@@ -413,10 +417,10 @@ class PhotoMissionVerifier {
     // green rug, so the conservative choice is to leave it out until it can
     // be calibrated on device.
     //
-    // 6.0 is a starting value, NOT a validated one — see the calibration note
+    // 4.0 is a starting value, NOT a validated one — see the calibration note
     // in marketing/research/MISSION_MODEL_EVALUATION.md before trusting it.
     final texture = _localContrast(photo);
-    if (texture < 6.0) {
+    if (texture < 4.0) {
       return const PhotoVerification.fail(PhotoFailure.notEnoughTexture);
     }
     return const PhotoVerification.pass();

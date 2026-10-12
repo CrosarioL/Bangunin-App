@@ -923,13 +923,13 @@ abstract class AppLocalizations {
   /// No description provided for @paywallFeatureMissions.
   ///
   /// In en, this message translates to:
-  /// **'All wake-up missions: photos, squats, pushups'**
+  /// **'Every wake-up mission'**
   String get paywallFeatureMissions;
 
   /// No description provided for @paywallFeatureSounds.
   ///
   /// In en, this message translates to:
-  /// **'Custom alarm sounds from any audio or video'**
+  /// **'Your own alarm sounds'**
   String get paywallFeatureSounds;
 
   /// No description provided for @paywallFeatureStreaks.

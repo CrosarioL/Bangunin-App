@@ -331,8 +331,8 @@ class RingingSessionNotifier extends Notifier<RingingSession?> {
   Future<void> complete() => _finish(success: true);
 
   /// Emergency exit: the alarm stops like [complete], but the morning is
-  /// recorded as a failure so it never feeds a streak, and it counts against
-  /// this month's escapes (which lengthens the next pledge).
+  /// recorded as a failure so it never feeds a streak, and it counts toward
+  /// this month's escapes (for analytics).
   Future<void> escape() async {
     final prefs = ref.read(sharedPreferencesProvider);
     final used = emergencyEscapesThisMonth();

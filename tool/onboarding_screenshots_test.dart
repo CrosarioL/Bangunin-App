@@ -8,14 +8,17 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakio/app/di/providers.dart';
 import 'package:wakio/app/theme/app_theme.dart';
 import 'package:wakio/app/widgets/app_background.dart';
 import 'package:wakio/app/widgets/bangunin_mascot.dart';
 import 'package:wakio/core/services/audio/alarm_audio_service.dart';
+import 'package:wakio/core/services/subscriptions/subscription_service.dart';
 import 'package:wakio/features/onboarding/presentation/pages/onboarding_steps.dart';
 import 'package:wakio/features/onboarding/presentation/pages/onboarding_story_steps.dart';
 import 'package:wakio/features/onboarding/presentation/providers/onboarding_provider.dart';
+import 'package:wakio/features/paywall/presentation/pages/paywall_page.dart';
 import 'package:wakio/l10n/gen/app_localizations.dart';
 
 const _out = String.fromEnvironment('OUT');
@@ -165,7 +168,10 @@ void main() {
     ),
   ];
 
-  for (final (name, build, wait) in shots) {
+  for (final (name, build, wait) in [
+    ...shots,
+    ('21_paywall', () => const PaywallPage(), const Duration(seconds: 1)),
+  ]) {
     testWidgets(name, (tester) async {
       await _loadFonts();
       tester.view.physicalSize = const Size(1170, 2532);
@@ -173,9 +179,16 @@ void main() {
       tester.view.padding = const FakeViewPadding(top: 141, bottom: 102);
       addTearDown(tester.view.reset);
       final key = GlobalKey();
+      // ignore: invalid_use_of_visible_for_testing_member
+      SharedPreferences.setMockInitialValues({'user_first_name': 'Rina'});
+      final prefs = await SharedPreferences.getInstance();
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
+            sharedPreferencesProvider.overrideWithValue(prefs),
+            subscriptionServiceProvider.overrideWithValue(
+              FakeSubscriptionService(prefs),
+            ),
             onboardingAnswersProvider.overrideWith(_Seeded.new),
             alarmAudioServiceProvider.overrideWithValue(_SilentAudio()),
           ],
@@ -183,7 +196,9 @@ void main() {
             key: key,
             child: MaterialApp(
               debugShowCheckedModeBanner: false,
-              theme: AppTheme.dark,
+              theme: const String.fromEnvironment('MODE') == 'light'
+                  ? AppTheme.light
+                  : AppTheme.dark,
               locale: const Locale('id'),
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               supportedLocales: AppLocalizations.supportedLocales,

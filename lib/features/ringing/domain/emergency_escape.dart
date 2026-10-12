@@ -3,34 +3,16 @@
 ///
 /// It has to exist, or a hard mission traps people and they uninstall. It
 /// also has to be *more* annoying than just doing the mission, or it becomes
-/// the snooze button. So it takes [requiredTaps] taps and then typing a
-/// pledge by hand, and the pledge grows by one sentence for every escape
-/// already used this calendar month.
+/// the snooze button. So it takes [requiredTaps] taps and then typing one
+/// short sentence by hand.
 abstract final class EmergencyEscape {
   static const requiredTaps = 10;
 
-  /// Sentences in the order they are added. The first is always required.
-  static const _sentencesEn = [
-    'I really cannot do my mission right now.',
-    'I know this does not count as waking up.',
-    'Tomorrow I will do the mission properly.',
-    'I promise I am not just going back to sleep.',
-  ];
-
-  static const _sentencesId = [
-    'Aku beneran nggak bisa kerjakan misi sekarang.',
-    'Aku tahu ini nggak dihitung sebagai bangun.',
-    'Besok aku kerjakan misinya dengan benar.',
-    'Aku janji nggak lanjut tidur lagi.',
-  ];
-
-  /// The pledge to type, given how many escapes were already used this
-  /// month. Caps at every sentence.
-  static String pledge(String languageCode, {required int usedThisMonth}) {
-    final sentences = languageCode == 'id' ? _sentencesId : _sentencesEn;
-    final count = (1 + usedThisMonth).clamp(1, sentences.length);
-    return sentences.take(count).join(' ');
-  }
+  /// The sentence to type. One line: long enough to break autopilot, short
+  /// enough for a real emergency.
+  static String pledge(String languageCode) => languageCode == 'id'
+      ? 'Aku nggak bisa misi sekarang.'
+      : "I can't do my mission now.";
 
   /// Case, spacing and punctuation don't matter, and a few slips are
   /// forgiven (about one character in fifteen): typing the whole thing out

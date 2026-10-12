@@ -92,9 +92,8 @@ void main() {
       expect(result.passed, isTrue);
     });
 
-    test('a busy green rug is rejected despite passing texture', () async {
-      // Textured green passes the heuristic; Vision sees no grass.
-      installVision(labels: {'carpet': 0.77, 'rug': 0.6}, hand: 0.9);
+    test('a rug Vision is sure about is rejected', () async {
+      installVision(labels: {'carpet': 0.77, 'rug': 0.6});
       final path = await texturedGreen('green_rug');
 
       final result = await verifierWithVision().verify(
@@ -106,9 +105,8 @@ void main() {
       expect(result.failure, PhotoFailure.surfaceDoesNotLookRight);
     });
 
-    test('grass with no hand in frame asks for the hand', () async {
-      // Recognising a lawn through a window is not touching it.
-      installVision(labels: {'grass': 0.9}, hand: 0.1);
+    test('grass passes without a hand in the shot', () async {
+      installVision(labels: {'grass': 0.9});
       final path = await texturedGreen('no_hand');
 
       final result = await verifierWithVision().verify(
@@ -116,20 +114,47 @@ void main() {
         path,
       );
 
-      expect(result.passed, isFalse);
-      expect(result.failure, PhotoFailure.noHandVisible);
+      expect(result.passed, isTrue);
     });
 
-    test('low-confidence labels are not treated as evidence', () async {
-      installVision(labels: {'grass': 0.05}, hand: 0.9);
-      final path = await texturedGreen('unsure');
+    test('a lawn Vision only calls "outdoor" still passes', () async {
+      installVision(labels: {'outdoor': 0.6, 'tree': 0.3});
+      final path = await flatGreen('outdoor_lawn');
 
       final result = await verifierWithVision().verify(
         MissionType.grassPhoto,
         path,
       );
 
-      expect(result.passed, isFalse);
+      expect(result.passed, isTrue);
+    });
+
+    test('unrelated labels defer to the heuristic, not a veto', () async {
+      // Real grass labelled with something we didn't list must not fail.
+      installVision(labels: {'structure': 0.4, 'sport': 0.2});
+      final path = await texturedGreen('odd_labels');
+
+      final result = await verifierWithVision().verify(
+        MissionType.grassPhoto,
+        path,
+      );
+
+      expect(result.passed, isTrue);
+    });
+
+    test('recognised grass passes even in dim light', () async {
+      installVision(labels: {'grass': 0.7});
+      final image = img.Image(width: 120, height: 120);
+      img.fill(image, color: img.ColorRgb8(10, 25, 10));
+      final path = '${tempDir.path}/dim.png';
+      await File(path).writeAsBytes(img.encodePng(image));
+
+      final result = await verifierWithVision().verify(
+        MissionType.grassPhoto,
+        path,
+      );
+
+      expect(result.passed, isTrue);
     });
   });
 
@@ -174,9 +199,9 @@ void main() {
     });
   });
 
-  group('exposure is reported before the scene check runs', () {
-    test('a dark frame reports darkness, not a missing hand', () async {
-      installVision(labels: {'grass': 0.9}, hand: 0.0);
+  group('exposure', () {
+    test('a dark frame Vision cannot read reports darkness', () async {
+      installVision(labels: {});
       final image = img.Image(width: 120, height: 120);
       img.fill(image, color: img.ColorRgb8(4, 9, 4));
       final path = '${tempDir.path}/dark.png';

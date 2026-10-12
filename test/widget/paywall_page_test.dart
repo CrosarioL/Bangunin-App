@@ -7,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakio/app/di/providers.dart';
 import 'package:wakio/core/services/subscriptions/subscription_service.dart';
 import 'package:wakio/features/paywall/presentation/pages/paywall_page.dart';
-import 'package:wakio/features/paywall/presentation/widgets/trial_timeline.dart';
 
 import '../helpers/test_app.dart';
 
@@ -52,9 +51,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
   }
 
-  testWidgets('plans, trial timeline and CTA fit on the first screen', (
-    tester,
-  ) async {
+  testWidgets('plans and CTA fit on the first screen', (tester) async {
     // Real fonts: the default test font draws every glyph as a wide block,
     // which wraps text far more than on a phone and skews the measurement.
     for (final (family, path) in [
@@ -90,11 +87,16 @@ void main() {
     const visibleBottom = 844.0 - 34;
     final cta = find.text('Start my 3-day free trial');
     expect(cta, findsOneWidget);
-    expect(find.byType(TrialTimeline), findsOneWidget);
     expect(tester.getRect(cta).bottom, lessThan(visibleBottom));
     expect(
-      tester.getRect(find.byType(TrialTimeline)).top,
-      lessThan(tester.getRect(cta).top),
+      tester.getRect(find.text('Monthly')).bottom,
+      lessThan(visibleBottom),
+    );
+    expect(
+      find.text(
+        r'3 days free, then $29.99/year. Renews automatically, cancel anytime.',
+      ),
+      findsOneWidget,
     );
   });
 
@@ -120,7 +122,6 @@ void main() {
     expect(find.text('Never oversleep again'), findsOneWidget);
     expect(find.text('Yearly'), findsOneWidget);
     expect(find.text('SAVE 49%'), findsOneWidget);
-    expect(find.text('≈ \$2.49/month'), findsOneWidget);
 
     // The taller branded header pushes the second plan outside ListView's
     // initial build extent on a phone-sized viewport.
@@ -144,13 +145,6 @@ void main() {
       scrollable: find.byType(Scrollable),
     );
     expect(find.text('Start my 3-day free trial'), findsOneWidget);
-    await tester.scrollUntilVisible(
-      find.byType(TrialTimeline),
-      100,
-      scrollable: find.byType(Scrollable),
-    );
-    expect(find.byType(TrialTimeline), findsOneWidget);
-
     await tester.scrollUntilVisible(
       find.text('Restore purchases'),
       100,
@@ -218,7 +212,6 @@ void main() {
       );
 
       expect(find.text('Continue'), findsOneWidget);
-      expect(find.byType(TrialTimeline), findsNothing);
       expect(find.byType(Switch), findsNothing);
 
       // Switching to Monthly keeps the standard purchase CTA.
@@ -236,7 +229,6 @@ void main() {
         scrollable: scrollableFinder,
       );
       expect(find.text('Continue'), findsOneWidget);
-      expect(find.byType(TrialTimeline), findsNothing);
     },
   );
 

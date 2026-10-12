@@ -48,10 +48,7 @@ Future<void> runSnooze(BuildContext context, WidgetRef ref) async {
 /// recorded as missed. Offered on the ringing screen and every mission.
 Future<void> runEmergencyEscape(BuildContext context, WidgetRef ref) async {
   final notifier = ref.read(ringingSessionProvider.notifier);
-  final escaped = await showEmergencyEscapeSheet(
-    context,
-    usedThisMonth: notifier.emergencyEscapesThisMonth(),
-  );
+  final escaped = await showEmergencyEscapeSheet(context);
   if (!escaped || !context.mounted) return;
   await notifier.escape();
   if (!context.mounted) return;

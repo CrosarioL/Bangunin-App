@@ -473,12 +473,10 @@ class AppLocalizationsId extends AppLocalizations {
       'Gabung dengan ribuan orang yang menukar snooze dengan pagi yang beneran.';
 
   @override
-  String get paywallFeatureMissions =>
-      'Semua misi bangun: foto, squat, push-up';
+  String get paywallFeatureMissions => 'Semua misi bangun';
 
   @override
-  String get paywallFeatureSounds =>
-      'Suara alarm sendiri dari audio atau video apa pun';
+  String get paywallFeatureSounds => 'Suara alarm sendiri';
 
   @override
   String get paywallFeatureStreaks => 'Streak dan statistik pagi';

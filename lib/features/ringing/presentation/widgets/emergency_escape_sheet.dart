@@ -9,22 +9,17 @@ import '../../domain/emergency_escape.dart';
 
 /// Walks the user through the emergency exit. Resolves true only once both
 /// the taps and the typed pledge are done; any other way out keeps ringing.
-Future<bool> showEmergencyEscapeSheet(
-  BuildContext context, {
-  required int usedThisMonth,
-}) async {
+Future<bool> showEmergencyEscapeSheet(BuildContext context) async {
   final result = await showModalBottomSheet<bool>(
     context: context,
     isScrollControlled: true,
-    builder: (_) => EmergencyEscapeSheet(usedThisMonth: usedThisMonth),
+    builder: (_) => const EmergencyEscapeSheet(),
   );
   return result ?? false;
 }
 
 class EmergencyEscapeSheet extends StatefulWidget {
-  const EmergencyEscapeSheet({super.key, required this.usedThisMonth});
-
-  final int usedThisMonth;
+  const EmergencyEscapeSheet({super.key});
 
   @override
   State<EmergencyEscapeSheet> createState() => _EmergencyEscapeSheetState();
@@ -51,7 +46,6 @@ class _EmergencyEscapeSheetState extends State<EmergencyEscapeSheet> {
     final theme = Theme.of(context);
     final pledge = EmergencyEscape.pledge(
       Localizations.localeOf(context).languageCode,
-      usedThisMonth: widget.usedThisMonth,
     );
     final left = EmergencyEscape.requiredTaps - _taps;
 

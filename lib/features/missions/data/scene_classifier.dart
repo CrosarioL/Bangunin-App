@@ -59,18 +59,59 @@ class SceneClassifier {
 
   /// Labels that support each mission, most specific first.
   static const missionLabels = <MissionType, List<String>>{
-    MissionType.grassPhoto: ['grass', 'foliage', 'garden', 'plant'],
-    MissionType.skyPhoto: ['sky', 'blue_sky', 'night_sky', 'cloudy'],
+    MissionType.grassPhoto: [
+      'grass',
+      'lawn',
+      'foliage',
+      'garden',
+      'plant',
+      'vegetation',
+      'field',
+      'meadow',
+      'yard',
+      'moss',
+      'leaf',
+      'tree',
+      'outdoor',
+      'land',
+    ],
+    MissionType.skyPhoto: [
+      'sky',
+      'blue_sky',
+      'night_sky',
+      'cloudy',
+      'cloud',
+      'clouds',
+      'sunset_sunrise',
+      'outdoor',
+    ],
     MissionType.makeBed: ['bed', 'bedding', 'bedroom', 'pillow'],
   };
 
   /// Confidence at or above which a label is treated as real evidence.
   ///
-  /// Deliberately moderate: Vision is used to *confirm* what the heuristics
-  /// already suspect, not to overrule a user standing on actual grass in bad
-  /// light. Needs calibration against real photos before launch — see
-  /// marketing/research/MISSION_MODEL_EVALUATION.md.
-  static const supportingConfidence = 0.35;
+  /// Low on purpose: any real sign of the scene is enough to pass. Users
+  /// were being rejected while plainly photographing grass and sky.
+  static const supportingConfidence = 0.15;
+
+  /// Labels that mean "this is a room", which veto the outdoor missions when
+  /// nothing outdoors was seen at all.
+  static const indoorLabels = [
+    'ceiling',
+    'room',
+    'indoor',
+    'interior_room',
+    'carpet',
+    'rug',
+    'wall',
+    'furniture',
+    'bedroom',
+    'textile',
+  ];
+
+  /// Only a confident indoor read vetoes; a hint of "wall" in a street shot
+  /// shouldn't.
+  static const indoorConfidence = 0.5;
 
   Future<SceneEvidence> inspect(String path, {bool wantHand = false}) async {
     try {

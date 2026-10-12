@@ -12,19 +12,29 @@ void main() {
   group('MathProblem', () {
     test('stays in a half-asleep range and fits the answer box', () {
       final random = math.Random(7);
+      var sums = 0;
       for (var i = 0; i < 500; i++) {
         final p = MathProblem.random(random);
-        expect(p.a, inInclusiveRange(3, 9));
-        expect(p.b, inInclusiveRange(3, 9));
-        expect(p.c, inInclusiveRange(10, 49));
+        if (p.multiply) {
+          expect(p.a, inInclusiveRange(2, 9));
+          expect(p.b, inInclusiveRange(2, 5));
+        } else {
+          sums++;
+          expect(p.a, inInclusiveRange(12, 49));
+          expect(p.b, inInclusiveRange(3, 9));
+        }
         expect('${p.answer}'.length, lessThanOrEqualTo(MathProblem.maxDigits));
       }
+      expect(sums, inInclusiveRange(150, 350), reason: 'a mix of both kinds');
     });
 
     test('prompt and answer agree', () {
-      const p = MathProblem(7, 8, 13);
-      expect(p.prompt, '7 × 8 + 13');
-      expect(p.answer, 69);
+      const add = MathProblem.add(27, 8);
+      expect(add.prompt, '27 + 8');
+      expect(add.answer, 35);
+      const times = MathProblem.times(6, 4);
+      expect(times.prompt, '6 × 4');
+      expect(times.answer, 24);
     });
   });
 
@@ -92,17 +102,19 @@ void main() {
   });
 
   group('EmergencyEscape', () {
-    test('the pledge grows with each escape this month, then caps', () {
-      final first = EmergencyEscape.pledge('en', usedThisMonth: 0);
-      final second = EmergencyEscape.pledge('en', usedThisMonth: 1);
-      final capped = EmergencyEscape.pledge('en', usedThisMonth: 99);
-      expect(second.length, greaterThan(first.length));
-      expect(second, startsWith(first));
-      expect(capped, EmergencyEscape.pledge('en', usedThisMonth: 3));
+    test('the pledge is one short sentence', () {
+      for (final lang in ['en', 'id']) {
+        final pledge = EmergencyEscape.pledge(lang);
+        expect(
+          pledge.split(RegExp(r'[.!?]')).where((s) => s.trim().isNotEmpty),
+          hasLength(1),
+        );
+        expect(pledge.length, lessThanOrEqualTo(32));
+      }
     });
 
     test('is localised', () {
-      expect(EmergencyEscape.pledge('id', usedThisMonth: 0), contains('misi'));
+      expect(EmergencyEscape.pledge('id'), contains('misi'));
     });
 
     test('matching ignores case, spacing and punctuation but not words', () {
@@ -119,12 +131,9 @@ void main() {
     });
 
     test('a couple of typos are forgiven, a different sentence is not', () {
-      final pledge = EmergencyEscape.pledge('id', usedThisMonth: 0);
+      final pledge = EmergencyEscape.pledge('id');
       expect(
-        EmergencyEscape.matches(
-          'aku benerab nggak bisa kerjain misi sekarang',
-          pledge,
-        ),
+        EmergencyEscape.matches('aku ngak bisa misi sekarang', pledge),
         isTrue,
       );
       expect(EmergencyEscape.matches('aku bisa', pledge), isFalse);

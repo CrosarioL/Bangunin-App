@@ -9,14 +9,17 @@ import 'package:wakio/features/ringing/presentation/widgets/emergency_escape_she
 import '../helpers/test_app.dart';
 
 void main() {
-  /// Reads the on-screen sum ("7 × 8 + 13 = ?") and returns its answer.
+  /// Reads the on-screen sum ("27 + 8 = ?" or "6 × 4 = ?") and returns its
+  /// answer.
   int currentAnswer(WidgetTester tester) {
     final prompt = tester
         .widgetList<Text>(find.byType(Text))
         .map((t) => t.data ?? '')
         .firstWhere((s) => s.endsWith('= ?'));
-    final m = RegExp(r'(\d+) × (\d+) \+ (\d+)').firstMatch(prompt)!;
-    return int.parse(m[1]!) * int.parse(m[2]!) + int.parse(m[3]!);
+    final m = RegExp(r'(\d+) ([×+]) (\d+)').firstMatch(prompt)!;
+    final a = int.parse(m[1]!);
+    final b = int.parse(m[3]!);
+    return m[2] == '×' ? a * b : a + b;
   }
 
   Future<void> enter(WidgetTester tester, int value) async {
@@ -79,10 +82,8 @@ void main() {
       testApp(
         child: Builder(
           builder: (context) => TextButton(
-            onPressed: () async => escaped = await showEmergencyEscapeSheet(
-              context,
-              usedThisMonth: 0,
-            ),
+            onPressed: () async =>
+                escaped = await showEmergencyEscapeSheet(context),
             child: const Text('open'),
           ),
         ),
@@ -107,7 +108,7 @@ void main() {
 
     await tester.enterText(
       find.byType(TextField),
-      EmergencyEscape.pledge('en', usedThisMonth: 0),
+      EmergencyEscape.pledge('en'),
     );
     await tester.pump();
     expect(await confirmEnabled(), isTrue);

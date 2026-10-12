@@ -474,12 +474,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Join thousands who replaced snoozing with real mornings.';
 
   @override
-  String get paywallFeatureMissions =>
-      'All wake-up missions: photos, squats, pushups';
+  String get paywallFeatureMissions => 'Every wake-up mission';
 
   @override
-  String get paywallFeatureSounds =>
-      'Custom alarm sounds from any audio or video';
+  String get paywallFeatureSounds => 'Your own alarm sounds';
 
   @override
   String get paywallFeatureStreaks => 'Streaks and morning statistics';
