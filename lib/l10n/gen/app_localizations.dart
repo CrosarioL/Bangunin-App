@@ -2215,6 +2215,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Bangunin Premium starts tomorrow. Not for you? Cancel in {store} before then.'**
   String trialReminderBody(String store);
+
+  /// No description provided for @tutorialWelcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'👋 Welcome to Bangunin!'**
+  String get tutorialWelcomeTitle;
+
+  /// No description provided for @tutorialWelcomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m here to help you build a morning routine you\'ll actually love. Let\'s take a quick tour!'**
+  String get tutorialWelcomeBody;
+
+  /// No description provided for @tutorialAlarmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'✚  Create your alarm'**
+  String get tutorialAlarmTitle;
+
+  /// No description provided for @tutorialAlarmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap this button to set a new alarm. Pick your time, choose a mission, and you\'re set!'**
+  String get tutorialAlarmBody;
+
+  /// No description provided for @tutorialStreakTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'🔥  Track your streak'**
+  String get tutorialStreakTitle;
+
+  /// No description provided for @tutorialStreakBody.
+  ///
+  /// In en, this message translates to:
+  /// **'See how many days in a row you\'ve woken up on time. Keep the streak alive!'**
+  String get tutorialStreakBody;
+
+  /// No description provided for @tutorialSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'⚙️  Settings & support'**
+  String get tutorialSettingsTitle;
+
+  /// No description provided for @tutorialSettingsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Find your subscription, privacy policy, terms, and contact support here.'**
+  String get tutorialSettingsBody;
+
+  /// No description provided for @tutorialSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get tutorialSkip;
+
+  /// No description provided for @tutorialNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get tutorialNext;
+
+  /// No description provided for @tutorialGotIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it!'**
+  String get tutorialGotIt;
 }
 
 class _AppLocalizationsDelegate

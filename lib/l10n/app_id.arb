@@ -352,5 +352,16 @@
   "obReminderDayBody": "Kami kirim pengingat bahwa uji cobamu berakhir besok.",
   "obReminderEndBody": "Langgananmu dimulai, kecuali kamu sudah membatalkan.",
   "trialReminderTitle": "Uji coba gratismu berakhir besok",
-  "trialReminderBody": "Bangunin Premium dimulai besok. Nggak cocok? Batalkan di {store} sebelum itu."
+  "trialReminderBody": "Bangunin Premium dimulai besok. Nggak cocok? Batalkan di {store} sebelum itu.",
+  "tutorialWelcomeTitle": "👋 Selamat datang di Bangunin!",
+  "tutorialWelcomeBody": "Aku bantu kamu bikin rutinitas pagi yang beneran kamu suka. Yuk, lihat-lihat sebentar!",
+  "tutorialAlarmTitle": "✚  Buat alarmmu",
+  "tutorialAlarmBody": "Ketuk tombol ini untuk pasang alarm baru. Pilih jam, pilih misi, beres!",
+  "tutorialStreakTitle": "🔥  Pantau streak-mu",
+  "tutorialStreakBody": "Lihat berapa hari berturut-turut kamu bangun tepat waktu. Jaga terus streak-nya!",
+  "tutorialSettingsTitle": "⚙️  Pengaturan & bantuan",
+  "tutorialSettingsBody": "Langganan, kebijakan privasi, ketentuan, dan kontak bantuan ada di sini.",
+  "tutorialSkip": "Lewati",
+  "tutorialNext": "Lanjut",
+  "tutorialGotIt": "Siap!"
 }

@@ -1225,4 +1225,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String trialReminderBody(String store) {
     return 'Bangunin Premium starts tomorrow. Not for you? Cancel in $store before then.';
   }
+
+  @override
+  String get tutorialWelcomeTitle => '👋 Welcome to Bangunin!';
+
+  @override
+  String get tutorialWelcomeBody =>
+      'I\'m here to help you build a morning routine you\'ll actually love. Let\'s take a quick tour!';
+
+  @override
+  String get tutorialAlarmTitle => '✚  Create your alarm';
+
+  @override
+  String get tutorialAlarmBody =>
+      'Tap this button to set a new alarm. Pick your time, choose a mission, and you\'re set!';
+
+  @override
+  String get tutorialStreakTitle => '🔥  Track your streak';
+
+  @override
+  String get tutorialStreakBody =>
+      'See how many days in a row you\'ve woken up on time. Keep the streak alive!';
+
+  @override
+  String get tutorialSettingsTitle => '⚙️  Settings & support';
+
+  @override
+  String get tutorialSettingsBody =>
+      'Find your subscription, privacy policy, terms, and contact support here.';
+
+  @override
+  String get tutorialSkip => 'Skip';
+
+  @override
+  String get tutorialNext => 'Next';
+
+  @override
+  String get tutorialGotIt => 'Got it!';
 }

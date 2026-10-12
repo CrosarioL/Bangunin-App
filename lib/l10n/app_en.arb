@@ -653,5 +653,16 @@
         "type": "String"
       }
     }
-  }
+  },
+  "tutorialWelcomeTitle": "👋 Welcome to Bangunin!",
+  "tutorialWelcomeBody": "I'm here to help you build a morning routine you'll actually love. Let's take a quick tour!",
+  "tutorialAlarmTitle": "✚  Create your alarm",
+  "tutorialAlarmBody": "Tap this button to set a new alarm. Pick your time, choose a mission, and you're set!",
+  "tutorialStreakTitle": "🔥  Track your streak",
+  "tutorialStreakBody": "See how many days in a row you've woken up on time. Keep the streak alive!",
+  "tutorialSettingsTitle": "⚙️  Settings & support",
+  "tutorialSettingsBody": "Find your subscription, privacy policy, terms, and contact support here.",
+  "tutorialSkip": "Skip",
+  "tutorialNext": "Next",
+  "tutorialGotIt": "Got it!"
 }

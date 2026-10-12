@@ -141,29 +141,25 @@ class _AppShellState extends ConsumerState<AppShell> {
             steps: [
               CoachMarkStep(
                 targetKey: null,
-                title: '\u{1F44B} Welcome to Bangunin!',
-                body:
-                    'I\'m here to help you build a morning routine you\'ll actually love. Let\'s take a quick tour!',
+                title: context.l10n.tutorialWelcomeTitle,
+                body: context.l10n.tutorialWelcomeBody,
               ),
               CoachMarkStep(
                 targetKey: fabKey,
-                title: '\u{271A}  Create your alarm',
-                body:
-                    'Tap this button to set a new alarm. Pick your time, choose a mission, and you\'re set!',
+                title: context.l10n.tutorialAlarmTitle,
+                body: context.l10n.tutorialAlarmBody,
                 bubblePosition: BubblePosition.above,
               ),
               CoachMarkStep(
                 targetKey: streakTabKey,
-                title: '\u{1F525}  Track your streak',
-                body:
-                    'See how many days in a row you\'ve woken up on time. Keep the streak alive!',
+                title: context.l10n.tutorialStreakTitle,
+                body: context.l10n.tutorialStreakBody,
                 bubblePosition: BubblePosition.above,
               ),
               CoachMarkStep(
                 targetKey: settingsTabKey,
-                title: '\u{2699}\u{FE0F}  Settings & support',
-                body:
-                    'Find your subscription, privacy policy, terms, and contact support here.',
+                title: context.l10n.tutorialSettingsTitle,
+                body: context.l10n.tutorialSettingsBody,
                 bubblePosition: BubblePosition.above,
               ),
             ],

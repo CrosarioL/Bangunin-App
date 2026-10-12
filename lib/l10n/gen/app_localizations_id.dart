@@ -1231,4 +1231,41 @@ class AppLocalizationsId extends AppLocalizations {
   String trialReminderBody(String store) {
     return 'Bangunin Premium dimulai besok. Nggak cocok? Batalkan di $store sebelum itu.';
   }
+
+  @override
+  String get tutorialWelcomeTitle => '👋 Selamat datang di Bangunin!';
+
+  @override
+  String get tutorialWelcomeBody =>
+      'Aku bantu kamu bikin rutinitas pagi yang beneran kamu suka. Yuk, lihat-lihat sebentar!';
+
+  @override
+  String get tutorialAlarmTitle => '✚  Buat alarmmu';
+
+  @override
+  String get tutorialAlarmBody =>
+      'Ketuk tombol ini untuk pasang alarm baru. Pilih jam, pilih misi, beres!';
+
+  @override
+  String get tutorialStreakTitle => '🔥  Pantau streak-mu';
+
+  @override
+  String get tutorialStreakBody =>
+      'Lihat berapa hari berturut-turut kamu bangun tepat waktu. Jaga terus streak-nya!';
+
+  @override
+  String get tutorialSettingsTitle => '⚙️  Pengaturan & bantuan';
+
+  @override
+  String get tutorialSettingsBody =>
+      'Langganan, kebijakan privasi, ketentuan, dan kontak bantuan ada di sini.';
+
+  @override
+  String get tutorialSkip => 'Lewati';
+
+  @override
+  String get tutorialNext => 'Lanjut';
+
+  @override
+  String get tutorialGotIt => 'Siap!';
 }

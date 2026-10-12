@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/widgets/bangunin_mascot.dart';
 import '../../../../app/widgets/primary_button.dart';
+import '../../../../core/utils/l10n_ext.dart';
 
 /// A single coach-mark step definition.
 class CoachMarkStep {
@@ -143,8 +144,8 @@ class _CoachMarkOverlayState extends State<CoachMarkOverlay>
                     color: Colors.white.withValues(alpha: .15),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Text(
-                    'Skip',
+                  child: Text(
+                    context.l10n.tutorialSkip,
                     style: TextStyle(
                       color: Colors.white70,
                       fontFamily: 'Nunito',
@@ -270,7 +271,9 @@ class _CoachMarkOverlayState extends State<CoachMarkOverlay>
                   height: 48,
                   child: PrimaryButton(
                     onPressed: _next,
-                    label: isLast ? 'Got it!' : 'Next',
+                    label: isLast
+                        ? context.l10n.tutorialGotIt
+                        : context.l10n.tutorialNext,
                   ),
                 ),
               ],
